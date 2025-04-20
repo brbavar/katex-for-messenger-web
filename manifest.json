@@ -1,0 +1,23 @@
+{
+  "manifest_version": 3,
+  "name": "KaTeX for Facebook",
+  "version": "1.0",
+  "description": "Render mathematical notation on Facebook.",
+  "permissions": [],
+  "content_scripts": [
+    {
+      "matches": ["https://www.facebook.com/*", "https://www.messenger.com/*"],
+      "js": ["content.js"]
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "katex/katex.min.js",
+        "katex/katex.min.css",
+        "katex/fonts/*"
+      ],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}
