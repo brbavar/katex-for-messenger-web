@@ -9,56 +9,10 @@
   font-family: KaTeX_Main;
 }
 
-/* section.katex-wrapper {
-  display: block;
-  padding: 0 10px;
-  background-color: red;
-  border-radius: 30px;
-} */
-
-/* body._6s5d._71pn.system-fonts--body.sf {
-  background-color: rgba(0, 0, 0, 0) !important;
-} */
-
-/* :root, .__fb-light-mode:root, .__fb-light-mode {
-
-} */
-
 div.html-div.xdj266r.x11i5rnm.xat24cr.x1mh8g0r.xexx8yu.x4uap5.x18d9i69.xkhd6sd.xeuugli.x1vjfegm:has(
     > span.katex-span
   ) {
   padding: 0 10px;
   background-color: red;
   border-radius: 30px;
-
-  /* clip-path: rect(5px 145px 160px 5px round 20%) !important; */
 }
-
-/* div.html-div.xdj266r.x11i5rnm.xat24cr.x1mh8g0r.xexx8yu.x4uap5.x18d9i69.xkhd6sd.xeuugli.x1vjfegm:has(
-    > span.katex-span
-  ):before {
-  content: '';
-  display: block;
-  position: absolute;
-  top: 0px;
-  left: -20%;
-  width: 150%;
-  height: 150%;
-  border-radius: 50%;
-  background: #ddd;
-  z-index: -1;
-} */
-
-/* :has(
-    > div.html-div.xdj266r.x11i5rnm.xat24cr.x1mh8g0r.xexx8yu.x4uap5.x18d9i69.xkhd6sd.xeuugli.x1vjfegm:has(
-        > span.katex-span
-      )
-  ) {
-  border-radius: 30px;
-} */
-
-/* div:has(> span.katex-span) {
-  padding: 0 10px;
-  background-color: red;
-  border-radius: 30px;
-} */
