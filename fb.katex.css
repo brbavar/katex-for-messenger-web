@@ -1,0 +1,10 @@
+#facebook .system-fonts--body div.html-div > span.katex-span {
+  font-family: KaTeX_Size2;
+}
+
+#facebook
+  .system-fonts--body
+  div.html-div
+  span.katex-span:is(.sizing, .reset-size6, .size3, .mtight, .mord) {
+  font-family: KaTeX_Main;
+}
