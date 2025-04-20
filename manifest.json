@@ -12,13 +12,8 @@
   ],
   "web_accessible_resources": [
     {
-      "resources": [
-        "katex/katex.min.css",
-        "katex/fonts/*",
-        "scripts/render.js"
-      ],
-      "matches": ["<all_urls>"],
-      "type": "module"
+      "resources": ["katex/katex.min.css", "katex/fonts/*"],
+      "matches": ["<all_urls>"]
     }
   ]
 }

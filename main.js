@@ -1,48 +1,4 @@
-// import katex from 'katex';
-
-// (async () => {
-//   //   const katex = await import('katex');
-//   const katex = await import(
-//     'https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.js'
-//   );
-// })();
-
 console.log('katex-for-facebook is running');
-
-// const katexScript = document.createElement('script');
-// // fetch(chrome.runtime.getURL('katex/katex.min.js'))
-// //   .then((r) => r.text())
-// //   .then((text) => console.log('Injected script content:\n', text));
-// katexScript.type = 'text/javascript';
-// katexScript.src = chrome.runtime.getURL('katex/katex.min.js');
-// katexScript.id = 'katex-script';
-// katexScript.onload = () => {
-//   console.log('KaTeX loaded!', window.katex);
-// };
-// document.head.appendChild(katexScript);
-
-// const renderScript = document.createElement('script');
-// // renderScript.textContent = `
-// //     (() => {
-// //         while (!('katex' in window)) {
-// //             setTimeout(() => {
-// //                 console.log('still no window.katex!');
-// //             }, 50);
-// //         }
-// //         window.katex.render(txt.substring(texStart + 2, texEnd), msg);
-// //     })()
-// // `;
-// // document.head.appendChild(renderScript);
-// renderScript.type = 'module';
-// renderScript.src = chrome.runtime.getURL('scripts/render.js');
-// document.head.appendChild(renderScript);
-
-// window.addEventListener('message', (event) => {
-//   if (event.source !== window) return; // only accept messages from the page itself
-//   if (event.data.type && event.data.type === 'FROM_PAGE') {
-//     console.log('Content script received: ', event.data.payload);
-//   }
-// });
 
 const link = document.createElement('link');
 link.rel = 'stylesheet';
@@ -69,22 +25,9 @@ const childListObserver = new MutationObserver((mutations) => {
 
           if (texStart != -1 && texEnd != -1) {
             console.log(txt.substring(texStart + 2, texEnd));
-
-            // while (!('katex' in window)) {
-            //   setTimeout(() => {
-            //     console.log('still no window.katex!');
-            //   }, 50);
-            // }
-            // window.katex.render(txt.substring(texStart + 2, texEnd), msg);
             katex.render(txt.substring(texStart + 2, texEnd), msg);
-
-            // renderScript.textContent += `window.katex.render(${
-            //   (txt.substring(texStart + 2, texEnd), msg)
-            // });`;
           }
         });
-
-        // document.head.appendChild(renderScript);
       }
     });
   });
