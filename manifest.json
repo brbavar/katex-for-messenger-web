@@ -7,17 +7,18 @@
   "content_scripts": [
     {
       "matches": ["https://www.facebook.com/*", "https://www.messenger.com/*"],
-      "js": ["content.js"]
+      "js": ["katex/katex.min.js", "main.js"]
     }
   ],
   "web_accessible_resources": [
     {
       "resources": [
-        "katex/katex.min.js",
         "katex/katex.min.css",
-        "katex/fonts/*"
+        "katex/fonts/*",
+        "scripts/render.js"
       ],
-      "matches": ["<all_urls>"]
+      "matches": ["<all_urls>"],
+      "type": "module"
     }
   ]
 }
