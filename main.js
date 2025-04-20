@@ -28,7 +28,16 @@ const childListObserver = new MutationObserver((mutations) => {
           const texEnd = txt.indexOf('$$', texStart + 2);
 
           if (texStart != -1 && texEnd != -1) {
-            // let parent = msg.parentNode;
+            let parent = msg.parentNode;
+
+            // katex.render(
+            //   '{\\color{white} ' + txt.substring(texStart + 2, texEnd) + '}',
+            //   msg,
+            //   {
+            //     displayMode: true,
+            //     output: 'html',
+            //   }
+            // );
 
             katex.render(txt.substring(texStart + 2, texEnd), msg, {
               displayMode: true,
@@ -39,6 +48,8 @@ const childListObserver = new MutationObserver((mutations) => {
             spans.forEach((span) => {
               span.classList.add('katex-span');
             });
+
+            // parent.classList.add('x1k4qllp');
           }
         });
       }
