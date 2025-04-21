@@ -1,14 +1,53 @@
-const katexMinCSS = document.createElement('link');
-katexMinCSS.rel = 'stylesheet';
-katexMinCSS.href = chrome.runtime.getURL('katex/katex.min.css');
-katexMinCSS.type = 'text/css';
-document.head.appendChild(katexMinCSS);
+const katexMinCss = document.createElement('link');
+katexMinCss.rel = 'stylesheet';
+katexMinCss.href = chrome.runtime.getURL('katex/katex.min.css');
+katexMinCss.type = 'text/css';
+document.head.appendChild(katexMinCss);
 
-const fbKatexCSS = document.createElement('link');
-fbKatexCSS.rel = 'stylesheet';
-fbKatexCSS.href = chrome.runtime.getURL('fb.katex.css');
-fbKatexCSS.type = 'text/css';
-document.head.appendChild(fbKatexCSS);
+const fbKatexCss = document.createElement('link');
+fbKatexCss.rel = 'stylesheet';
+fbKatexCss.href = chrome.runtime.getURL('fb.katex.css');
+fbKatexCss.type = 'text/css';
+document.head.appendChild(fbKatexCss);
+
+const getTexBounds = (openingDelim, txt) => {
+  let dlmChar1 = openingDelim[0],
+    dlmChar2 = openingDelim[1];
+
+  for (let i = 0; i < txt.length; i++) {
+    let j = 0;
+
+    if (txt[i] === dlmChar1 && txt[i + 1] === dlmChar2) {
+      j = i + 2;
+
+      while (
+        j + 1 < txt.length &&
+        !(txt[j] === dlmChar1 && txt[j + 1] === (dlmChar1 === '$' ? '$' : ')'))
+      ) {
+        j++;
+      }
+
+      if (
+        txt[j] === dlmChar1 &&
+        txt[j + 1] === (dlmChar1 === '$' ? '$' : ')')
+      ) {
+        return [i, j];
+      } else {
+        return;
+      }
+    }
+  }
+};
+
+const renderTex = (renderType, msg, texBounds) => {
+  for (let pair of texBounds[renderType]) {
+    if (pair != null && pair.length > 1) {
+      katex.render(msg.textContent.substring(pair[0] + 2, pair[1]), msg, {
+        displayMode: renderType,
+      });
+    }
+  }
+};
 
 const childListObserver = new MutationObserver((mutations) => {
   mutations.forEach((mutation) => {
@@ -22,12 +61,49 @@ const childListObserver = new MutationObserver((mutations) => {
         messages.forEach((msg) => {
           const txt = msg.textContent;
 
-          console.log(txt);
+          // console.log(txt);
 
-          const texStart = txt.indexOf('$$');
-          const texEnd = txt.indexOf('$$', texStart + 2);
+          const texBounds = [[], []];
 
-          if (texStart != -1 && texEnd != -1) {
+          // for (let i = 0; i < txt.length; i++) {
+          //   let j = 0;
+          //   if (txt[i] === '$' && txt[i + 1] === '$') {
+          //     j = i + 2;
+
+          //     while (
+          //       j + 1 < txt.length &&
+          //       !(txt[j] === '$' && txt[j + 1] === '$')
+          //     ) {
+          //       j++;
+          //     }
+
+          //     if (txt[j] === '$' && txt[j + 1] === '$') {
+          //       texBounds[0].push([i, j]);
+          //     }
+          //   }
+          //   if (txt[i] === '\\' && txt[i + 1] === '(') {
+          //     j = i + 2;
+
+          //     while (
+          //       j + 1 < txt.length &&
+          //       !(txt[j] === '\\' && txt[j + 1] === ')')
+          //     ) {
+          //       j++;
+          //     }
+
+          //     if (j + 1 < txt.length && txt[j] === '\\' && txt[j + 1] === ')') {
+          //       texBounds[1].push([i, j]);
+          //     }
+          //   }
+          // }
+
+          texBounds[0].push(getTexBounds('\\(', txt));
+
+          texBounds[1].push(getTexBounds('$$', txt));
+
+          // console.log('texBounds: ' + texBounds);
+
+          if (texBounds[0].length > 0 || texBounds[1].length > 0) {
             let parent = msg.parentNode;
 
             while (parent != null) {
@@ -38,10 +114,25 @@ const childListObserver = new MutationObserver((mutations) => {
             parent.style.border =
               '14px solid var(--mwp-message-row-background)';
 
-            katex.render(txt.substring(texStart + 2, texEnd), msg, {
-              displayMode: true,
-              output: 'html',
-            });
+            // for (displayBounds of texBounds[0]) {
+            //   katex.render(
+            //     txt.substring(displayBounds[0] + 2, displayBounds[1]),
+            //     msg,
+            //     { displayMode: true }
+            //   );
+            // }
+
+            // for (inlineBounds of texBounds[1]) {
+            //   katex.render(
+            //     txt.substring(inlineBounds[0] + 2, inlineBounds[1]),
+            //     msg,
+            //     { displayMode: false }
+            //   );
+            // }
+
+            renderTex(0, msg, texBounds);
+
+            renderTex(1, msg, texBounds);
 
             const spans = msg.querySelectorAll('span');
             spans.forEach((span) => {

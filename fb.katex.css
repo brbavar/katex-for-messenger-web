@@ -1,5 +1,5 @@
 #facebook .system-fonts--body div.html-div > span.katex-span {
-  font-family: KaTeX_Size2;
+  font-family: KaTeX_Size2; /* Perhaps this font is only appropriate for display mode */
   color: white;
 }
 
