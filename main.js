@@ -30,15 +30,6 @@ const childListObserver = new MutationObserver((mutations) => {
           if (texStart != -1 && texEnd != -1) {
             let parent = msg.parentNode;
 
-            // katex.render(
-            //   '{\\color{white} ' + txt.substring(texStart + 2, texEnd) + '}',
-            //   msg,
-            //   {
-            //     displayMode: true,
-            //     output: 'html',
-            //   }
-            // );
-
             while (parent != null) {
               if (parent.role === 'row') break;
               parent = parent.parentNode;
@@ -56,20 +47,6 @@ const childListObserver = new MutationObserver((mutations) => {
             spans.forEach((span) => {
               span.classList.add('katex-span');
             });
-
-            // const breaks = [];
-            // for (let i = 0; i < 5; i++)
-            //   breaks.push(document.createElement('br'));
-
-            // // spacer.style.height = '15px';
-            // // spacer.style.width = window
-            // //   .getComputedStyle(msg)
-            // //   .getPropertyValue('width');
-            // // spacer.style.backgroundColor = 'var(--mwp-message-row-background);';
-
-            // for (br of breaks) parent.insertBefore(br, msg);
-
-            // parent.classList.add('x1k4qllp');
           }
         });
       }
