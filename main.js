@@ -1,14 +1,12 @@
-const katexMinCss = document.createElement('link');
-katexMinCss.rel = 'stylesheet';
-katexMinCss.href = chrome.runtime.getURL('katex/katex.min.css');
-katexMinCss.type = 'text/css';
-document.head.appendChild(katexMinCss);
+const injectCss = (filePath) => {
+  const css = document.createElement('link');
+  css.rel = 'stylesheet';
+  css.href = chrome.runtime.getURL(filePath);
+  css.type = 'text/css';
+  document.head.appendChild(css);
+};
 
-const fbKatexCss = document.createElement('link');
-fbKatexCss.rel = 'stylesheet';
-fbKatexCss.href = chrome.runtime.getURL('fb.katex.css');
-fbKatexCss.type = 'text/css';
-document.head.appendChild(fbKatexCss);
+for (filePath of ['katex/katex.min.css', 'fb.katex.css']) injectCss(filePath);
 
 const getTexBounds = (openingDelim, txt) => {
   let dlmChar1 = openingDelim[0],
