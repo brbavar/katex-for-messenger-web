@@ -61,47 +61,10 @@ const childListObserver = new MutationObserver((mutations) => {
         messages.forEach((msg) => {
           const txt = msg.textContent;
 
-          // console.log(txt);
-
           const texBounds = [[], []];
 
-          // for (let i = 0; i < txt.length; i++) {
-          //   let j = 0;
-          //   if (txt[i] === '$' && txt[i + 1] === '$') {
-          //     j = i + 2;
-
-          //     while (
-          //       j + 1 < txt.length &&
-          //       !(txt[j] === '$' && txt[j + 1] === '$')
-          //     ) {
-          //       j++;
-          //     }
-
-          //     if (txt[j] === '$' && txt[j + 1] === '$') {
-          //       texBounds[0].push([i, j]);
-          //     }
-          //   }
-          //   if (txt[i] === '\\' && txt[i + 1] === '(') {
-          //     j = i + 2;
-
-          //     while (
-          //       j + 1 < txt.length &&
-          //       !(txt[j] === '\\' && txt[j + 1] === ')')
-          //     ) {
-          //       j++;
-          //     }
-
-          //     if (j + 1 < txt.length && txt[j] === '\\' && txt[j + 1] === ')') {
-          //       texBounds[1].push([i, j]);
-          //     }
-          //   }
-          // }
-
           texBounds[0].push(getTexBounds('\\(', txt));
-
           texBounds[1].push(getTexBounds('$$', txt));
-
-          // console.log('texBounds: ' + texBounds);
 
           if (texBounds[0].length > 0 || texBounds[1].length > 0) {
             let parent = msg.parentNode;
@@ -114,24 +77,7 @@ const childListObserver = new MutationObserver((mutations) => {
             parent.style.border =
               '14px solid var(--mwp-message-row-background)';
 
-            // for (displayBounds of texBounds[0]) {
-            //   katex.render(
-            //     txt.substring(displayBounds[0] + 2, displayBounds[1]),
-            //     msg,
-            //     { displayMode: true }
-            //   );
-            // }
-
-            // for (inlineBounds of texBounds[1]) {
-            //   katex.render(
-            //     txt.substring(inlineBounds[0] + 2, inlineBounds[1]),
-            //     msg,
-            //     { displayMode: false }
-            //   );
-            // }
-
             renderTex(0, msg, texBounds);
-
             renderTex(1, msg, texBounds);
 
             const spans = msg.querySelectorAll('span');
