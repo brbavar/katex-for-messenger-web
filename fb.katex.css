@@ -62,3 +62,9 @@ div[aria-label='Edited']
   display: block;
   padding-bottom: 7px;
 }
+
+/* Prevent edited chat bubble outline from overlapping edits shown above it */
+div[data-scope='messages_table'][role='gridcell']
+  > div[role='none'].x1eb86dx.x193iq5w.x1vjfegm.x1lliihq.x1sxyh0 {
+  padding-bottom: 12px;
+}
