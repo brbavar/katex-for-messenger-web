@@ -10,17 +10,8 @@
   div.html-div
   > span.katex-display
   :where(.mop, .op-limits) {
-  font-family: KaTeX_Size2; /* Perhaps this font is only appropriate for display mode */
-  /* Sometimes it's inappropriate even for display mode, apparently */
+  font-family: KaTeX_Size2;
 }
-
-/* #facebook
-  .system-fonts--body
-  div.html-div
-  > span.katex-display
-  span:where(.mord, .mathnormal, .mopen, .) {
-  font-family: KaTeX_Main;
-} */
 
 #facebook
   .system-fonts--body
@@ -31,7 +22,7 @@
   .system-fonts--body
   div.html-div
   > span:where(.katex, .katex-display)
-  /* :where(.mrel, .mbin) */ :not(.mop, .op-limits) {
+  :not(.mop, .op-limits) {
   font-family: KaTeX_Main;
 }
 
