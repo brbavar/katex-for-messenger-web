@@ -9,62 +9,80 @@ const injectCss = (filePath) => {
 for (filePath of ['katex/katex.min.css', 'fb.katex.css']) injectCss(filePath);
 
 const getTexBounds = (openingDelim, txt) => {
-  let dlmChar1 = openingDelim[0],
-    dlmChar2 = openingDelim[1];
+  let char1open = openingDelim[0],
+    char2open = openingDelim[1];
 
-  const displayTexEnclosed = dlmChar1 === '$';
+  const displayTexEnclosed = char1open === '$';
 
-  for (let i = 0; i < txt.length; i++) {
-    let j = 0;
+  const openingDlmFound = (l) => {
+    return txt[l] === char1open && txt[l + 1] === char2open;
+  };
 
-    if (txt[i] === dlmChar1 && txt[i + 1] === dlmChar2) {
-      j = i + 2;
+  const closingDlmFound = (r) => {
+    return (
+      txt[r] === char1open && txt[r + 1] === (displayTexEnclosed ? '$' : ')')
+    );
+  };
 
-      while (
-        j + 1 < txt.length &&
-        !(
-          txt[j] === dlmChar1 && txt[j + 1] === (displayTexEnclosed ? '$' : ')')
-        )
-      ) {
-        j++;
+  let l = 0,
+    r = 0;
+  while (l < txt.length) {
+    if (openingDlmFound(l)) {
+      r = l + 2;
+
+      while (r + 1 < txt.length && !closingDlmFound(r)) {
+        if (openingDlmFound(r)) {
+          l = r;
+          r += 2;
+        } else {
+          r++;
+        }
       }
 
-      if (
-        txt[j] === dlmChar1 &&
-        txt[j + 1] === (displayTexEnclosed ? '$' : ')')
-      ) {
-        return [i, j];
+      if (closingDlmFound(r)) {
+        return [l, r];
       } else {
-        return;
+        return [];
       }
+    } else {
+      l++;
     }
   }
+
+  return [];
 };
 
-const preserveNonTex = (txt, precedesTex, msg) => {
+const preserveNonTex = (txt, precedesTex, div, renderType) => {
   if (txt !== '') {
-    const div = document.createElement('div');
-    div.classList.add(`${precedesTex ? 'pre' : 'post'}-tex`);
-    div.textContent = txt;
-    if (precedesTex) msg.insertBefore(div, msg.children[0]);
-    else msg.appendChild(div);
+    const newDiv = document.createElement('div');
+    newDiv.classList.add(`${precedesTex ? 'pre' : 'post'}-tex`);
+    newDiv.textContent = txt;
+    if (precedesTex) div.insertBefore(newDiv, div.children[0]);
+    else {
+      div.appendChild(newDiv);
+
+      let bounds = [[], []];
+      bounds[renderType].push(...getTexBounds(renderType ? '$$' : '\\(', txt));
+      if (bounds[renderType].length > 0) {
+        renderTex(renderType, newDiv, bounds);
+      }
+    }
   }
 };
 
 const renderTex = (renderType, msg, texBounds) => {
-  for (let pair of texBounds[renderType]) {
-    if (pair != null && pair.length > 1) {
-      const origTxt = msg.textContent;
-      const preTex = origTxt.substring(0, pair[0]);
-      const postTex = origTxt.substring(pair[1] + 2);
+  const bounds = texBounds[renderType];
+  if (bounds.length > 1) {
+    const origTxt = msg.textContent;
+    const preTex = origTxt.substring(0, bounds[0]);
+    const postTex = origTxt.substring(bounds[1] + 2);
 
-      katex.render(origTxt.substring(pair[0] + 2, pair[1]), msg, {
-        displayMode: renderType,
-      });
+    katex.render(origTxt.substring(bounds[0] + 2, bounds[1]), msg, {
+      displayMode: renderType,
+    });
 
-      preserveNonTex(preTex, true, msg);
-      preserveNonTex(postTex, false, msg);
-    }
+    preserveNonTex(preTex, true, msg, renderType);
+    preserveNonTex(postTex, false, msg, renderType);
   }
 };
 
@@ -73,22 +91,26 @@ const childListObserver = new MutationObserver((mutations) => {
     mutation.addedNodes.forEach((node) => {
       const nodeType = node.constructor.name;
       if (nodeType === 'HTMLDivElement') {
-        const messages = node.querySelectorAll(
-          '.html-div.xdj266r.x11i5rnm.xat24cr.x1mh8g0r.xexx8yu.x4uap5.x18d9i69.xkhd6sd.xeuugli.x1vjfegm'
+        const yourMessages = node.querySelectorAll(
+          '.html-div.x11i5rnm.x1mh8g0r.xexx8yu.x4uap5.x18d9i69.xkhd6sd.xat24cr.xdj266r.xeuugli.x1vjfegm'
+        );
+        const theirMessages = node.querySelectorAll(
+          'html-div.x11i5rnm.x1mh8g0r.xexx8yu.x4uap5.x18d9i69.xkhd6sd.x1gslohp.x12nagc.x1yc453h.x126k92a.x18lvrbx'
         );
 
-        messages.forEach((msg) => {
+        // const messages = node.querySelectorAll(
+        //   '.html-div.x11i5rnm.x1mh8g0r.xexx8yu.x4uap5.x18d9i69.xkhd6sd'
+        // );
+        [...yourMessages, ...theirMessages].forEach((msg) => {
           const txt = msg.textContent;
 
           const texBounds = [[], []];
 
-          texBounds[0].push(getTexBounds('\\(', txt));
-          texBounds[1].push(getTexBounds('$$', txt));
+          texBounds[0].push(...getTexBounds('\\(', txt));
+          texBounds[1].push(...getTexBounds('$$', txt));
 
-          const inlineTexFound =
-            texBounds[0].length > 0 && texBounds[0][0] !== undefined;
-          const displayTexFound =
-            texBounds[1].length > 0 && texBounds[1][0] !== undefined;
+          const inlineTexFound = texBounds[0].length > 0;
+          const displayTexFound = texBounds[1].length > 0;
 
           if (inlineTexFound || displayTexFound) {
             let parent = msg.parentNode;
