@@ -64,7 +64,15 @@ const childListObserver = new MutationObserver((mutations) => {
           texBounds[0].push(getTexBounds('\\(', txt));
           texBounds[1].push(getTexBounds('$$', txt));
 
-          if (texBounds[0].length > 0 || texBounds[1].length > 0) {
+          const inlineTexFound =
+            texBounds[0].length > 0 && texBounds[0][0] !== undefined;
+          const displayTexFound =
+            texBounds[1].length > 0 && texBounds[1][0] !== undefined;
+
+          if (inlineTexFound || displayTexFound) {
+            console.log('texBounds[0][0]: ' + texBounds[0][0]);
+            console.log('texBounds[1][0]: ' + texBounds[1][0]);
+
             let parent = msg.parentNode;
 
             while (parent != null) {
@@ -77,11 +85,6 @@ const childListObserver = new MutationObserver((mutations) => {
 
             renderTex(0, msg, texBounds);
             renderTex(1, msg, texBounds);
-
-            const spans = msg.querySelectorAll('span');
-            spans.forEach((span) => {
-              span.classList.add('katex-span');
-            });
           }
         });
       }
