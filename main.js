@@ -44,9 +44,42 @@ const getTexBounds = (openingDelim, txt) => {
 const renderTex = (renderType, msg, texBounds) => {
   for (let pair of texBounds[renderType]) {
     if (pair != null && pair.length > 1) {
-      katex.render(msg.textContent.substring(pair[0] + 2, pair[1]), msg, {
+      const origTxt = msg.textContent;
+      const preTex = origTxt.substring(0, pair[0]);
+      const postTex = origTxt.substring(pair[1] + 2);
+
+      katex.render(origTxt.substring(pair[0] + 2, pair[1]), msg, {
         displayMode: renderType,
       });
+
+      // msg.textContent =
+      //   origTxt.substring(0, pair[0]) +
+      //   msg.textContent +
+      //   origTxt.substring(pair[1] + 2);
+
+      if (preTex !== '') {
+        const preTexDiv = document.createElement('div');
+        preTexDiv.textContent = preTex;
+
+        preTexDiv.style.color = 'white';
+        preTexDiv.style.paddingTop = '20px';
+
+        // msg.insertBefore(
+        //   preTexDiv,
+        //   msg.querySelector('span:where(.katex, .katex-display)')
+        // );
+        msg.insertBefore(preTexDiv, msg.children[0]);
+      }
+
+      if (postTex !== '') {
+        const postTexDiv = document.createElement('div');
+        postTexDiv.textContent = postTex;
+
+        postTexDiv.style.color = 'white';
+        postTexDiv.style.paddingBottom = '20px';
+
+        msg.appendChild(postTexDiv);
+      }
     }
   }
 };
