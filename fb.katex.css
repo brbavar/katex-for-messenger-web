@@ -1,14 +1,14 @@
 #facebook .system-fonts--body div.html-div > span:where(.katex, .katex-display),
-.pre-tex-div,
-.post-tex-div {
+div.pre-tex,
+div.post-tex {
   color: white;
 }
 
-.pre-tex-div {
+div.pre-tex {
   padding-top: 20px;
 }
 
-.post-tex-div {
+div.post-tex {
   padding-bottom: 20px;
 }
 

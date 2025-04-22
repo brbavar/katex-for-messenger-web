@@ -44,7 +44,7 @@ const getTexBounds = (openingDelim, txt) => {
 const preserveNonTex = (txt, precedesTex, msg) => {
   if (txt !== '') {
     const div = document.createElement('div');
-    div.classList.add(`${precedesTex ? 'pre' : 'post'}-tex-div`);
+    div.classList.add(`${precedesTex ? 'pre' : 'post'}-tex`);
     div.textContent = txt;
     if (precedesTex) msg.insertBefore(div, msg.children[0]);
     else msg.appendChild(div);
