@@ -1,8 +1,15 @@
-#facebook
-  .system-fonts--body
-  div.html-div
-  > span:where(.katex, .katex-display) {
+#facebook .system-fonts--body div.html-div > span:where(.katex, .katex-display),
+.pre-tex-div,
+.post-tex-div {
   color: white;
+}
+
+.pre-tex-div {
+  padding-top: 20px;
+}
+
+.post-tex-div {
+  padding-bottom: 20px;
 }
 
 #facebook

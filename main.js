@@ -41,6 +41,16 @@ const getTexBounds = (openingDelim, txt) => {
   }
 };
 
+const preserveNonTex = (txt, precedesTex, msg) => {
+  if (txt !== '') {
+    const div = document.createElement('div');
+    div.classList.add(`${precedesTex ? 'pre' : 'post'}-tex-div`);
+    div.textContent = txt;
+    if (precedesTex) msg.insertBefore(div, msg.children[0]);
+    else msg.appendChild(div);
+  }
+};
+
 const renderTex = (renderType, msg, texBounds) => {
   for (let pair of texBounds[renderType]) {
     if (pair != null && pair.length > 1) {
@@ -52,34 +62,8 @@ const renderTex = (renderType, msg, texBounds) => {
         displayMode: renderType,
       });
 
-      // msg.textContent =
-      //   origTxt.substring(0, pair[0]) +
-      //   msg.textContent +
-      //   origTxt.substring(pair[1] + 2);
-
-      if (preTex !== '') {
-        const preTexDiv = document.createElement('div');
-        preTexDiv.textContent = preTex;
-
-        preTexDiv.style.color = 'white';
-        preTexDiv.style.paddingTop = '20px';
-
-        // msg.insertBefore(
-        //   preTexDiv,
-        //   msg.querySelector('span:where(.katex, .katex-display)')
-        // );
-        msg.insertBefore(preTexDiv, msg.children[0]);
-      }
-
-      if (postTex !== '') {
-        const postTexDiv = document.createElement('div');
-        postTexDiv.textContent = postTex;
-
-        postTexDiv.style.color = 'white';
-        postTexDiv.style.paddingBottom = '20px';
-
-        msg.appendChild(postTexDiv);
-      }
+      preserveNonTex(preTex, true, msg);
+      preserveNonTex(postTex, false, msg);
     }
   }
 };
