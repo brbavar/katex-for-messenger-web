@@ -12,6 +12,8 @@ const getTexBounds = (openingDelim, txt) => {
   let dlmChar1 = openingDelim[0],
     dlmChar2 = openingDelim[1];
 
+  const displayTexEnclosed = dlmChar1 === '$';
+
   for (let i = 0; i < txt.length; i++) {
     let j = 0;
 
@@ -20,14 +22,16 @@ const getTexBounds = (openingDelim, txt) => {
 
       while (
         j + 1 < txt.length &&
-        !(txt[j] === dlmChar1 && txt[j + 1] === (dlmChar1 === '$' ? '$' : ')'))
+        !(
+          txt[j] === dlmChar1 && txt[j + 1] === (displayTexEnclosed ? '$' : ')')
+        )
       ) {
         j++;
       }
 
       if (
         txt[j] === dlmChar1 &&
-        txt[j + 1] === (dlmChar1 === '$' ? '$' : ')')
+        txt[j + 1] === (displayTexEnclosed ? '$' : ')')
       ) {
         return [i, j];
       } else {
@@ -70,9 +74,6 @@ const childListObserver = new MutationObserver((mutations) => {
             texBounds[1].length > 0 && texBounds[1][0] !== undefined;
 
           if (inlineTexFound || displayTexFound) {
-            console.log('texBounds[0][0]: ' + texBounds[0][0]);
-            console.log('texBounds[1][0]: ' + texBounds[1][0]);
-
             let parent = msg.parentNode;
 
             while (parent != null) {
