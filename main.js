@@ -54,15 +54,10 @@ const getTexBounds = (openingDelim, txt) => {
 
 const preserveNonTex = (txt, precedesTex, container, renderType) => {
   if (txt !== '') {
-    // const newContainer = document.createElement(renderType ? 'div' : 'span');
     const newContainer = document.createElement('span');
     newContainer.classList.add(`${precedesTex ? 'pre' : 'post'}-tex`);
     newContainer.textContent = txt;
     if (precedesTex) {
-      // const newContainer = document.createElement(renderType ? 'div' : 'span');
-      // newContainer.classList.add('pre-tex');
-      // newContainer.textContent = txt;
-
       container.insertBefore(newContainer, container.children[0]);
 
       let bounds = [[], []];
@@ -75,12 +70,6 @@ const preserveNonTex = (txt, precedesTex, container, renderType) => {
         renderTex(otherRenderType, newContainer, bounds);
       }
     } else {
-      // const newContainer = document.createElement(
-      //   container.classList.contains('pre-tex') ? 'span' : 'div'
-      // );
-      // newContainer.classList.add('post-tex');
-      // newContainer.textContent = txt;
-
       container.appendChild(newContainer);
 
       let bounds = [[], []];
@@ -92,8 +81,7 @@ const preserveNonTex = (txt, precedesTex, container, renderType) => {
   }
 };
 
-const renderTex = (renderType, container /*, texBounds*/) => {
-  // const bounds = texBounds[renderType];
+const renderTex = (renderType, container) => {
   const bounds = getTexBounds(renderType ? '$$' : '\\(', container.textContent);
   if (bounds.length > 1) {
     const origTxt = container.textContent;
@@ -101,7 +89,6 @@ const renderTex = (renderType, container /*, texBounds*/) => {
     const tex = origTxt.substring(bounds[0] + 2, bounds[1]);
     const postTex = origTxt.substring(bounds[1] + 2);
 
-    // if (renderType === 0)
     console.log(
       'bounds: ' +
         bounds +
