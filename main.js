@@ -14,8 +14,11 @@ for (filePath of ['katex/katex.min.css', 'fb.katex.css']) injectCss(filePath);
 //     });
 // };
 
-const wrapTexInSpans = (msg) => {
+const getTexBounds = (msg) => {
   const txt = msg.textContent;
+  const bounds = [];
+
+  // console.log(`txt = ${txt}`);
 
   const delimAt = (i) => {
     return (
@@ -36,28 +39,49 @@ const wrapTexInSpans = (msg) => {
     r = 0;
   while (l < txt.length) {
     if (openingDelimAt(l)) {
+      // console.log(
+      //   `openingDelim ${txt[l]}${txt.length > l + 1 ? txt[l + 1] : ''} at ${l}`
+      // );
       r = l + 2;
 
-      while (r + 1 < txt.length && !closingDelimAt(r)) {
-        if (openingDelimAt(r)) {
+      // Warn user that a sequence of symbols visually indistinguishable from a(n opening)
+      // delimiter will be interpreted as one unless characters are escaped. Actually, MAYBE NO NEED
+      while (r + 1 < txt.length && !(closingDelimAt(r) && txt[l] == txt[r])) {
+        if (openingDelimAt(r) && txt[l] == txt[r]) {
           l = r;
           r += 2;
         } else {
           r++;
         }
+        // console.log(
+        //   `r = ${r}, txt[r] + txt[r + 1] = ${txt[r]}${
+        //     txt.length > r + 1 ? txt[r + 1] : ''
+        //   }`
+        // );
+        // if (r > 3000) return bounds;
+        // return bounds;
       }
 
-      if (closingDelimAt(r)) {
-        return [l, r];
-      } else {
-        return [];
+      if (closingDelimAt(r) && txt[l] == txt[r]) {
+        // console.log(`l = ${l}, r = ${r}`);
+        // bounds.push([l++, r]);
+        bounds.push([l, r]);
       }
-    } else {
-      l++;
     }
+    // else {
+    // console.log(
+    //   `l = ${l}, txt[l] + txt[l + 1] = ${txt[l]}${
+    //     txt.length > l + 1 ? txt[l + 1] : ''
+    //   }`
+    // );
+    // return bounds;
+    l++;
+    // }
+    // return bounds;
+    // if (l > 3000) return bounds;
   }
 
-  return [];
+  return bounds;
 };
 
 const childListObserver = new MutationObserver((mutations) => {
@@ -79,7 +103,42 @@ const childListObserver = new MutationObserver((mutations) => {
           const msg = bubble.querySelector(
             '.html-div.xexx8yu.x4uap5.x18d9i69.xkhd6sd.x1gslohp.x11i5rnm.x12nagc.x1mh8g0r.x1yc453h.x126k92a.xyk4ms5'
           );
-          wrapTexInSpans(msg);
+          let texBounds;
+
+          if (msg !== null && msg.textContent != '') {
+            // msg.innerHTML =
+            //   msg.innerHTML.substring(0, 3) +
+            //   'HERE I AM' +
+            //   msg.innerHTML.substring(3);
+            texBounds = getTexBounds(msg);
+          }
+
+          for (let i = 0; i < texBounds.length; i++) {
+            const offset = 32 * i;
+            console.log(
+              `i = ${i}\noffset = ${offset}\ntexBounds[i][0] = ${
+                texBounds[i][0]
+              }\ntexBounds[i][1] = ${
+                texBounds[i][1]
+              }\npreTex = ${msg.innerHTML.substring(
+                0,
+                texBounds[i][0] + offset
+              )}\ntex = ${msg.innerHTML.substring(
+                texBounds[i][0] + offset,
+                texBounds[i][1] + 2 + offset
+              )}\npostTex = ${msg.innerHTML.substring(
+                texBounds[i][1] + 2 + offset
+              )}`
+            );
+
+            msg.innerHTML = `${msg.innerHTML.substring(
+              0,
+              texBounds[i][0] + offset
+            )}<span class='renderable'>${msg.innerHTML.substring(
+              texBounds[i][0] + offset,
+              texBounds[i][1] + 2 + offset
+            )}</span>${msg.innerHTML.substring(texBounds[i][1] + 2 + offset)}`;
+          }
 
           let parent = bubble.parentNode;
 
@@ -89,6 +148,7 @@ const childListObserver = new MutationObserver((mutations) => {
           }
 
           parent.style.border = '14px solid var(--mwp-message-row-background)';
+          // return;
         });
       }
     });
