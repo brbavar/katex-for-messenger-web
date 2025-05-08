@@ -8,30 +8,142 @@ const injectCss = (filePath) => {
 
 for (filePath of ['katex/katex.min.css', 'fb.katex.css']) injectCss(filePath);
 
-const getTexBounds = (openingDelim, txt) => {
-  let char1open = openingDelim[0],
-    char2open = openingDelim[1];
+// const getTexBounds = (/*openingDelim,*/ txt) => {
+//   let char1open = openingDelim[0],
+//     char2open = openingDelim[1];
 
-  const displayTexEnclosed = char1open === '$';
+//   const displayTexEnclosed = char1open === '$';
 
-  const openingDlmFound = (l) => {
-    return txt[l] === char1open && txt[l + 1] === char2open;
+//   const openingDelimAt = (l) => {
+//     return txt[l] === char1open && txt[l + 1] === char2open;
+//   };
+
+//   const closingDelimAt = (r) => {
+//     return (
+//       txt[r] === char1open && txt[r + 1] === (displayTexEnclosed ? '$' : ')')
+//     );
+//   };
+
+//   let l = 0,
+//     r = 0;
+//   while (l < txt.length) {
+//     if (openingDelimAt(l)) {
+//       r = l + 2;
+
+//       while (r + 1 < txt.length && !closingDelimAt(r)) {
+//         if (openingDelimAt(r)) {
+//           l = r;
+//           r += 2;
+//         } else {
+//           r++;
+//         }
+//       }
+
+//       if (closingDelimAt(r)) {
+//         return [l, r];
+//       } else {
+//         return [];
+//       }
+//     } else {
+//       l++;
+//     }
+//   }
+
+//   return [];
+// };
+
+// const preserve = (txt, precedesTex, container, renderType) => {
+//   if (txt !== '') {
+//     const newContainer = document.createElement('span');
+//     newContainer.classList.add(`${precedesTex ? 'pre' : 'post'}-tex`);
+//     newContainer.textContent = txt;
+//     if (precedesTex) {
+//       container.insertBefore(newContainer, container.children[0]);
+
+//       let bounds = [[], []];
+//       let otherRenderType = renderType === 1 ? 0 : 1;
+//       bounds[otherRenderType].push(
+//         ...getTexBounds(otherRenderType ? '$$' : '\\(', txt)
+//       );
+//       if (bounds[otherRenderType].length > 0) {
+//         console.log('otherRenderType: ' + otherRenderType);
+//         renderTex(otherRenderType, newContainer, bounds);
+//       }
+//     } else {
+//       container.appendChild(newContainer);
+
+//       let bounds = [[], []];
+//       bounds[renderType].push(...getTexBounds(renderType ? '$$' : '\\(', txt));
+//       if (bounds[renderType].length > 0) {
+//         renderTex(renderType, newContainer, bounds);
+//       }
+//     }
+//   }
+// };
+
+// const renderTex = (renderType, container) => {
+//   const bounds = getTexBounds(renderType ? '$$' : '\\(', container.textContent);
+//   if (bounds.length > 1) {
+//     const origTxt = container.textContent;
+//     const preTex = origTxt.substring(0, bounds[0]);
+//     const tex = origTxt.substring(bounds[0] + 2, bounds[1]);
+//     const postTex = origTxt.substring(bounds[1] + 2);
+
+//     console.log(
+//       'bounds: ' +
+//         bounds +
+//         '\n\npreTex: ' +
+//         preTex +
+//         '\n\ntex: ' +
+//         tex +
+//         '\n\npostTex: ' +
+//         postTex
+//     );
+
+//     // Add code to keep track of where bounds are as new divs/spans are introduced
+
+//     // Or, better yet, ditch the recursion and crap, opting instead to wrap all tex expressions
+//     // in spans of class renderable beforehand (rather than storing bounds). Then get those elements
+//     // by class name and render into them
+
+//     katex.render(tex, container, {
+//       displayMode: renderType,
+//     });
+
+//     // return; // Test 1
+
+//     preserve(preTex, true, container, renderType);
+//     // return; // Test 2
+//     preserve(postTex, false, container, renderType);
+//   }
+// };
+
+const wrapTexInSpans = (msg) => {
+  const txt = msg.textContent;
+
+  const delimAt = (i) => {
+    return (
+      (txt[i] === '$' && txt[i + 1] === '$') ||
+      (txt[i] === '\\' && (txt[i + 1] === '(' || txt[i + 1] === ')'))
+    );
   };
 
-  const closingDlmFound = (r) => {
-    return (
-      txt[r] === char1open && txt[r + 1] === (displayTexEnclosed ? '$' : ')')
-    );
+  const openingDelimAt = (l) => {
+    return delimAt(l) && (txt[l] === '$' || txt[l + 1] === '(');
+  };
+
+  const closingDelimAt = (r) => {
+    return delimAt(r) && (txt[r] === '$' || txt[r + 1] === ')');
   };
 
   let l = 0,
     r = 0;
   while (l < txt.length) {
-    if (openingDlmFound(l)) {
+    if (openingDelimAt(l)) {
       r = l + 2;
 
-      while (r + 1 < txt.length && !closingDlmFound(r)) {
-        if (openingDlmFound(r)) {
+      while (r + 1 < txt.length && !closingDelimAt(r)) {
+        if (openingDelimAt(r)) {
           l = r;
           r += 2;
         } else {
@@ -39,7 +151,7 @@ const getTexBounds = (openingDelim, txt) => {
         }
       }
 
-      if (closingDlmFound(r)) {
+      if (closingDelimAt(r)) {
         return [l, r];
       } else {
         return [];
@@ -52,114 +164,65 @@ const getTexBounds = (openingDelim, txt) => {
   return [];
 };
 
-const preserveNonTex = (txt, precedesTex, container, renderType) => {
-  if (txt !== '') {
-    const newContainer = document.createElement('span');
-    newContainer.classList.add(`${precedesTex ? 'pre' : 'post'}-tex`);
-    newContainer.textContent = txt;
-    if (precedesTex) {
-      container.insertBefore(newContainer, container.children[0]);
-
-      let bounds = [[], []];
-      let otherRenderType = renderType === 1 ? 0 : 1;
-      bounds[otherRenderType].push(
-        ...getTexBounds(otherRenderType ? '$$' : '\\(', txt)
-      );
-      if (bounds[otherRenderType].length > 0) {
-        console.log('otherRenderType: ' + otherRenderType);
-        renderTex(otherRenderType, newContainer, bounds);
-      }
-    } else {
-      container.appendChild(newContainer);
-
-      let bounds = [[], []];
-      bounds[renderType].push(...getTexBounds(renderType ? '$$' : '\\(', txt));
-      if (bounds[renderType].length > 0) {
-        renderTex(renderType, newContainer, bounds);
-      }
-    }
-  }
-};
-
-const renderTex = (renderType, container) => {
-  const bounds = getTexBounds(renderType ? '$$' : '\\(', container.textContent);
-  if (bounds.length > 1) {
-    const origTxt = container.textContent;
-    const preTex = origTxt.substring(0, bounds[0]);
-    const tex = origTxt.substring(bounds[0] + 2, bounds[1]);
-    const postTex = origTxt.substring(bounds[1] + 2);
-
-    console.log(
-      'bounds: ' +
-        bounds +
-        '\n\npreTex: ' +
-        preTex +
-        '\n\ntex: ' +
-        tex +
-        '\n\npostTex: ' +
-        postTex
-    );
-
-    // Add code to keep track of where bounds are as new divs/spans are introduced
-
-    katex.render(tex, container, {
-      displayMode: renderType,
-    });
-
-    // return; // Test 1
-
-    preserveNonTex(preTex, true, container, renderType);
-    // return; // Test 2
-    preserveNonTex(postTex, false, container, renderType);
-  }
-};
-
 const childListObserver = new MutationObserver((mutations) => {
   mutations.forEach((mutation) => {
     mutation.addedNodes.forEach((node) => {
       const nodeType = node.constructor.name;
       if (nodeType === 'HTMLDivElement') {
-        const yourMessages = node.querySelectorAll(
+        const yourChatBubbles = node.querySelectorAll(
           '.html-div.x11i5rnm.x1mh8g0r.xexx8yu.x4uap5.x18d9i69.xkhd6sd.xat24cr.xdj266r.xeuugli.x1vjfegm'
         );
-        const theirMessages = node.querySelectorAll(
-          'html-div.x11i5rnm.x1mh8g0r.xexx8yu.x4uap5.x18d9i69.xkhd6sd.x1gslohp.x12nagc.x1yc453h.x126k92a.x18lvrbx'
+        const theirChatBubbles = node.querySelectorAll(
+          '.html-div.x11i5rnm.x1mh8g0r.xexx8yu.x4uap5.x18d9i69.xkhd6sd.x1gslohp.x12nagc.x1yc453h.x126k92a.x18lvrbx'
         );
 
         // const messages = node.querySelectorAll(
         //   '.html-div.x11i5rnm.x1mh8g0r.xexx8yu.x4uap5.x18d9i69.xkhd6sd'
         // );
-        [...yourMessages, ...theirMessages].forEach((msg) => {
-          const txt = msg.textContent;
+        [...yourChatBubbles, ...theirChatBubbles].forEach((bubble) => {
+          // const txt = msg.textContent;
 
-          const texBounds = [[], []];
+          // const texBounds = [[], []];
 
-          texBounds[0].push(...getTexBounds('\\(', txt));
-          texBounds[1].push(...getTexBounds('$$', txt));
+          // texBounds[0].push(...getTexBounds('\\(', txt));
+          // texBounds[1].push(...getTexBounds('$$', txt));
 
-          if (msg.textContent.startsWith('This is related'))
-            console.log('texBounds[0]: ' + texBounds[0]);
+          // if (msg.textContent.startsWith('This is related'))
+          //   console.log('texBounds[0]: ' + texBounds[0]);
 
-          const inlineTexFound = texBounds[0].length > 0;
-          const displayTexFound = texBounds[1].length > 0;
+          // const inlineTexFound = texBounds[0].length > 0;
+          // const displayTexFound = texBounds[1].length > 0;
 
-          if (inlineTexFound || displayTexFound) {
-            let parent = msg.parentNode;
+          // if (inlineTexFound || displayTexFound) {
 
-            while (parent != null) {
-              if (parent.role === 'row') break;
-              parent = parent.parentNode;
-            }
+          // const divsWithTxt = msg.querySelectorAll(
+          //   '.html-div.xexx8yu.x4uap5.x18d9i69.xkhd6sd.x1gslohp.x11i5rnm.x12nagc.x1mh8g0r.x1yc453h.x126k92a.xyk4ms5'
+          // );
+          // console.log(`msg contains ${divsWithTxt.length} divs with text`);
+          // divsWithTxt.forEach((div) => {
+          //   console.log(div.innerHTML);
+          // });
 
-            parent.style.border =
-              '14px solid var(--mwp-message-row-background)';
+          const msg = bubble.querySelector(
+            '.html-div.xexx8yu.x4uap5.x18d9i69.xkhd6sd.x1gslohp.x11i5rnm.x12nagc.x1mh8g0r.x1yc453h.x126k92a.xyk4ms5'
+          );
+          wrapTexInSpans(msg);
 
-            // Don't render directly into msg in both invocations below
-            renderTex(0, msg, texBounds);
-            // return; // Test 3
-            renderTex(1, msg, texBounds);
-            return; // Tests 1, 2, 4
+          let parent = bubble.parentNode;
+
+          while (parent != null) {
+            if (parent.role === 'row') break;
+            parent = parent.parentNode;
           }
+
+          parent.style.border = '14px solid var(--mwp-message-row-background)';
+
+          // // Don't render directly into msg in both invocations below
+          // renderTex(0, msg, texBounds);
+          // // return; // Test 3
+          // renderTex(1, msg, texBounds);
+          // return; // Tests 1, 2, 4
+          // }
         });
       }
     });
