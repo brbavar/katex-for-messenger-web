@@ -18,8 +18,6 @@ const getTexBounds = (msg) => {
   const txt = msg.textContent;
   const bounds = [];
 
-  // console.log(`txt = ${txt}`);
-
   const delimAt = (i) => {
     return (
       (txt[i] === '$' && txt[i + 1] === '$') ||
@@ -39,9 +37,6 @@ const getTexBounds = (msg) => {
     r = 0;
   while (l < txt.length) {
     if (openingDelimAt(l)) {
-      // console.log(
-      //   `openingDelim ${txt[l]}${txt.length > l + 1 ? txt[l + 1] : ''} at ${l}`
-      // );
       r = l + 2;
 
       // Warn user that a sequence of symbols visually indistinguishable from a(n opening)
@@ -53,32 +48,13 @@ const getTexBounds = (msg) => {
         } else {
           r++;
         }
-        // console.log(
-        //   `r = ${r}, txt[r] + txt[r + 1] = ${txt[r]}${
-        //     txt.length > r + 1 ? txt[r + 1] : ''
-        //   }`
-        // );
-        // if (r > 3000) return bounds;
-        // return bounds;
       }
 
       if (closingDelimAt(r) && txt[l] == txt[r]) {
-        // console.log(`l = ${l}, r = ${r}`);
-        // bounds.push([l++, r]);
         bounds.push([l, r]);
       }
     }
-    // else {
-    // console.log(
-    //   `l = ${l}, txt[l] + txt[l + 1] = ${txt[l]}${
-    //     txt.length > l + 1 ? txt[l + 1] : ''
-    //   }`
-    // );
-    // return bounds;
     l++;
-    // }
-    // return bounds;
-    // if (l > 3000) return bounds;
   }
 
   return bounds;
@@ -106,10 +82,6 @@ const childListObserver = new MutationObserver((mutations) => {
           let texBounds;
 
           if (msg !== null && msg.textContent != '') {
-            // msg.innerHTML =
-            //   msg.innerHTML.substring(0, 3) +
-            //   'HERE I AM' +
-            //   msg.innerHTML.substring(3);
             texBounds = getTexBounds(msg);
           }
 
@@ -148,7 +120,6 @@ const childListObserver = new MutationObserver((mutations) => {
           }
 
           parent.style.border = '14px solid var(--mwp-message-row-background)';
-          // return;
         });
       }
     });
