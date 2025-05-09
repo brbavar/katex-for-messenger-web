@@ -27,4 +27,4 @@ The extension is automatically activated and ready to go!
 
 ## Usage
 
-While composing a message on Facebook, write your TeX code between `$$` and `$$` if you want to display mathematical notation centered on its own line. Enclose your code in `\(` and `\)` if you want your mathematical notation on the same line as ordinary text or separate mathematical expressions.
+While composing a message on Facebook, write your TeX code between `$$` and `$$` if you want to display mathematical notation centered on its own line. Enclose your code in `\(` and `\)` if you want your mathematical notation on the same line as other mathematical expressions or ordinary text.
