@@ -150,7 +150,7 @@ const childListObserver = new MutationObserver((mutations) => {
   });
 });
 
-// Don't observe whole DOM tree; it causes tabs to go blank (white) for a bit when you switch between them rapidly
+// Don't observe whole DOM tree if you can help it
 childListObserver.observe(document.documentElement, {
   childList: true,
   subtree: true,
