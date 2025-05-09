@@ -1,6 +1,6 @@
 # KaTeX for Messenger
 
-Disclaimer: DOESN'T QUITE WORK AS INTENDED YET.
+Disclaimer: DOESN'T WORK AS INTENDED YET.
 
 Once upon a time we had Chrome extensions ([1](https://github.com/MALLER-LAGOON/latex-for-facebook), 
 [2](https://github.com/dshynkev/messenger-latex)) that made TeX math rendering possible on Facebook/in Messenger. 
