@@ -36,8 +36,6 @@ const getTexBounds = (msg) => {
     ) {
       r = l + 2;
 
-      // Warn user that a sequence of symbols visually indistinguishable from a(n opening)
-      // delimiter will be interpreted as one unless characters are escaped. Actually, MAYBE NO NEED
       while (r + 1 < txt.length && !(closingDelimAt(r) && txt[l] == txt[r])) {
         if (openingDelimAt(r) && txt[l] == txt[r]) {
           l = r;
@@ -69,9 +67,6 @@ const childListObserver = new MutationObserver((mutations) => {
           '.html-div.x11i5rnm.x1mh8g0r.xexx8yu.x4uap5.x18d9i69.xkhd6sd.x1gslohp.x12nagc.x1yc453h.x126k92a.x18lvrbx'
         );
 
-        // const messages = node.querySelectorAll(
-        //   '.html-div.x11i5rnm.x1mh8g0r.xexx8yu.x4uap5.x18d9i69.xkhd6sd'
-        // );
         [...yourChatBubbles, ...theirChatBubbles].forEach((bubble) => {
           const msg = bubble.querySelector(
             '.html-div.xexx8yu.x4uap5.x18d9i69.xkhd6sd.x1gslohp.x11i5rnm.x12nagc.x1mh8g0r.x1yc453h.x126k92a.xyk4ms5'
@@ -99,9 +94,7 @@ const childListObserver = new MutationObserver((mutations) => {
 
             msg.innerHTML = msg.textContent;
 
-            const renderables = msg.querySelectorAll('span.renderable');
-
-            renderables.forEach((span) => {
+            msg.querySelectorAll('span.renderable').forEach((span) => {
               katex.render(
                 span.textContent.substring(2, span.textContent.length - 2),
                 span,
@@ -113,43 +106,30 @@ const childListObserver = new MutationObserver((mutations) => {
               const baseSpans = span.querySelectorAll(
                 'span:where(.katex, .katex-display) span.katex-html > span.base'
               );
-
-              console.log(`${baseSpans.length} base spans found`);
-
               let collectiveSpanWidth = 0;
-              console.log(`msg.textContent = ${msg.textContent}`);
-              let i = 0;
-              for (let baseSpan of baseSpans) {
-                console.log(`baseSpan ${i++}`);
-                console.log(`collectiveSpanWidth = ${collectiveSpanWidth}`);
-                console.log(
-                  `baseSpan.parentNode.getBoundingClientRect().width = ${
-                    baseSpan.parentNode.getBoundingClientRect().width
-                  }`
-                );
-                console.log(
-                  `baseSpan.getBoundingClientRect().width = ${
-                    baseSpan.getBoundingClientRect().width
-                  }`
-                );
 
-                if (
-                  collectiveSpanWidth +
-                    baseSpan.getBoundingClientRect().width <=
-                  baseSpan.parentNode.getBoundingClientRect().width
-                ) {
-                  collectiveSpanWidth += baseSpan.getBoundingClientRect().width;
-                } else {
-                  console.log('inside else');
-                  const spacer = document.createElement('div');
-                  console.log(`spacer is ${spacer}`);
-                  spacer.style.lineHeight = '2px';
-                  console.log(
-                    `spacer.style.lineHeight = ${spacer.style.lineHeight}`
-                  );
-                  baseSpan.parentNode.insertBefore(spacer, baseSpan);
-                  console.log(`about to break`);
-                  break;
+              for (let baseSpan of baseSpans) {
+                collectiveSpanWidth += baseSpan.getBoundingClientRect().width;
+              }
+
+              if (
+                collectiveSpanWidth >
+                baseSpans[0].parentNode.getBoundingClientRect().width
+              ) {
+                for (let i = baseSpans.length - 1; i > -1; i--) {
+                  if (
+                    collectiveSpanWidth -
+                      baseSpans[i].getBoundingClientRect().width <=
+                    baseSpans[0].parentNode.getBoundingClientRect().width - 10
+                  ) {
+                    const spacer = document.createElement('div');
+                    spacer.style.lineHeight = '2px';
+                    baseSpans[0].parentNode.insertBefore(spacer, baseSpans[i]);
+                    break;
+                  } else {
+                    collectiveSpanWidth -=
+                      baseSpans[i].getBoundingClientRect().width;
+                  }
                 }
               }
             });
