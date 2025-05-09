@@ -8,12 +8,6 @@ const injectCss = (filePath) => {
 
 for (filePath of ['katex/katex.min.css', 'fb.katex.css']) injectCss(filePath);
 
-// const renderTex = (renderType, container) => {
-//     katex.render(tex, container, {
-//       displayMode: renderType,
-//     });
-// };
-
 const getTexBounds = (msg) => {
   const txt = msg.textContent;
   const bounds = [];
