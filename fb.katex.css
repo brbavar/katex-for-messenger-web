@@ -20,3 +20,20 @@
   :not(.mop, .op-limits) {
   font-family: KaTeX_Main;
 }
+
+#facebook .system-fonts--body div.html-div > span.renderable {
+  display: inline-block;
+}
+
+#facebook
+  .system-fonts--body
+  div.html-div
+  > span.renderable:has(> span.katex-display) {
+  width: 100%;
+}
+
+/* #facebook
+  .system-fonts--body
+  div.html-div:has(> span.renderable > span.katex-display) {
+  text-align: center;
+} */
