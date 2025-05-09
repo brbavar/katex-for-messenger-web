@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "KaTeX for Facebook",
+  "name": "KaTeX for Messenger",
   "version": "1.0",
-  "description": "Render mathematical notation on Facebook.",
+  "description": "Render mathematical notation in Messenger on the Facebook website.",
   "permissions": [],
   "content_scripts": [
     {
