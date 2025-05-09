@@ -112,22 +112,32 @@ const childListObserver = new MutationObserver((mutations) => {
                 collectiveSpanWidth += baseSpan.getBoundingClientRect().width;
               }
 
+              let partialSumOfSpanWidths = collectiveSpanWidth;
               if (
                 collectiveSpanWidth >
                 baseSpans[0].parentNode.getBoundingClientRect().width
               ) {
                 for (let i = baseSpans.length - 1; i > -1; i--) {
                   if (
-                    collectiveSpanWidth -
+                    partialSumOfSpanWidths -
                       baseSpans[i].getBoundingClientRect().width <=
                     baseSpans[0].parentNode.getBoundingClientRect().width - 10
                   ) {
                     const spacer = document.createElement('div');
                     spacer.style.lineHeight = '2px';
                     baseSpans[0].parentNode.insertBefore(spacer, baseSpans[i]);
-                    break;
+                    if (
+                      collectiveSpanWidth - partialSumOfSpanWidths <=
+                      baseSpans[0].parentNode.getBoundingClientRect().width - 10
+                    ) {
+                      break;
+                    } else {
+                      collectiveSpanWidth = partialSumOfSpanWidths;
+                      // Recursively call the function this code belongs in, to deal
+                      // with cases where arbitrarily many line breaks are needed
+                    }
                   } else {
-                    collectiveSpanWidth -=
+                    partialSumOfSpanWidths -=
                       baseSpans[i].getBoundingClientRect().width;
                   }
                 }
