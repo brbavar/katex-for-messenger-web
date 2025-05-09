@@ -1,11 +1,7 @@
-#facebook .system-fonts--body div.html-div > span:where(.katex, .katex-display),
-span:where(.pre-tex, .post-tex) {
-  color: white;
-}
-
 #facebook
   .system-fonts--body
   div.html-div
+  > span.renderable
   > span.katex-display
   :where(.mop, .op-limits) {
   font-family: KaTeX_Size2;
@@ -13,49 +9,14 @@ span:where(.pre-tex, .post-tex) {
 
 #facebook
   .system-fonts--body
-  div.html-div:has(> span:where(.katex, .katex-display))
+  div.html-div:has(> span.renderable > span:where(.katex, .katex-display))
   span:is(.sizing, .reset-size6, .size3, .mtight, .mord),
-#facebook .system-fonts--body div.html-div > span.katex,
+#facebook .system-fonts--body div.html-div > span.renderable > span.katex,
 #facebook
   .system-fonts--body
   div.html-div
+  > span.renderable
   > span:where(.katex, .katex-display)
   :not(.mop, .op-limits) {
   font-family: KaTeX_Main;
-}
-
-div.html-div.x11i5rnm.x1mh8g0r.xexx8yu.x4uap5.x18d9i69.xkhd6sd:has(
-    > span:where(.katex, .katex-display)
-  ) {
-  padding-left: 18px;
-  padding-right: 18px;
-  border-radius: 35px;
-  outline: 14px solid var(--mwp-message-row-background);
-}
-
-div.html-div.x11i5rnm.x1mh8g0r.xexx8yu.x4uap5.x18d9i69.xkhd6sd:has(
-    > span:where(.katex)
-  ) {
-  padding-top: 13px;
-  padding-bottom: 13px;
-}
-
-/* Prevent your last chat bubble's outline from overlapping 'Sent Xm ago' below it */
-span[dir='auto']
-  > span.html-span.xdj266r.x11i5rnm.xat24cr.x1mh8g0r.xexx8yu.x4uap5.x18d9i69.xkhd6sd.x1hl2dhg.x16tdsg8.x1vvkbs.x1xf6ywa {
-  display: block;
-  padding-top: 10px;
-}
-
-/* Prevent edited chat bubble outline from overlapping 'Edited' above it */
-div[aria-label='Edited']
-  > span.html-span.xdj266r.x11i5rnm.xat24cr.x1mh8g0r.xexx8yu.x4uap5.x18d9i69.xkhd6sd.x1hl2dhg.x16tdsg8.x1vvkbs {
-  display: block;
-  padding-bottom: 7px;
-}
-
-/* Prevent edited chat bubble outline from overlapping edits shown above it */
-div[data-scope='messages_table'][role='gridcell']
-  > div[role='none'].x1eb86dx.x193iq5w.x1vjfegm.x1lliihq.x1sxyh0 {
-  padding-bottom: 12px;
 }
