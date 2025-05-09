@@ -24,5 +24,7 @@ The extension is automatically activated and ready to go!
 <br><br>
 <img width="402" alt="Screenshot 2025-05-09 at 5 19 08 AM" src="https://github.com/user-attachments/assets/f314a3f1-68d9-47d4-bdc1-20397c1c4878" />
 <br><br>
+
 ## Usage
 
+Write your TeX code between `$$` and `$$` if you want to display mathematical notation centered on its own line. Enclose your code in `\(` and `\)` if you want your mathematical notation on the same line as ordinary text or separate mathematical expressions.
