@@ -20,7 +20,7 @@ This brings up Finder or File Explorer. Once that window opens, select the unpac
 <br><br>
 <img width="714" alt="Screenshot 2025-05-09 at 5 14 41 AM" src="https://github.com/user-attachments/assets/bfa4864e-ef4a-4c7c-9f80-1effbe2cdd00" />
 <br><br>
-The extension is automatically activated.
+The extension is automatically activated and ready to go!
 <br><br>
 <img width="402" alt="Screenshot 2025-05-09 at 5 19 08 AM" src="https://github.com/user-attachments/assets/f314a3f1-68d9-47d4-bdc1-20397c1c4878" />
 <br><br>
