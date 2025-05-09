@@ -99,7 +99,9 @@ const childListObserver = new MutationObserver((mutations) => {
 
             msg.innerHTML = msg.textContent;
 
-            msg.querySelectorAll('span.renderable').forEach((span) => {
+            const renderables = msg.querySelectorAll('span.renderable');
+
+            renderables.forEach((span) => {
               katex.render(
                 span.textContent.substring(2, span.textContent.length - 2),
                 span,
@@ -107,6 +109,49 @@ const childListObserver = new MutationObserver((mutations) => {
                   displayMode: span.textContent[0] === '$',
                 }
               );
+
+              const baseSpans = span.querySelectorAll(
+                'span:where(.katex, .katex-display) span.katex-html > span.base'
+              );
+
+              console.log(`${baseSpans.length} base spans found`);
+
+              let collectiveSpanWidth = 0;
+              console.log(`msg.textContent = ${msg.textContent}`);
+              let i = 0;
+              for (let baseSpan of baseSpans) {
+                console.log(`baseSpan ${i++}`);
+                console.log(`collectiveSpanWidth = ${collectiveSpanWidth}`);
+                console.log(
+                  `baseSpan.parentNode.getBoundingClientRect().width = ${
+                    baseSpan.parentNode.getBoundingClientRect().width
+                  }`
+                );
+                console.log(
+                  `baseSpan.getBoundingClientRect().width = ${
+                    baseSpan.getBoundingClientRect().width
+                  }`
+                );
+
+                if (
+                  collectiveSpanWidth +
+                    baseSpan.getBoundingClientRect().width <=
+                  baseSpan.parentNode.getBoundingClientRect().width
+                ) {
+                  collectiveSpanWidth += baseSpan.getBoundingClientRect().width;
+                } else {
+                  console.log('inside else');
+                  const spacer = document.createElement('div');
+                  console.log(`spacer is ${spacer}`);
+                  spacer.style.lineHeight = '2px';
+                  console.log(
+                    `spacer.style.lineHeight = ${spacer.style.lineHeight}`
+                  );
+                  baseSpan.parentNode.insertBefore(spacer, baseSpan);
+                  console.log(`about to break`);
+                  break;
+                }
+              }
             });
           }
         });
@@ -115,6 +160,7 @@ const childListObserver = new MutationObserver((mutations) => {
   });
 });
 
+// Don't observe whole DOM tree; it causes tabs to go blank (white) for a bit when you switch between them rapidly
 childListObserver.observe(document.documentElement, {
   childList: true,
   subtree: true,
