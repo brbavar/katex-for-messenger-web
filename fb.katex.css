@@ -31,9 +31,3 @@
   > span.renderable:has(> span.katex-display) {
   width: 100%;
 }
-
-/* #facebook
-  .system-fonts--body
-  div.html-div:has(> span.renderable > span.katex-display) {
-  text-align: center;
-} */
