@@ -207,9 +207,7 @@ window.onload = () => {
             );
             if (sendStatus !== null) {
               if (sendStatus.firstChild.nodeValue === 'Sent') {
-                console.log(`status = Sent`);
                 const bubble = getNewChatBubble(sendStatus.firstChild);
-                console.log('now to parse the content!');
                 parseContent(bubble);
               } else {
                 sendStatusObserver.observe(sendStatus.firstChild, {
@@ -217,7 +215,9 @@ window.onload = () => {
                 });
               }
             } else {
-              console.log(`sendStatus is null even after half a second`);
+              console.log(
+                `The message was sent too slowly for your formulas to be typeset. Try again!`
+              );
             }
           }, 500);
         }
