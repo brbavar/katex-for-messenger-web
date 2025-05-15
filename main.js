@@ -1,4 +1,18 @@
 class DomInfo {
+  #accountControlsAndSettings = null;
+  #accountControlsAndSettingsObserver = new MutationObserver((mutations) => {
+    mutations.forEach((mutation) => {
+      mutation.addedNodes.forEach((node) => {
+        const messengerControl = node.querySelector('[aria-label="Messenger"]');
+        if (messengerControl !== null) {
+          console.log(`messenger control added`);
+          startUp();
+        } else {
+          console.log(`messenger control not added`);
+        }
+      });
+    });
+  });
   #chat = null;
   #chatBoxContainer = null;
   #chatBoxContainerObserver = new MutationObserver((mutations) => {
@@ -12,36 +26,6 @@ class DomInfo {
             this.#chatBoxes.push(node);
             handleChat(node, messageGrid);
           }
-          // const chatSettingsButton = node.querySelector(
-          //   'div[aria-label="Chat settings"][role="button"].x1i10hfl.x1qjc9v5.xjbqb8w.xjqpnuy.xa49m3k.xqeqjp1.x2hbi6w.x13fuv20.xu3j5b3.x1q0q8m5.x26u7qi.x972fbf.xcfux6l.x1qhh985.xm0m39n.x9f619.x1ypdohk.xdl72j9.xe8uvvx.xdj266r.xat24cr.x1mh8g0r.x2lwn1j.xexx8yu.x4uap5.x18d9i69.xkhd6sd.x1n2onr6.x16tdsg8.x1hl2dhg.xggy1nq.x1ja2u2z.x1t137rt.x1o1ewxj.x3x9cwd.x1e5q0jg.x13rtm0m.x3nfvp2.x1q0g3np.x87ps6o.x1lku1pv.x1a2a7pz.xs83m0k.x1emribx.xeuugli'
-          // );
-          // if (!this.#chatSettingsButtons.includes(chatSettingsButton)) {
-          //   this.#chatSettingsButtons.push(chatSettingsButton);
-
-          //   chatSettingsButton.addEventListener('click', () => {
-          //     setTimeout(() => {
-          //       console.log(
-          //         `delaying queries and addition of event listener for 10 ms`
-          //       );
-          //       const chatMenu = document.querySelector(
-          //         'div[aria-label="Chat tab settings"][role="menu"].x1n2onr6.x1jqylkn.xe5xk9h'
-          //       );
-          //       const openInMessengerButton = chatMenu.querySelector(
-          //         '[href^="/messages"][role="menuitem"].x1i10hfl.xjbqb8w.x1ejq31n.xd10rxx.x1sy0etr.x17r0tee.x972fbf.xcfux6l.x1qhh985.xm0m39n.xe8uvvx.x1hl2dhg.xggy1nq.x1o1ewxj.x3x9cwd.x1e5q0jg.x13rtm0m.x87ps6o.x1lku1pv.x1a2a7pz.xjyslct.x9f619.x1ypdohk.x78zum5.x1q0g3np.x2lah0s.x1i6fsjq.xfvfia3.xnqzcj9.x1gh759c.x1n2onr6.x16tdsg8.x1ja2u2z.x6s0dn4.x1y1aw1k.xwib8y2.x1q8cg2c.xnjli0'
-          //       );
-          //       openInMessengerButton.addEventListener(
-          //         'click',
-          //         () => {
-          //           console.log(`delaying startUp for 10 ms`);
-          //           setTimeout(startUp, 10);
-          //         } /* () => {
-          //                 this.reset();
-          //                 this.setChat();
-          //               } */
-          //       );
-          //     }, 10);
-          //   });
-          // }
         }
       });
       mutation.removedNodes.forEach((node) => {
@@ -59,14 +43,22 @@ class DomInfo {
   #chatMenu = null;
   #openInMessengerButton = null;
 
-  // reset() {
-  //   [this.#chat, this.#chatBoxContainer, this.#chatSettingsButton, this.#chatMenu, this.#openInMessengerButton].forEach((el) => {
-  //     el = null;
-  //   });
-  //   [(this.#chatBoxes, this.#chatSettingsButtons)].forEach((arr) => {
-  //     arr.length = 0;
-  //   });
-  // }
+  getAccountControlsAndSettings() {
+    return this.#accountControlsAndSettings;
+  }
+
+  setAccountControlsAndSettings() {
+    this.#accountControlsAndSettings = document.querySelector(
+      'div[aria-label="Account Controls and Settings"][role="navigation"].x6s0dn4.x78zum5.x1s65kcs.x1n2onr6.x1ja2u2z'
+    );
+  }
+
+  observeAccountControlsAndSettings() {
+    this.#accountControlsAndSettingsObserver.observe(
+      this.#accountControlsAndSettings,
+      { childList: true }
+    );
+  }
 
   getChat() {
     return this.#chat;
@@ -518,6 +510,9 @@ const startUp = () => {
   const domInfo = new DomInfo();
 
   if (window.location.href.startsWith('https://www.facebook.com/messages')) {
+    domInfo.setAccountControlsAndSettings();
+    domInfo.observeAccountControlsAndSettings();
+
     domInfo.setChat();
     if (domInfo.getChat() === undefined || domInfo.getChat() === null) {
       console.log('chat starts off null');
@@ -593,13 +588,13 @@ window.onload = startUp;
 (() => {
   const pushState = history.pushState;
   history.pushState = () => {
-    pushState.apply(history /*, arguments */);
+    pushState.apply(history);
     window.dispatchEvent(new Event('locationchange'));
   };
 
   const replaceState = history.replaceState;
   history.replaceState = () => {
-    replaceState.apply(history /*, arguments */);
+    replaceState.apply(history);
     window.dispatchEvent(new Event('locationchange'));
   };
 
