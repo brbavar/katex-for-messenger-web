@@ -205,7 +205,7 @@ class DomInfo {
     for (const chatBox of this.#chatBoxContainer.children) {
       this.#chatBoxes.push(chatBox);
 
-      handleChatSettingsButton(chatBox);
+      this.handleChatSettingsButton(chatBox);
     }
   }
 
