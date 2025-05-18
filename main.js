@@ -28,16 +28,16 @@ class DomInfo {
   #chatBoxContainerObserver = new MutationObserver((mutations) => {
     mutations.forEach((mutation) => {
       mutation.addedNodes.forEach((node) => {
-        setTimeout(() => {
-          const messages = node.querySelectorAll(
-            '.html-div.x11i5rnm.x1mh8g0r.xexx8yu.x4uap5.x18d9i69.xkhd6sd .html-div.xexx8yu.x4uap5.x18d9i69.xkhd6sd.x1gslohp.x11i5rnm.x12nagc.x1mh8g0r.x1yc453h.x126k92a.xyk4ms5'
-          );
-          console.log(
-            `chat box added; content of last message ${
-              messages[messages.length - 1].textContent
-            }`
-          );
-        }, 100);
+        // setTimeout(() => {
+        //   const messages = node.querySelectorAll(
+        //     '.html-div.x11i5rnm.x1mh8g0r.xexx8yu.x4uap5.x18d9i69.xkhd6sd .html-div.xexx8yu.x4uap5.x18d9i69.xkhd6sd.x1gslohp.x11i5rnm.x12nagc.x1mh8g0r.x1yc453h.x126k92a.xyk4ms5'
+        //   );
+        //   console.log(
+        //     `chat box added; content of last message ${
+        //       messages[messages.length - 1].textContent
+        //     }`
+        //   );
+        // }, 100);
         const messageGrid = node.querySelector(
           '[aria-label^="Messages in conversation"]'
         );
@@ -55,16 +55,16 @@ class DomInfo {
       mutation.removedNodes.forEach((node) => {
         let i = this.#chatBoxes.indexOf(node);
         if (i !== -1) {
-          setTimeout(() => {
-            const messages = node.querySelectorAll(
-              '.html-div.x11i5rnm.x1mh8g0r.xexx8yu.x4uap5.x18d9i69.xkhd6sd .html-div.xexx8yu.x4uap5.x18d9i69.xkhd6sd.x1gslohp.x11i5rnm.x12nagc.x1mh8g0r.x1yc453h.x126k92a.xyk4ms5'
-            );
-            console.log(
-              `chat box removed; content of last message ${
-                messages[messages.length - 1].textContent
-              }`
-            );
-          }, 100);
+          // setTimeout(() => {
+          //   const messages = node.querySelectorAll(
+          //     '.html-div.x11i5rnm.x1mh8g0r.xexx8yu.x4uap5.x18d9i69.xkhd6sd .html-div.xexx8yu.x4uap5.x18d9i69.xkhd6sd.x1gslohp.x11i5rnm.x12nagc.x1mh8g0r.x1yc453h.x126k92a.xyk4ms5'
+          //   );
+          //   console.log(
+          //     `chat box removed; content of last message ${
+          //       messages[messages.length - 1].textContent
+          //     }`
+          //   );
+          // }, 100);
           this.#chatBoxes.splice(i, 1);
           this.#chatSettingsButtons.splice(i, 1);
         }
@@ -157,11 +157,11 @@ class DomInfo {
     this.#chatBoxContainer = document.querySelector(
       'div.x1ey2m1c.x78zum5.x164qtfw.xixxii4.x1vjfegm'
     );
-    if (this.#chatBoxContainer === null) {
-      console.log(`this.#chatBoxContainer is null`);
-    } else {
-      console.log(`this.#chatBoxContainer is NOT null`);
-    }
+    // if (this.#chatBoxContainer === null) {
+    //   console.log(`this.#chatBoxContainer is null`);
+    // } else {
+    //   console.log(`this.#chatBoxContainer is NOT null`);
+    // }
   }
 
   observeChatBoxContainer() {
@@ -189,11 +189,11 @@ class DomInfo {
       setTimeout(() => {
         this.setChatSettingsButton(chatBox);
         console.log(
-          `But after 300 ms chatSettingsButton is ${this.#chatSettingsButton}`
-        ); // sometimes still null after 200 ms
+          `But after 400 ms chatSettingsButton is ${this.#chatSettingsButton}`
+        ); // sometimes still null after 300 ms
 
         this.handleChatSettingsButtons();
-      }, 300);
+      }, 400);
     } else {
       this.handleChatSettingsButtons();
     }
@@ -242,13 +242,13 @@ class DomInfo {
         console.log(`chatMenu starts off null`);
         setTimeout(() => {
           this.setChatMenu();
-          console.log(`But after 50 ms chatMenu is ${this.#chatMenu}`);
+          console.log(`But after 200 ms chatMenu is ${this.#chatMenu}`); // sometimes still null after 100 ms
           this.setOpenInMessengerButton();
 
           this.#openInMessengerButton.addEventListener('click', () => {
             setTimeout(startUp, 50);
           });
-        }, 50);
+        }, 200);
       } else {
         console.log(
           `chatMenu starts off not null but with a value of ${this.#chatMenu}`
@@ -518,8 +518,6 @@ const handleChatBubbles = (node, domInfo) => {
 };
 
 const handleMessageGrid = (grid, domInfo = null) => {
-  // if (grid instanceof Node) {
-  // console.log(grid.constructor.name);
   handleChatBubbles(grid, domInfo);
 
   chatBubbleObserver = new MutationObserver((mutations) => {
@@ -534,7 +532,6 @@ const handleMessageGrid = (grid, domInfo = null) => {
     childList: true,
     subtree: true,
   });
-  // }
 };
 
 const listenForNewMessages = (chat, textbox, domInfo) => {
@@ -660,51 +657,8 @@ const switchChat = (domInfo) => {
   }
 };
 
-// const renderChatAtLink = (domInfo) => {
-//   console.log(`click handler triggered`);
-//   setTimeout(() => {
-//     for (const chatLink of domInfo.getChats()) {
-//       chatLink.removeEventListener('click', clickListener);
-//       console.log(`removed event listener from chatLink ${chatLink.href}`);
-//     }
-//     switchChat(domInfo);
-//     // for (const chatLink of domInfo.getChats()) {
-//     //   chatLink.removeEventListener('click', renderChatAtLink);
-//     //   console.log(`removed event listener from chatLink ${chatLink.href}`);
-//     // }
-//   }, 100);
-
-//   // e.currentTarget.removeEventListener('click', renderChatAtLink);
-
-//   // for (const chatLink of domInfo.getChats()) {
-//   //   chatLink.removeEventListener('click', renderChatAtLink);
-//   // }
-// };
-
-// const clickListener = () => renderChatAtLink(domInfo);
-
 const handleChats = (domInfo) => {
   for (const chat of domInfo.getChats()) {
-    // const renderChatAtLink = () => {                 // This variable is reinitialized on every invocation of handleChats,
-    //   console.log(`click handler triggered`);        // so the function assigned to it and removed from chatLink is not
-    //   setTimeout(() => {                             // recognized as the same event listener previously added to chatLink
-    //     for (const chatLink of domInfo.getChats()) {
-    //       chatLink.removeEventListener('click', renderChatAtLink);
-    //       console.log(`removed event listener from chatLink ${chatLink.href}`);
-    //     }
-    //     startUp();
-    //     // for (const chatLink of domInfo.getChats()) {
-    //     //   chatLink.removeEventListener('click', renderChatAtLink);
-    //     //   console.log(`removed event listener from chatLink ${chatLink.href}`);
-    //     // }
-    //   }, 100);
-
-    //   // e.currentTarget.removeEventListener('click', renderChatAtLink);
-
-    //   // for (const chatLink of domInfo.getChats()) {
-    //   //   chatLink.removeEventListener('click', renderChatAtLink);
-    //   // }
-    // };
     if (chat.getAttribute('aria-current') === 'false') {
       // console.log(`condition met for adding event listener`);
       // chat.addEventListener('click', clickListener);
@@ -747,17 +701,17 @@ const startUp = () => {
 
     domInfo.setChat();
     if (domInfo.getChat() === undefined || domInfo.getChat() === null) {
-      // console.log('chat starts off null');
+      console.log('chat starts off null');
       setTimeout(() => {
         domInfo.setChat();
-        // console.log(`But after 300 ms chat is ${domInfo.getChat()}`); // sometimes still null after 200 ms
+        console.log(`But after 500 ms chat is ${domInfo.getChat()}`); // sometimes still null after 200 ms
 
         domInfo.setChats();
-        // console.log(`${domInfo.getChats().length} chats found initially`);
+        console.log(`${domInfo.getChats().length} chats found initially`);
         handleChats(domInfo);
 
         handleChat(domInfo.getChat(), null, domInfo);
-      }, 300);
+      }, 500);
     } else {
       // console.log(
       //   `domInfo.getChat() = ${domInfo.getChat()} rather than null or undefined`
@@ -795,15 +749,15 @@ const startUp = () => {
       setTimeout(() => {
         domInfo.setChatBoxContainer();
         console.log(
-          `But after 200 ms chatBoxContainer is ${domInfo.getChatBoxContainer()}, containing ${
+          `But after 1500 ms chatBoxContainer is ${domInfo.getChatBoxContainer()}, containing ${
             domInfo.getChatSettingsButtons().length
           } chatSettingsButtons`
-        ); // sometimes still null after 100 ms
+        ); // sometimes still null after 1000 ms
         if (domInfo.getChatSettingsButtons().length === 0) {
           setTimeout(() => {
             domInfo.setChatSettingsButtons();
             console.log(
-              `But after 200 ms chatBoxContainer is ${domInfo.getChatBoxContainer()}, containing ${
+              `But after another 200 ms chatBoxContainer is ${domInfo.getChatBoxContainer()}, containing ${
                 domInfo.getChatSettingsButtons().length
               } chatSettingsButtons`
             );
@@ -812,7 +766,7 @@ const startUp = () => {
         } else {
           handleChatBoxContainer(domInfo);
         }
-      }, 200);
+      }, 1500);
     } else {
       if (domInfo.getChatSettingsButtons().length === 0) {
         setTimeout(() => {
