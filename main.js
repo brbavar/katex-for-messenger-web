@@ -617,13 +617,13 @@ const handleChat = (chat, messageGrid = null, domInfo = null) => {
       messageGrid = chat.querySelector(
         'div[aria-label^="Messages in conversation"][role="grid"].x1uipg7g.xu3j5b3.xol2nv.xlauuyb.x26u7qi.x19p7ews.x78zum5.xdt5ytf.x1iyjqo2.x6ikm8r.x10wlt62'
       );
-      console.log(`But after 1000 ms messageGrid is ${messageGrid}`); // sometimes still null after 250 ms
+      console.log(`But after 500 ms messageGrid is ${messageGrid}`); // sometimes still null after 250 ms
       handleMessageGrid(messageGrid, domInfo);
 
       // Set up keydown event listener below, parse and render preexisting messages containing TeX code above
 
       handleTextbox(chat, domInfo);
-    }, 1000);
+    }, 500);
   } else {
     // console.log(`messageGrid starts off with a value of ${messageGrid}`);
     handleMessageGrid(messageGrid, domInfo);
