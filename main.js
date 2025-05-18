@@ -12,32 +12,42 @@ class DomInfo {
   #handledChats = [];
 
   #accountControlsAndSettingsObserver = new MutationObserver((mutations) => {
-    mutations.forEach((mutation) => {
-      mutation.addedNodes.forEach((node) => {
+    let messengerControlSeen = false;
+    for (const mutation of mutations) {
+      for (const node of mutation.addedNodes) {
         const messengerControl = node.querySelector('[aria-label="Messenger"]');
         if (messengerControl !== null) {
           console.log(`messenger control added`);
           startUp();
+          messengerControlSeen = true;
+          break;
         } else {
           console.log(`messenger control not added`);
         }
-      });
-    });
+      }
+      if (messengerControlSeen) {
+        break;
+      }
+    }
   });
 
   #chatBoxContainerObserver = new MutationObserver((mutations) => {
     mutations.forEach((mutation) => {
       mutation.addedNodes.forEach((node) => {
-        // setTimeout(() => {
-        //   const messages = node.querySelectorAll(
-        //     '.html-div.x11i5rnm.x1mh8g0r.xexx8yu.x4uap5.x18d9i69.xkhd6sd .html-div.xexx8yu.x4uap5.x18d9i69.xkhd6sd.x1gslohp.x11i5rnm.x12nagc.x1mh8g0r.x1yc453h.x126k92a.xyk4ms5'
-        //   );
-        //   console.log(
-        //     `chat box added; content of last message ${
-        //       messages[messages.length - 1].textContent
-        //     }`
-        //   );
-        // }, 100);
+        setTimeout(() => {
+          const messages = node.querySelectorAll(
+            '.html-div.x11i5rnm.x1mh8g0r.xexx8yu.x4uap5.x18d9i69.xkhd6sd .html-div.xexx8yu.x4uap5.x18d9i69.xkhd6sd.x1gslohp.x11i5rnm.x12nagc.x1mh8g0r.x1yc453h.x126k92a.xyk4ms5'
+          );
+          if (messages === undefined) {
+            console.log(`chat box added; messages is undefined`);
+          } else {
+            console.log(
+              `chat box added; content of last message ${
+                messages[messages.length - 1].textContent
+              }`
+            );
+          }
+        }, 100);
         const messageGrid = node.querySelector(
           '[aria-label^="Messages in conversation"]'
         );
@@ -55,16 +65,20 @@ class DomInfo {
       mutation.removedNodes.forEach((node) => {
         let i = this.#chatBoxes.indexOf(node);
         if (i !== -1) {
-          // setTimeout(() => {
-          //   const messages = node.querySelectorAll(
-          //     '.html-div.x11i5rnm.x1mh8g0r.xexx8yu.x4uap5.x18d9i69.xkhd6sd .html-div.xexx8yu.x4uap5.x18d9i69.xkhd6sd.x1gslohp.x11i5rnm.x12nagc.x1mh8g0r.x1yc453h.x126k92a.xyk4ms5'
-          //   );
-          //   console.log(
-          //     `chat box removed; content of last message ${
-          //       messages[messages.length - 1].textContent
-          //     }`
-          //   );
-          // }, 100);
+          setTimeout(() => {
+            const messages = node.querySelectorAll(
+              '.html-div.x11i5rnm.x1mh8g0r.xexx8yu.x4uap5.x18d9i69.xkhd6sd .html-div.xexx8yu.x4uap5.x18d9i69.xkhd6sd.x1gslohp.x11i5rnm.x12nagc.x1mh8g0r.x1yc453h.x126k92a.xyk4ms5'
+            );
+            if (messages === undefined) {
+              console.log(`chat box removed; messages is undefined`);
+            } else {
+              console.log(
+                `chat box removed; content of last message ${
+                  messages[messages.length - 1].textContent
+                }`
+              );
+            }
+          }, 100);
           this.#chatBoxes.splice(i, 1);
           this.#chatSettingsButtons.splice(i, 1);
         }
@@ -203,9 +217,12 @@ class DomInfo {
     this.#chatBoxes.length = 0;
     console.log(`${this.#chatBoxContainer.children.length} chatBoxes found`);
     for (const chatBox of this.#chatBoxContainer.children) {
-      this.#chatBoxes.push(chatBox);
+      // if (!this.#chatBoxes.includes(chatBox)) {
+      if (!this.#handledChats.includes(chatBox)) {
+        this.#chatBoxes.push(chatBox);
 
-      this.handleChatSettingsButton(chatBox);
+        this.handleChatSettingsButton(chatBox);
+      }
     }
   }
 
@@ -595,18 +612,18 @@ const handleTextbox = (chat, domInfo) => {
 
 const handleChat = (chat, messageGrid = null, domInfo = null) => {
   if (messageGrid === null) {
-    // console.log(`messageGrid starts off null`);
+    console.log(`messageGrid starts off null`);
     setTimeout(() => {
       messageGrid = chat.querySelector(
         'div[aria-label^="Messages in conversation"][role="grid"].x1uipg7g.xu3j5b3.xol2nv.xlauuyb.x26u7qi.x19p7ews.x78zum5.xdt5ytf.x1iyjqo2.x6ikm8r.x10wlt62'
       );
-      // console.log(`But after 250 ms messageGrid is ${messageGrid}`);
+      console.log(`But after 1000 ms messageGrid is ${messageGrid}`); // sometimes still null after 250 ms
       handleMessageGrid(messageGrid, domInfo);
 
       // Set up keydown event listener below, parse and render preexisting messages containing TeX code above
 
       handleTextbox(chat, domInfo);
-    }, 250);
+    }, 1000);
   } else {
     // console.log(`messageGrid starts off with a value of ${messageGrid}`);
     handleMessageGrid(messageGrid, domInfo);
@@ -785,7 +802,10 @@ const startUp = () => {
   }
 };
 
-window.onload = startUp;
+window.onload = () => {
+  console.log('Page loaded');
+  startUp();
+};
 
 (() => {
   const pushState = history.pushState;
@@ -806,6 +826,11 @@ window.onload = startUp;
 
   window.addEventListener('locationchange', () => {
     console.log('URL changed to:', window.location.href);
-    startUp();
+    if (window.location.href.startsWith('https://www.facebook.com/messages')) {
+      console.log('executing startUp');
+      startUp();
+    } else {
+      console.log('NOT executing startUp');
+    }
   });
 })();
