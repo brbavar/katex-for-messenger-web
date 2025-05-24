@@ -660,7 +660,9 @@ const startUp = () => {
     domInfo.observeAccountControlsAndSettings();
 
     domInfo.setMessengerChatContainer();
-    domInfo.observeMessengerChatContainer();
+    if (domInfo.getMessengerChatContainer() !== null) {
+      domInfo.observeMessengerChatContainer();
+    }
     console.log(
       `messengerChatContainer starts off as ${domInfo.getMessengerChatContainer()}`
     );
