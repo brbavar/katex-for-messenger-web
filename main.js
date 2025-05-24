@@ -1,8 +1,6 @@
 class DomInfo {
   #accountControlsAndSettings = null;
   #chat = null;
-  // #chatLinkContainer = null;
-  // #chatLinks = null;
   #messengerChatContainer = null;
   #chatBoxContainer = null;
   #chatSettingsButton = null;
@@ -12,7 +10,6 @@ class DomInfo {
   #chatSettingsButtons = [];
   #parsedBubbles = [];
   #handledChats = [];
-  // #handledChatLinks = [];
 
   #accountControlsAndSettingsObserver = new MutationObserver((mutations) => {
     let messengerControlSeen = false;
@@ -34,116 +31,16 @@ class DomInfo {
     }
   });
 
-  // #chatLinkContainerObserver = new MutationObserver((mutations) => {
-  //   mutations.forEach((mutation) => {
-  //     mutation.addedNodes.forEach((node) => {
-  //       if (
-  //         (node.getAttribute('aria-current') === 'page' ||
-  //           node.getAttribute('aria-current') === 'false') &&
-  //         node.role === 'link' &&
-  //         node.href.startsWith('/messages') &&
-  //         node.classList.contains('x1i10hfl') &&
-  //         node.classList.contains('x1qjc9v5') &&
-  //         node.classList.contains('xjqpnuy') &&
-  //         node.classList.contains('xa49m3k') &&
-  //         node.classList.contains('xqeqjp1') &&
-  //         node.classList.contains('x2hbi6w') &&
-  //         node.classList.contains('x13fuv20') &&
-  //         node.classList.contains('xu3j5b3') &&
-  //         node.classList.contains('x1q0q8m5') &&
-  //         node.classList.contains('x26u7qi') &&
-  //         node.classList.contains('x972fbf') &&
-  //         node.classList.contains('xcfux6l') &&
-  //         node.classList.contains('x1qhh985') &&
-  //         node.classList.contains('xm0m39n') &&
-  //         node.classList.contains('x9f619') &&
-  //         node.classList.contains('x1ypdohk') &&
-  //         node.classList.contains('xdl72j9') &&
-  //         node.classList.contains('x2lah0s') &&
-  //         node.classList.contains('xe8uvvx') &&
-  //         node.classList.contains('xdj266r') &&
-  //         node.classList.contains('x11i5rnm') &&
-  //         node.classList.contains('xat24cr') &&
-  //         node.classList.contains('x1mh8g0r') &&
-  //         node.classList.contains('x2lwn1j') &&
-  //         node.classList.contains('xeuugli') &&
-  //         node.classList.contains('xexx8yu') &&
-  //         node.classList.contains('x4uap5') &&
-  //         node.classList.contains('x18d9i69') &&
-  //         node.classList.contains('xkhd6sd') &&
-  //         node.classList.contains('x1n2onr6') &&
-  //         node.classList.contains('x16tdsg8') &&
-  //         node.classList.contains('x1hl2dhg') &&
-  //         node.classList.contains('xggy1nq') &&
-  //         node.classList.contains('x1ja2u2z') &&
-  //         node.classList.contains('x1t137rt') &&
-  //         node.classList.contains('x1lliihq') &&
-  //         node.classList.contains('x1lku1pv') &&
-  //         node.classList.contains('x1q0g3np') &&
-  //         node.classList.contains('x87ps6o') &&
-  //         node.classList.contains('x1a2a7pz') &&
-  //         !this.#chatLinks.includes(node)
-  //       ) {
-  //         this.#chatLinks.push(node);
-  //         handleChatLink(node, this);
-  //       }
-  //     });
-  //   });
-  // });
-
   #messengerChatContainerObserver = new MutationObserver((mutations) => {
     mutations.forEach((mutation) => {
       mutation.addedNodes.forEach((node) => {
-        console.log(`node added to messengerChatContainer's childList`);
-        if ('aria-label' in node) {
-          console.log(
-            `node.getAttribute('aria-label') === ${node.getAttribute(
-              'aria-label'
-            )}`
-          );
-        } else {
-          console.log(`'aria-label' not in node`);
-        }
-        if ('role' in node) {
-          console.log(`node.role === ${node.role}`);
-        } else {
-          console.log(`'role' not in node`);
-        }
-
         let convo = null;
-        // if (
-        //   'aria-label' in node &&
-        //   node.getAttribute('aria-label').startsWith('Conversation') &&
-        //   'role' in node &&
-        //   node.role === 'main' &&
-        //   isOfTheClasses(node, [
-        //     'x1ja2u2z',
-        //     'x9f619',
-        //     'x78zum5',
-        //     'xdt5ytf',
-        //     'x193iq5w',
-        //     'x1l7klhg',
-        //     'x1iyjqo2',
-        //     'xs83m0k',
-        //     'x2lwn1j',
-        //     'x6prxxf',
-        //     'x85a59c',
-        //     'x1n2onr6',
-        //     'xjbqb8w',
-        //     'xuce83p',
-        //     'x1bft6iq',
-        //   ])
-        // ) {
         if (
           'querySelector' in node &&
           (convo = node.querySelector(
             'div[aria-label^="Conversation"][role="main"].x1ja2u2z.x9f619.x78zum5.xdt5ytf.x193iq5w.x1l7klhg.x1iyjqo2.xs83m0k.x2lwn1j.x6prxxf.x85a59c.x1n2onr6.xjbqb8w.xuce83p.x1bft6iq'
           ))
         ) {
-          console.log(
-            `node meeting condition added to messengerChatContainer's childList`
-          );
-          // handleChat(node, null, this);
           handleChat(convo, null, this);
         }
       });
@@ -229,17 +126,6 @@ class DomInfo {
     });
   });
 
-  // #renderChatAtLink = () => {
-  //   console.log(`click handler triggered`);
-  //   setTimeout(() => {
-  //     for (const chat of this.#chatLinks) {
-  //       chat.removeEventListener('click', this.#renderChatAtLink);
-  //       console.log(`removed event listener from chatLink ${chat.href}`);
-  //     }
-  //     switchChat(this);
-  //   }, 100);
-  // };
-
   getAccountControlsAndSettings() {
     return this.#accountControlsAndSettings;
   }
@@ -272,46 +158,6 @@ class DomInfo {
       this.#chat = chatBox;
     }
   }
-
-  // getChatLinkContainer() {
-  //   return this.#chatLinkContainer;
-  // }
-
-  // setChatLinkContainer() {
-  //   this.#chatLinkContainer = document.querySelector(
-  //     'div[aria-label="Chats"][role="grid"].x1qjc9v5.x9f619.xdl72j9.x2lwn1j.xeuugli.x1n2onr6.x1ja2u2z.x78zum5.xdt5ytf.x1iyjqo2.xs83m0k.x6ikm8r.x10wlt62'
-  //   );
-  // }
-
-  // observeChatLinkContainer() {
-  //   this.#chatLinkContainerObserver.observe(this.#chatLinkContainer, {
-  //     childList: true,
-  //     subtree: true,
-  //   });
-  // }
-
-  // getChatLinks() {
-  //   return this.#chatLinks;
-  // }
-
-  // setChatLinks() {
-  //   this.#chatLinks = this.#chatLinkContainer.querySelectorAll(
-  //     'div.x1n2onr6 > div.x78zum5.xdt5ytf a:where([aria-current="page"], [aria-current="false"])[role="link"][href^="/messages"].x1i10hfl.x1qjc9v5.xjqpnuy.xa49m3k.xqeqjp1.x2hbi6w.x13fuv20.xu3j5b3.x1q0q8m5.x26u7qi.x972fbf.xcfux6l.x1qhh985.xm0m39n.x9f619.x1ypdohk.xdl72j9.x2lah0s.xe8uvvx.xdj266r.x11i5rnm.xat24cr.x1mh8g0r.x2lwn1j.xeuugli.xexx8yu.x4uap5.x18d9i69.xkhd6sd.x1n2onr6.x16tdsg8.x1hl2dhg.xggy1nq.x1ja2u2z.x1t137rt.x1lliihq.x1lku1pv.x1q0g3np.x87ps6o.x1a2a7pz'
-  //   );
-  // }
-
-  // getRenderChatAtLink() {
-  //   return this.#renderChatAtLink;
-  // }
-
-  // getHandledChatLinks() {
-  //   return this.#handledChatLinks;
-  // }
-
-  // markAsHandled(chatLink) {
-  //   this.#handledChatLinks.push(chatLink);
-  // }
-
   getMessengerChatContainer() {
     return this.#messengerChatContainer;
   }
@@ -340,11 +186,6 @@ class DomInfo {
     this.#chatBoxContainer = document.querySelector(
       'div.x1ey2m1c.x78zum5.x164qtfw.xixxii4.x1vjfegm'
     );
-    // if (this.#chatBoxContainer === null) {
-    //   console.log(`this.#chatBoxContainer is null`);
-    // } else {
-    //   console.log(`this.#chatBoxContainer is NOT null`);
-    // }
   }
 
   observeChatBoxContainer() {
@@ -367,8 +208,6 @@ class DomInfo {
       }`
     );
     if (this.#chatSettingsButton === null) {
-      // console.log(`chatSettingsButton starts off null`);
-
       setTimeout(() => {
         this.setChatSettingsButton(chatBox);
         console.log(
@@ -386,7 +225,6 @@ class DomInfo {
     this.#chatBoxes.length = 0;
     console.log(`${this.#chatBoxContainer.children.length} chatBoxes found`);
     for (const chatBox of this.#chatBoxContainer.children) {
-      // if (!this.#chatBoxes.includes(chatBox)) {
       if (!this.#handledChats.includes(chatBox)) {
         this.#chatBoxes.push(chatBox);
 
@@ -553,12 +391,6 @@ const getTexBounds = (msg) => {
 };
 
 const parseContent = (bubble, domInfo = null) => {
-  // console.log(`bubble.textContent = ${bubble.textContent}`);
-  // console.log(
-  //   `When parseContent is executed, domInfo is ${domInfo} and records that this bubble has ${
-  //     domInfo.getParsedBubbles().includes(bubble) ? '' : 'NOT '
-  //   }been parsed`
-  // );
   if (domInfo === null || !domInfo.getParsedBubbles().includes(bubble)) {
     const msg = bubble.querySelector(
       '.html-div.xexx8yu.x4uap5.x18d9i69.xkhd6sd.x1gslohp.x11i5rnm.x12nagc.x1mh8g0r.x1yc453h.x126k92a.xyk4ms5'
@@ -816,87 +648,17 @@ const handleChatBoxContainer = (domInfo) => {
         domInfo.markAsHandled(chat);
       }
     }
-  } else {
-    // console.log(`chatBoxes starts off empty`);
-    // setTimeout(() => {
-    //   domInfo.setChatBoxes();
-    //   console.log(
-    //     `But after 5000 ms there are ${domInfo.getChatBoxes().length} chatBoxes`
-    //   );
-    // }, 5000);                // The chat box elements won't just show up on their own; user must open the chat boxes
   }
   domInfo.observeChatBoxContainer();
 };
 
-// // Derived from startup
-// const switchChat = (domInfo) => {
-//   domInfo.setChat();
-//   if (domInfo.getChat() === undefined || domInfo.getChat() === null) {
-//     setTimeout(() => {
-//       domInfo.setChat();
-
-//       // domInfo.setChatLinks();
-//       // handleChatLinks(domInfo);
-
-//       handleChat(domInfo.getChat(), null, domInfo);
-//     }, 300);
-//   } else {
-//     // domInfo.setChatLinkContainer();
-//     // domInfo.setChatLinks();
-//     // handleChatLinks(domInfo);
-//     handleChat(domInfo.getChat(), null, domInfo);
-//   }
-// };
-
-// const handleChatLink = (chatLink, domInfo) => {
-//   if (
-//     chatLink.getAttribute('aria-current') === 'false' &&
-//     !domInfo.getHandledChatLinks().includes(chatLink)
-//   ) {
-//     // console.log(`condition met for adding event listener`);
-//     // chatLink.addEventListener('click', clickListener);
-//     chatLink.addEventListener('click', domInfo.getRenderChatAtLink());
-//     domInfo.markAsHandled(chatLink);
-//     console.log(`added event listener to chatLink ${chatLink.href}`);
-//   } // else {
-//   // console.log(
-//   //   `condition NOT met for adding event listener, as chatLink.getAttribute('aria-current') === ${chatLink.getAttribute(
-//   //     'aria-current'
-//   //   )}`
-//   // );
-//   //}
-// };
-
-// const handleChatLinks = (domInfo) => {
-//   for (const chatLink of domInfo.getChatLinks()) {
-//     handleChatLink(chatLink, domInfo);
-//   }
-// };
-
-// let domInfo = null;
-
 const startUp = () => {
   const domInfo = new DomInfo();
-  // if (domInfo === null) {
-  //   domInfo = new DomInfo();
-  // } else {
-  //   domInfo.reset();
-  // }
 
   if (window.location.href.startsWith('https://www.facebook.com/messages')) {
     domInfo.setAccountControlsAndSettings();
     domInfo.observeAccountControlsAndSettings();
 
-    // domInfo.setChatLinks();
-    // console.log(`${domInfo.getChatLinks().length} chatLinks found initially`);
-    // if (domInfo.getChatLinks() === null || domInfo.getChatLinks().length === 0) {
-    //   setTimeout(() => {
-    //     console.log(`${domInfo.getChatLinks().length} chatLinks found after 5000 ms`); // still 0 after 5000 ms, if 0 initially; seems to coincide with getChat()'s returning null below
-    //     handleChatLinks(domInfo);
-    //   }, 5000);
-    // } else {
-    //   handleChatLinks(domInfo);
-    // }
     domInfo.setMessengerChatContainer();
     domInfo.observeMessengerChatContainer();
     console.log(
@@ -904,11 +666,6 @@ const startUp = () => {
     );
 
     domInfo.setChat();
-
-    // domInfo.setChatLinkContainer(); // Probably always need to give chatLinkContainer some time to load
-    // console.log(
-    //   `chatLinkContainer starts off with a value of ${domInfo.getChatLinkContainer()}`
-    // );
 
     if (domInfo.getChat() === undefined || domInfo.getChat() === null) {
       console.log('chat starts off null');
@@ -918,45 +675,13 @@ const startUp = () => {
         domInfo.observeMessengerChatContainer();
 
         domInfo.setChat();
-        // domInfo.setChatLinkContainer();
-        // console.log(
-        //   `But after 500 ms chat is ${domInfo.getChat()} and chatLinkContainer is ${domInfo.getChatLinkContainer()}`
-        // ); // sometimes chat is still null after 200 ms
         console.log(
           `But after 500 ms chat is ${domInfo.getChat()} and messengerChatContainer is ${domInfo.getMessengerChatContainer()}`
         ); // sometimes chat is still null after 200 ms
 
-        // domInfo.setChatLinks();
-        // console.log(
-        //   `${domInfo.getChatLinks().length} chatLinks found initially`
-        // );
-        // handleChatLinks(domInfo);
-
         handleChat(domInfo.getChat(), null, domInfo);
       }, 500);
     } else {
-      // console.log(
-      //   `domInfo.getChat() = ${domInfo.getChat()} rather than null or undefined`
-      // );
-      // console.log(
-      //   `But ${
-      //     document.querySelectorAll(
-      //       'div[aria-label^="Conversation"][role="main"].x1ja2u2z.x9f619.x78zum5.xdt5ytf.x193iq5w.x1l7klhg.x1iyjqo2.xs83m0k.x2lwn1j.x6prxxf.x85a59c.x1n2onr6.xjbqb8w.xuce83p.x1bft6iq'
-      //     ).length
-      //   } elements match query selector`
-      // );
-
-      // domInfo.setChatLinkContainer();
-      // domInfo.setChatLinks();
-      // // console.log(`${domInfo.getChatLinks().length} chatLinks found initially`);
-      // handleChatLinks(domInfo);
-
-      // console.log(
-      //   `domInfo.getChat().constructor.name is ${
-      //     domInfo.getChat().constructor.name
-      //   }`
-      // );
-      // handleChat(domInfo.getChat(), domInfo);     // You were assigning domInfo to the messageGrid parameter!
       handleChat(domInfo.getChat(), null, domInfo);
     }
   } else {
