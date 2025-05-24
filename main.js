@@ -169,9 +169,14 @@ class DomInfo {
   }
 
   observeMessengerChatContainer() {
-    this.#messengerChatContainerObserver.observe(this.#messengerChatContainer, {
-      childList: true,
-    });
+    if (this.#messengerChatContainer !== null) {
+      this.#messengerChatContainerObserver.observe(
+        this.#messengerChatContainer,
+        {
+          childList: true,
+        }
+      );
+    }
   }
 
   ignoreMessengerChatContainer() {
@@ -660,9 +665,7 @@ const startUp = () => {
     domInfo.observeAccountControlsAndSettings();
 
     domInfo.setMessengerChatContainer();
-    if (domInfo.getMessengerChatContainer() !== null) {
-      domInfo.observeMessengerChatContainer();
-    }
+    domInfo.observeMessengerChatContainer();
     console.log(
       `messengerChatContainer starts off as ${domInfo.getMessengerChatContainer()}`
     );
