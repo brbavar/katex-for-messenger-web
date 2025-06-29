@@ -21,6 +21,18 @@
   font-family: KaTeX_Main;
 }
 
+#facebook
+  .system-fonts--body
+  div.html-div
+  > span.renderable
+  > span:where(.katex, .katex-display)
+  span.katex-html
+  > span.base
+  > span.mord
+  > span.msupsub {
+  padding-left: 1.5px;
+}
+
 #facebook .system-fonts--body div.html-div > span.renderable {
   display: inline-block;
 }
