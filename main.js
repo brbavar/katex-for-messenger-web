@@ -15,18 +15,12 @@ class DomInfo {
   #accountControlsAndSettingsObserver = new MutationObserver((mutations) => {
     let messengerControlSeen = false;
     for (const mutation of mutations) {
-      // console.log('accountControlsAndSettings mutated');
-      // console.log(`total number of mutations = ${mutations.length}`);
       for (const node of mutation.addedNodes) {
-        // console.log('node added');
         const messengerControl = node.querySelector('[aria-label="Messenger"]');
         if (messengerControl !== null) {
           console.log(`messenger control added`);
           this.#accountControlsAndSettingsObserver.disconnect();
           startUp();
-          // console.log(
-          //   `setting messengerControlSeen to true and breaking out of loop`
-          // );
           messengerControlSeen = true;
           break;
         } else {
@@ -41,9 +35,7 @@ class DomInfo {
 
   #messengerChatContainerObserver = new MutationObserver((mutations) => {
     mutations.forEach((mutation) => {
-      // console.log(`messengerChatContainer mutated`);
       mutation.addedNodes.forEach((node) => {
-        // console.log(`messengerChatContainer has new child node`);
         let convo = null;
         if (
           'querySelector' in node &&
@@ -51,12 +43,9 @@ class DomInfo {
             'div[aria-label^="Conversation"][role="main"].x1ja2u2z.x9f619.x78zum5.xdt5ytf.x193iq5w.x1l7klhg.x1iyjqo2.xs83m0k.x2lwn1j.x6prxxf.x85a59c.x1n2onr6.xjbqb8w.xuce83p.x1bft6iq'
           ))
         ) {
-          // handleChat(convo, this);
           this.#chat = convo;
           this.setMessageGrid(convo);
-          // console.log(`handling chat`);
           handleChat(this);
-          // console.log(`chat handled`);
         }
       });
     });
@@ -65,28 +54,12 @@ class DomInfo {
   #chatBoxContainerObserver = new MutationObserver((mutations) => {
     mutations.forEach((mutation) => {
       mutation.addedNodes.forEach((node) => {
-        // setTimeout(() => {
-        //   const messages = node.querySelectorAll(
-        //     '.html-div.x11i5rnm.x1mh8g0r.xexx8yu.x4uap5.x18d9i69.xkhd6sd .html-div.xexx8yu.x4uap5.x18d9i69.xkhd6sd.x1gslohp.x11i5rnm.x12nagc.x1mh8g0r.x1yc453h.x126k92a.xyk4ms5'
-        //   );
-        //   if (messages === undefined) {
-        //     console.log(`chat box added; messages is undefined`);
-        //   } else {
-        //     console.log(
-        //       `chat box added; content of last message ${
-        //         messages[messages.length - 1].textContent
-        //       }`
-        //     );
-        //   }
-        // }, 100);
         const messageGrid = node.querySelector(
           '[aria-label^="Messages in conversation"]'
         );
         if (messageGrid !== null) {
           if (![...this.#chatBoxes, ...this.#handledChats].includes(node)) {
-            // console.log(`previously unseen node added to chatBoxContainer`);
             this.#chatBoxes.push(node);
-            // handleChat(node, messageGrid);
             this.#chat = node;
             this.#messageGrid = messageGrid;
             handleChat(this);
@@ -98,54 +71,12 @@ class DomInfo {
       mutation.removedNodes.forEach((node) => {
         let i = this.#chatBoxes.indexOf(node);
         if (i !== -1) {
-          // setTimeout(() => {
-          //   const messages = node.querySelectorAll(
-          //     '.html-div.x11i5rnm.x1mh8g0r.xexx8yu.x4uap5.x18d9i69.xkhd6sd .html-div.xexx8yu.x4uap5.x18d9i69.xkhd6sd.x1gslohp.x11i5rnm.x12nagc.x1mh8g0r.x1yc453h.x126k92a.xyk4ms5'
-          //   );
-          //   if (messages === undefined) {
-          //     console.log(`chat box removed; messages is undefined`);
-          //   } else {
-          //     console.log(
-          //       `chat box removed; content of last message ${
-          //         messages[messages.length - 1].textContent
-          //       }`
-          //     );
-          //   }
-          // }, 100);
           this.#chatBoxes.splice(i, 1);
           this.#chatSettingsButtons.splice(i, 1);
         }
       });
     });
   });
-
-  // #chatBoxObserver = new MutationObserver((mutations) => {
-  //   mutations.forEach((mutation) => {
-  //     console.log('CHATBOX MUTATED');
-  //     if (
-  //       mutation.attributeName === 'hidden' &&
-  //       !mutation.target.hidden /*&& !'hidden' in mutation.target*/
-  //     ) {
-  //       console.log('condition is fine as written');
-  //       // REFACTOR CODE BELOW, ESPECIALLY CALL TO handleChat
-  //       const messageGrid = mutation.target.querySelector(
-  //         '[aria-label^="Messages in conversation"]'
-  //       );
-  //       if (
-  //         messageGrid !== null &&
-  //         !this.#handledChats.includes(mutation.target)
-  //       ) {
-  //         this.#chatBoxes.push(mutation.target);
-  //         // handleChat(mutation.target, messageGrid);
-  //         this.#chat = mutation.target;
-  //         this.#messageGrid = messageGrid;
-  //         handleChat(this);
-  //       }
-  //     } else {
-  //       console.log('condition may need to be revised');
-  //     }
-  //   });
-  // });
 
   getAccountControlsAndSettings() {
     return this.#accountControlsAndSettings;
@@ -163,10 +94,6 @@ class DomInfo {
       { childList: true }
     );
   }
-
-  // ignoreAccountControlsAndSettings() {
-  //   this.#accountControlsAndSettingsObserver.disconnect();
-  // }
 
   getChat() {
     return this.#chat;
@@ -214,16 +141,12 @@ class DomInfo {
   }
 
   setChatBoxContainer() {
-    // this.#chatBoxContainer = document.querySelector(
-    //   'div.x1ey2m1c.x78zum5.x164qtfw.xixxii4.x1vjfegm'
-    // );
     this.#chatBoxContainer = document.querySelector(
       'div.x1ey2m1c.x78zum5.xixxii4.x1vjfegm'
     );
   }
 
   observeChatBoxContainer() {
-    // console.log('observing chatBoxContainer NOW');
     if (this.#chatBoxContainer !== null) {
       this.#chatBoxContainerObserver.observe(this.#chatBoxContainer, {
         childList: true,
@@ -261,24 +184,11 @@ class DomInfo {
     console.log(`${this.#chatBoxContainer.children.length} chatBoxes found`);
     for (const chatBox of this.#chatBoxContainer.children) {
       if (!this.#handledChats.includes(chatBox)) {
-        // if (
-        //   !this.#chatBoxes.includes(chatBox) &&
-        //   !this.#handledChats.includes(chatBox)
-        // ) {
         this.#chatBoxes.push(chatBox);
         this.handleChatSettingsButton(chatBox);
       }
     }
   }
-
-  // observeChatBoxes() {
-  //   if (this.#chatBoxes.length > 0) {
-  //     for (const box of chatBoxes) {
-  //       const grandchildOfBox = box.querySelector(':scope > div > div');
-  //       this.#chatBoxObserver.observe(grandchildOfBox, { attributes: true });
-  //     }
-  //   }
-  // }
 
   getChatSettingsButtons() {
     return this.#chatSettingsButtons;
@@ -333,9 +243,6 @@ class DomInfo {
   }
 
   setChatSettingsButton(chatBox) {
-    // this.#chatSettingsButton = chatBox.querySelector(
-    //   'div[aria-label="Chat settings"][role="button"].x1i10hfl.x1qjc9v5.xjbqb8w.xjqpnuy.xqeqjp1.x13fuv20.x972fbf.x1q0q8m5.xeuugli.x3nfvp2.x1q0g3np.x87ps6o.x1lku1pv.x1a2a7pz.xs83m0k.x9f619.x1ypdohk.xdl72j9.xe8uvvx.xdj266r.xat24cr.x1qhh985.x2lwn1j.xexx8yu.x1n2onr6.x16tdsg8.x1hl2dhg.xggy1nq.x1ja2u2z.x1t137rt.x18d9i69.xa49m3k.x2hbi6w.x13fuv20.xu3j5b3.x26u7qi.xcfux6l.xm0m39n.x1mh8g0r.x4uap5.xkhd6sd.x1o1ewxj.x3x9cwd.x1e5q0jg.x13rtm0m.x1emribx'
-    // );
     this.#chatSettingsButton = chatBox.querySelector(
       'div[aria-label="Chat settings"][role="button"].x1i10hfl.x1qjc9v5.xjbqb8w.xjqpnuy.xqeqjp1.x13fuv20.x972fbf.x1q0q8m5.xeuugli.x3nfvp2.x1q0g3np.x87ps6o.x1lku1pv.x1a2a7pz.xs83m0k.x9f619.x1ypdohk.xdl72j9.xe8uvvx.xdj266r.xat24cr.x1qhh985.x2lwn1j.xexx8yu.x1n2onr6.x16tdsg8.x1hl2dhg.xggy1nq.x1ja2u2z.x1t137rt.x18d9i69'
     );
@@ -346,9 +253,6 @@ class DomInfo {
   }
 
   setChatMenu() {
-    // this.#chatMenu = document.querySelector(
-    //   'div[aria-label="Chat tab settings"][role="menu"].x1n2onr6.x1jqylkn.xe5xk9h'
-    // );
     this.#chatMenu = document.querySelector(
       'div[aria-label="Chat tab settings"][role="menu"].x1n2onr6.xe5xk9h'
     );
@@ -359,9 +263,6 @@ class DomInfo {
   }
 
   setOpenInMessengerButton() {
-    // this.#openInMessengerButton = this.#chatMenu.querySelector(
-    //   '[href^="/messages"][role="menuitem"].x1i10hfl.xjbqb8w.x1ejq31n.x1sy0etr.x972fbf.x1qhh985.xe8uvvx.x1hl2dhg.xggy1nq.x87ps6o.x1lku1pv.x1a2a7pz.xjyslct.x9f619.x1ypdohk.x78zum5.x1q0g3np.x2lah0s.x1i6fsjq.xfvfia3.x1n2onr6.x16tdsg8.x1ja2u2z.x6s0dn4.x1y1aw1k.xwib8y2.xd10rxx.x17r0tee.xcfux6l.xm0m39n.x1o1ewxj.x3x9cwd.x1e5q0jg.x13rtm0m.xnqzcj9.x1gh759c.x1q8cg2c.xnjli0'
-    // );
     this.#openInMessengerButton = this.#chatMenu.querySelector(
       '[href^="/messages"][role="menuitem"].x1i10hfl.xjbqb8w.x1ejq31n.x1sy0etr.x972fbf.x1qhh985.xe8uvvx.x1hl2dhg.xggy1nq.x87ps6o.x1lku1pv.x1a2a7pz.xjyslct.x9f619.x1ypdohk.x78zum5.x1q0g3np.x2lah0s.x1i6fsjq.xfvfia3.x1n2onr6.x16tdsg8.x1ja2u2z.x6s0dn4.x1y1aw1k.xwib8y2'
     );
@@ -452,18 +353,7 @@ const getTexBounds = (msg) => {
 };
 
 const parseContent = (bubble, domInfo = null) => {
-  // const msgTst = bubble.querySelector(
-  //   '.html-div.xexx8yu.x18d9i69.x1gslohp.x12nagc.x1yc453h'
-  // );
-  // if (msgTst !== null) {
-  //   console.log(`msgTst.textContent = ${msgTst.textContent}`);
-  // }
-  // console.log('checking if bubble can be parsed');
   if (domInfo === null || !domInfo.getParsedBubbles().includes(bubble)) {
-    // console.log('it can be; parsing now');
-    // const msg = bubble.querySelector(
-    //   '.html-div.xexx8yu.x4uap5.x18d9i69.xkhd6sd.x1gslohp.x11i5rnm.x12nagc.x1mh8g0r.x1yc453h.x126k92a.xyk4ms5'
-    // );
     const msg = bubble.querySelector(
       '.html-div.xexx8yu.x18d9i69.x1gslohp.x12nagc.x1yc453h'
     );
@@ -485,8 +375,6 @@ const parseContent = (bubble, domInfo = null) => {
           texBounds[i][1] + 2 + offset
         )}</span>${msg.textContent.substring(texBounds[i][1] + 2 + offset)}`;
       }
-
-      // console.log(`msg.textContent = ${msg.textContent}`);
 
       msg.innerHTML = msg.textContent;
 
@@ -549,9 +437,6 @@ const parseContent = (bubble, domInfo = null) => {
       domInfo.markAsParsed(bubble);
     }
   }
-  // else {
-  //   console.log(`bubble cannot be parsed`);
-  // }
 };
 
 const isOfTheClasses = (el, theCs) => {
@@ -605,7 +490,7 @@ const handleChatBubbles = (node, domInfo) => {
     const chatBubbles = node.querySelectorAll(
       '.html-div.xexx8yu.x18d9i69.xat24cr.xdj266r.xeuugli.x1vjfegm'
     );
-    // console.log(`${chatBubbles.length} chat bubbles found`);
+
     chatBubbles.forEach((bubble) => {
       parseContent(bubble, domInfo);
     });
@@ -667,12 +552,11 @@ const handleTextbox = (chat, domInfo) => {
     'div[aria-label="Message"][role="textbox"][contenteditable="true"][data-lexical-editor="true"].xzsf02u.x1a2a7pz.x1n2onr6.x14wi4xw.notranslate'
   );
   if (textbox === null) {
-    // console.log(`textbox starts off null`);
     setTimeout(() => {
       textbox = chat.querySelector(
         'div[aria-label="Message"][role="textbox"][contenteditable="true"][data-lexical-editor="true"].xzsf02u.x1a2a7pz.x1n2onr6.x14wi4xw.notranslate'
       );
-      // console.log(`But after delay textbox is ${textbox}`); // sometimes still null after 200 ms
+
       listenForNewMessages(chat, textbox, domInfo);
     }, 500);
   } else {
@@ -695,9 +579,6 @@ const handleChat = (domInfo = null) => {
     if (domInfo.getMessageGrid() === null) {
       console.log(`messageGrid starts off null`);
       setTimeout(() => {
-        // messageGrid = chat.querySelector(
-        //   'div[aria-label^="Messages in conversation"][role="grid"].x78zum5.xdt5ytf.x1iyjqo2.x6ikm8r.x10wlt62'
-        // );
         domInfo.setMessageGrid(chat);
         console.log(
           `But after 1250 ms messageGrid is ${domInfo.getMessageGrid()}`
@@ -709,7 +590,6 @@ const handleChat = (domInfo = null) => {
         handleTextbox(chat, domInfo);
       }, 1250);
     } else {
-      // console.log(`messageGrid starts off with a value of ${messageGrid}`);
       handleMessageGrid(domInfo.getMessageGrid(), domInfo);
 
       // Set up keydown event listener below, parse and render preexisting messages containing TeX code above
@@ -721,24 +601,12 @@ const handleChat = (domInfo = null) => {
 
 const handleChatBoxContainer = (domInfo) => {
   domInfo.setChatBoxes();
-  // console.log(
-  //   `handling chatBoxContainer; contains ${
-  //     domInfo.getChatBoxes().length
-  //   } chatBoxes`
-  // );
   if (domInfo.getChatBoxes().length !== 0) {
     for (const chat of domInfo.getChatBoxes()) {
-      // console.log(`chat.textContent = ${chat.textContent}`);
       if (!domInfo.getHandledChats().includes(chat)) {
-        // handleChat(chat, domInfo);
-        // if (!chat.firstChild.firstChild.hidden) {
-        // console.log('chat visible');
         domInfo.setChat(chat);
         handleChat(domInfo);
         domInfo.markAsHandled(chat);
-        // } else {
-        //   console.log('chat hidden');
-        // }
       }
     }
   }
@@ -750,7 +618,6 @@ const startUp = () => {
 
   if (window.location.href.startsWith('https://www.facebook.com/messages')) {
     domInfo.setAccountControlsAndSettings();
-    // domInfo.ignoreAccountControlsAndSettings();
     domInfo.observeAccountControlsAndSettings();
 
     domInfo.setMessengerChatContainer();
