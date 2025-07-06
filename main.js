@@ -3,14 +3,12 @@ class DomInfo {
   #chat = null;
   #messengerChatContainer = null;
   #chatBoxContainer = null;
-  #chatSettingsButton = null;
   #chatMenu = null;
   #openInMessengerButton = null;
   #messageGrid = null;
   #bubbleSource = null;
   #bubble = null;
   #chatBoxes = [];
-  #chatSettingsButtons = [];
   #parsedBubbles = [];
   #handledChats = [];
 
@@ -82,7 +80,6 @@ class DomInfo {
             this.#messageGrid = messageGrid;
             handleChat(this);
             this.#handledChats.push(node);
-            // this.handleChatSettingsButton(node);
           }
         }
       });
@@ -90,7 +87,6 @@ class DomInfo {
         let i = this.#chatBoxes.indexOf(node);
         if (i !== -1) {
           this.#chatBoxes.splice(i, 1);
-          this.#chatSettingsButtons.splice(i, 1);
         }
       });
     });
@@ -176,94 +172,14 @@ class DomInfo {
     return this.#chatBoxes;
   }
 
-  // handleChatSettingsButton(chatBox) {
-  //   this.setChatSettingsButton(chatBox);
-  //   console.log(
-  //     `chatSettingsButton starts off with a value of ${
-  //       this.#chatSettingsButton
-  //     }`
-  //   );
-  //   if (this.#chatSettingsButton === null) {
-  //     setTimeout(() => {
-  //       this.setChatSettingsButton(chatBox);
-  //       console.log(
-  //         `But after 400 ms chatSettingsButton is ${this.#chatSettingsButton}`
-  //       ); // sometimes still null after 300 ms
-
-  //       this.handleChatSettingsButtons();
-  //     }, 400);
-  //   } else {
-  //     this.handleChatSettingsButtons();
-  //   }
-  // }
-
   setChatBoxes() {
     this.#chatBoxes.length = 0;
     console.log(`${this.#chatBoxContainer.children.length} chatBoxes found`);
     for (const chatBox of this.#chatBoxContainer.children) {
       if (!this.#handledChats.includes(chatBox)) {
         this.#chatBoxes.push(chatBox);
-        // this.handleChatSettingsButton(chatBox);
       }
     }
-  }
-
-  getChatSettingsButtons() {
-    return this.#chatSettingsButtons;
-  }
-
-  setChatSettingsButtons() {
-    this.#chatSettingsButtons.length = 0;
-    for (const box of this.#chatBoxes) {
-      this.#chatSettingsButtons.push(
-        box.querySelector(
-          'div[aria-label="Chat settings"][role="button"].x1i10hfl.x1qjc9v5.xjbqb8w.xjqpnuy.xa49m3k.xqeqjp1.x2hbi6w.x13fuv20.xu3j5b3.x1q0q8m5.x26u7qi.x972fbf.xcfux6l.x1qhh985.xm0m39n.x9f619.x1ypdohk.xdl72j9.xe8uvvx.xdj266r.xat24cr.x1mh8g0r.x2lwn1j.xexx8yu.x4uap5.x18d9i69.xkhd6sd.x1n2onr6.x16tdsg8.x1hl2dhg.xggy1nq.x1ja2u2z.x1t137rt.x1o1ewxj.x3x9cwd.x1e5q0jg.x13rtm0m.x3nfvp2.x1q0g3np.x87ps6o.x1lku1pv.x1a2a7pz.xs83m0k.x1emribx.xeuugli'
-        )
-      );
-    }
-  }
-
-  // handleChatSettingsButtons() {
-  //   if (this.#chatSettingsButton === null) {
-  //     console.log(`chatSettingsButton is null`);
-  //   } else {
-  //     this.#chatSettingsButtons.push(this.#chatSettingsButton);
-
-  //     this.#chatSettingsButton.addEventListener('click', () => {
-  //       this.setChatMenu();
-  //       if (this.#chatMenu === null) {
-  //         console.log(`chatMenu starts off null`);
-  //         setTimeout(() => {
-  //           this.setChatMenu();
-  //           console.log(`But after 400 ms chatMenu is ${this.#chatMenu}`); // sometimes still null after 300 ms
-  //           this.setOpenInMessengerButton();
-
-  //           this.#openInMessengerButton.addEventListener('click', () => {
-  //             setTimeout(startUp, 50);
-  //           });
-  //         }, 400);
-  //       } else {
-  //         console.log(
-  //           `chatMenu starts off not null but with a value of ${this.#chatMenu}`
-  //         );
-  //         this.setOpenInMessengerButton();
-
-  //         this.#openInMessengerButton.addEventListener('click', () => {
-  //           setTimeout(startUp, 10);
-  //         });
-  //       }
-  //     });
-  //   }
-  // }
-
-  getChatSettingsButton() {
-    return this.#chatSettingsButton;
-  }
-
-  setChatSettingsButton(chatBox) {
-    this.#chatSettingsButton = chatBox.querySelector(
-      'div[aria-label="Chat settings"][role="button"].x1i10hfl.x1qjc9v5.xjbqb8w.xjqpnuy.xqeqjp1.x13fuv20.x972fbf.x1q0q8m5.xeuugli.x3nfvp2.x1q0g3np.x87ps6o.x1lku1pv.x1a2a7pz.xs83m0k.x9f619.x1ypdohk.xdl72j9.xe8uvvx.xdj266r.xat24cr.x1qhh985.x2lwn1j.xexx8yu.x1n2onr6.x16tdsg8.x1hl2dhg.xggy1nq.x1ja2u2z.x1t137rt.x18d9i69'
-    );
   }
 
   getChatMenu() {
@@ -665,9 +581,6 @@ const startUp = () => {
   domInfo.observeAccountControlsAndSettings();
 
   if (window.location.href.startsWith('https://www.facebook.com/messages')) {
-    // domInfo.setAccountControlsAndSettings();
-    // domInfo.observeAccountControlsAndSettings();
-
     domInfo.setMessengerChatContainer();
     domInfo.observeMessengerChatContainer();
     console.log(
@@ -705,36 +618,10 @@ const startUp = () => {
         console.log(
           `But after 1750 ms chatBoxContainer is ${domInfo.getChatBoxContainer()}`
         ); // sometimes still null after 1500 ms
-        // How could the condition below fail to be true?
-        if (domInfo.getChatSettingsButtons().length === 0) {
-          setTimeout(() => {
-            domInfo.setChatSettingsButtons();
-            console.log(
-              `After another 200 ms chatBoxContainer contains ${
-                domInfo.getChatSettingsButtons().length
-              } chatSettingsButtons`
-            );
-            handleChatBoxContainer(domInfo);
-          }, 200);
-        } else {
-          handleChatBoxContainer(domInfo);
-        }
+        handleChatBoxContainer(domInfo);
       }, 1750);
     } else {
-      // How could the condition below fail to be true?
-      if (domInfo.getChatSettingsButtons().length === 0) {
-        setTimeout(() => {
-          domInfo.setChatSettingsButtons();
-          console.log(
-            `After 200 ms chatBoxContainer contains ${
-              domInfo.getChatSettingsButtons().length
-            } chatSettingsButtons`
-          );
-          handleChatBoxContainer(domInfo);
-        }, 200);
-      } else {
-        handleChatBoxContainer(domInfo);
-      }
+      handleChatBoxContainer(domInfo);
     }
   }
 };
