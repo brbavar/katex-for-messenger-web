@@ -497,8 +497,8 @@ const handleChatBubbles = (node, domInfo) => {
   }
 };
 
-const handleMessageGrid = (grid, domInfo = null) => {
-  handleChatBubbles(grid, domInfo);
+const handleMessageGrid = (domInfo = null) => {
+  handleChatBubbles(domInfo.getMessageGrid(), domInfo);
 
   chatBubbleObserver = new MutationObserver((mutations) => {
     mutations.forEach((mutation) => {
@@ -508,7 +508,7 @@ const handleMessageGrid = (grid, domInfo = null) => {
     });
   });
 
-  chatBubbleObserver.observe(grid, {
+  chatBubbleObserver.observe(domInfo.getMessageGrid(), {
     childList: true,
     subtree: true,
   });
@@ -583,14 +583,14 @@ const handleChat = (domInfo = null) => {
         console.log(
           `But after 1250 ms messageGrid is ${domInfo.getMessageGrid()}`
         ); // sometimes still null after 1000 ms
-        handleMessageGrid(domInfo.getMessageGrid(), domInfo);
+        handleMessageGrid(domInfo);
 
         // Set up keydown event listener below, parse and render preexisting messages containing TeX code above
 
         handleTextbox(chat, domInfo);
       }, 1250);
     } else {
-      handleMessageGrid(domInfo.getMessageGrid(), domInfo);
+      handleMessageGrid(domInfo);
 
       // Set up keydown event listener below, parse and render preexisting messages containing TeX code above
 
@@ -637,11 +637,11 @@ const startUp = () => {
 
         domInfo.setChat();
         console.log(
-          `But after 1250 ms chat is ${domInfo.getChat()} and messengerChatContainer is ${domInfo.getMessengerChatContainer()}`
-        ); // sometimes chat is still null after 1000 ms
+          `But after 1500 ms chat is ${domInfo.getChat()} and messengerChatContainer is ${domInfo.getMessengerChatContainer()}`
+        ); // sometimes chat is still null after 1250 ms
 
         handleChat(domInfo);
-      }, 1250);
+      }, 1500);
     } else {
       handleChat(domInfo);
     }
@@ -696,30 +696,31 @@ window.onload = () => {
   startUp();
 };
 
-(() => {
-  const pushState = history.pushState;
-  history.pushState = () => {
-    pushState.apply(history);
-    window.dispatchEvent(new Event('locationchange'));
-  };
+// (() => {
+//   const pushState = history.pushState;
+//   history.pushState = () => {
+//     pushState.apply(history);
+//     window.dispatchEvent(new Event('locationchange'));
+//   };
 
-  const replaceState = history.replaceState;
-  history.replaceState = () => {
-    replaceState.apply(history);
-    window.dispatchEvent(new Event('locationchange'));
-  };
+//   const replaceState = history.replaceState;
+//   history.replaceState = () => {
+//     replaceState.apply(history);
+//     window.dispatchEvent(new Event('locationchange'));
+//   };
 
-  window.addEventListener('popstate', () => {
-    window.dispatchEvent(new Event('locationchange'));
-  });
+//   window.addEventListener('popstate', () => {
+//     window.dispatchEvent(new Event('locationchange'));
+//   });
 
-  window.addEventListener('locationchange', () => {
-    console.log('URL changed to:', window.location.href);
-    if (window.location.href.startsWith('https://www.facebook.com/messages')) {
-      console.log('executing startUp');
-      startUp();
-    } else {
-      console.log('NOT executing startUp');
-    }
-  });
-})();
+//   window.addEventListener('locationchange', () => {
+//     // console.log(`history.state = ${history.state}`);
+//     console.log('URL changed to:', window.location.href);
+//     if (window.location.href.startsWith('https://www.facebook.com/messages')) {
+//       console.log('executing startUp');
+//       startUp();
+//     } else {
+//       console.log('NOT executing startUp');
+//     }
+//   });
+// })();
