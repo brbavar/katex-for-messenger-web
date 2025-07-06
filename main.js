@@ -7,6 +7,7 @@ class DomInfo {
   #chatMenu = null;
   #openInMessengerButton = null;
   #messageGrid = null;
+  #bubbleSource = null;
   #chatBoxes = [];
   #chatSettingsButtons = [];
   #parsedBubbles = [];
@@ -278,6 +279,14 @@ class DomInfo {
     );
   }
 
+  getBubbleSource() {
+    return this.#bubbleSource;
+  }
+
+  setBubbleSource(src) {
+    this.#bubbleSource = src;
+  }
+
   getParsedBubbles() {
     return this.#parsedBubbles;
   }
@@ -485,11 +494,16 @@ const sendStatusObserver = new MutationObserver((mutations) => {
 
 let chatBubbleObserver;
 
-const handleChatBubbles = (node, domInfo) => {
-  if (node !== null && 'querySelectorAll' in node) {
-    const chatBubbles = node.querySelectorAll(
-      '.html-div.xexx8yu.x18d9i69.xat24cr.xdj266r.xeuugli.x1vjfegm'
-    );
+const handleChatBubbles = (domInfo) => {
+  if (
+    domInfo.getBubbleSource() !== null &&
+    'querySelectorAll' in domInfo.getBubbleSource()
+  ) {
+    const chatBubbles = domInfo
+      .getBubbleSource()
+      .querySelectorAll(
+        '.html-div.xexx8yu.x18d9i69.xat24cr.xdj266r.xeuugli.x1vjfegm'
+      );
 
     chatBubbles.forEach((bubble) => {
       parseContent(bubble, domInfo);
@@ -498,12 +512,14 @@ const handleChatBubbles = (node, domInfo) => {
 };
 
 const handleMessageGrid = (domInfo = null) => {
-  handleChatBubbles(domInfo.getMessageGrid(), domInfo);
+  domInfo.setBubbleSource(domInfo.getMessageGrid());
+  handleChatBubbles(domInfo);
 
   chatBubbleObserver = new MutationObserver((mutations) => {
     mutations.forEach((mutation) => {
       mutation.addedNodes.forEach((node) => {
-        handleChatBubbles(node, domInfo);
+        domInfo.setBubbleSource(node);
+        handleChatBubbles(domInfo);
       });
     });
   });
@@ -695,32 +711,3 @@ window.onload = () => {
   console.log('Page loaded');
   startUp();
 };
-
-// (() => {
-//   const pushState = history.pushState;
-//   history.pushState = () => {
-//     pushState.apply(history);
-//     window.dispatchEvent(new Event('locationchange'));
-//   };
-
-//   const replaceState = history.replaceState;
-//   history.replaceState = () => {
-//     replaceState.apply(history);
-//     window.dispatchEvent(new Event('locationchange'));
-//   };
-
-//   window.addEventListener('popstate', () => {
-//     window.dispatchEvent(new Event('locationchange'));
-//   });
-
-//   window.addEventListener('locationchange', () => {
-//     // console.log(`history.state = ${history.state}`);
-//     console.log('URL changed to:', window.location.href);
-//     if (window.location.href.startsWith('https://www.facebook.com/messages')) {
-//       console.log('executing startUp');
-//       startUp();
-//     } else {
-//       console.log('NOT executing startUp');
-//     }
-//   });
-// })();
