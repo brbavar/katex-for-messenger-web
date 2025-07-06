@@ -8,12 +8,14 @@ class DomInfo {
   #openInMessengerButton = null;
   #messageGrid = null;
   #bubbleSource = null;
+  #bubble = null;
   #chatBoxes = [];
   #chatSettingsButtons = [];
   #parsedBubbles = [];
   #handledChats = [];
 
   #accountControlsAndSettingsObserver = new MutationObserver((mutations) => {
+    console.log(`accountControlsAndSettings mutated`);
     let messengerControlSeen = false;
     for (const mutation of mutations) {
       for (const node of mutation.addedNodes) {
@@ -26,6 +28,21 @@ class DomInfo {
           break;
         } else {
           console.log(`messenger control not added`);
+        }
+      }
+      console.log(
+        `${mutation.removedNodes.length} nodes removed from childList of accountControlsAndSettings`
+      );
+      for (const node of mutation.removedNodes) {
+        const messengerControl = node.querySelector('[aria-label="Messenger"]');
+        if (messengerControl !== null) {
+          console.log(`messenger control removed`);
+          this.#accountControlsAndSettingsObserver.disconnect();
+          startUp();
+          messengerControlSeen = true;
+          break;
+        } else {
+          console.log(`messenger control not removed`);
         }
       }
       if (messengerControlSeen) {
@@ -65,7 +82,7 @@ class DomInfo {
             this.#messageGrid = messageGrid;
             handleChat(this);
             this.#handledChats.push(node);
-            this.handleChatSettingsButton(node);
+            // this.handleChatSettingsButton(node);
           }
         }
       });
@@ -159,26 +176,26 @@ class DomInfo {
     return this.#chatBoxes;
   }
 
-  handleChatSettingsButton(chatBox) {
-    this.setChatSettingsButton(chatBox);
-    console.log(
-      `chatSettingsButton starts off with a value of ${
-        this.#chatSettingsButton
-      }`
-    );
-    if (this.#chatSettingsButton === null) {
-      setTimeout(() => {
-        this.setChatSettingsButton(chatBox);
-        console.log(
-          `But after 400 ms chatSettingsButton is ${this.#chatSettingsButton}`
-        ); // sometimes still null after 300 ms
+  // handleChatSettingsButton(chatBox) {
+  //   this.setChatSettingsButton(chatBox);
+  //   console.log(
+  //     `chatSettingsButton starts off with a value of ${
+  //       this.#chatSettingsButton
+  //     }`
+  //   );
+  //   if (this.#chatSettingsButton === null) {
+  //     setTimeout(() => {
+  //       this.setChatSettingsButton(chatBox);
+  //       console.log(
+  //         `But after 400 ms chatSettingsButton is ${this.#chatSettingsButton}`
+  //       ); // sometimes still null after 300 ms
 
-        this.handleChatSettingsButtons();
-      }, 400);
-    } else {
-      this.handleChatSettingsButtons();
-    }
-  }
+  //       this.handleChatSettingsButtons();
+  //     }, 400);
+  //   } else {
+  //     this.handleChatSettingsButtons();
+  //   }
+  // }
 
   setChatBoxes() {
     this.#chatBoxes.length = 0;
@@ -186,7 +203,7 @@ class DomInfo {
     for (const chatBox of this.#chatBoxContainer.children) {
       if (!this.#handledChats.includes(chatBox)) {
         this.#chatBoxes.push(chatBox);
-        this.handleChatSettingsButton(chatBox);
+        // this.handleChatSettingsButton(chatBox);
       }
     }
   }
@@ -206,38 +223,38 @@ class DomInfo {
     }
   }
 
-  handleChatSettingsButtons() {
-    if (this.#chatSettingsButton === null) {
-      console.log(`chatSettingsButton is null`);
-    } else {
-      this.#chatSettingsButtons.push(this.#chatSettingsButton);
+  // handleChatSettingsButtons() {
+  //   if (this.#chatSettingsButton === null) {
+  //     console.log(`chatSettingsButton is null`);
+  //   } else {
+  //     this.#chatSettingsButtons.push(this.#chatSettingsButton);
 
-      this.#chatSettingsButton.addEventListener('click', () => {
-        this.setChatMenu();
-        if (this.#chatMenu === null) {
-          console.log(`chatMenu starts off null`);
-          setTimeout(() => {
-            this.setChatMenu();
-            console.log(`But after 400 ms chatMenu is ${this.#chatMenu}`); // sometimes still null after 300 ms
-            this.setOpenInMessengerButton();
+  //     this.#chatSettingsButton.addEventListener('click', () => {
+  //       this.setChatMenu();
+  //       if (this.#chatMenu === null) {
+  //         console.log(`chatMenu starts off null`);
+  //         setTimeout(() => {
+  //           this.setChatMenu();
+  //           console.log(`But after 400 ms chatMenu is ${this.#chatMenu}`); // sometimes still null after 300 ms
+  //           this.setOpenInMessengerButton();
 
-            this.#openInMessengerButton.addEventListener('click', () => {
-              setTimeout(startUp, 50);
-            });
-          }, 400);
-        } else {
-          console.log(
-            `chatMenu starts off not null but with a value of ${this.#chatMenu}`
-          );
-          this.setOpenInMessengerButton();
+  //           this.#openInMessengerButton.addEventListener('click', () => {
+  //             setTimeout(startUp, 50);
+  //           });
+  //         }, 400);
+  //       } else {
+  //         console.log(
+  //           `chatMenu starts off not null but with a value of ${this.#chatMenu}`
+  //         );
+  //         this.setOpenInMessengerButton();
 
-          this.#openInMessengerButton.addEventListener('click', () => {
-            setTimeout(startUp, 10);
-          });
-        }
-      });
-    }
-  }
+  //         this.#openInMessengerButton.addEventListener('click', () => {
+  //           setTimeout(startUp, 10);
+  //         });
+  //       }
+  //     });
+  //   }
+  // }
 
   getChatSettingsButton() {
     return this.#chatSettingsButton;
@@ -285,6 +302,14 @@ class DomInfo {
 
   setBubbleSource(src) {
     this.#bubbleSource = src;
+  }
+
+  getBubble() {
+    return this.#bubble;
+  }
+
+  setBubble(bbl) {
+    this.#bubble = bbl;
   }
 
   getParsedBubbles() {
@@ -361,11 +386,14 @@ const getTexBounds = (msg) => {
   return bounds;
 };
 
-const parseContent = (bubble, domInfo = null) => {
-  if (domInfo === null || !domInfo.getParsedBubbles().includes(bubble)) {
-    const msg = bubble.querySelector(
-      '.html-div.xexx8yu.x18d9i69.x1gslohp.x12nagc.x1yc453h'
-    );
+const parseContent = (domInfo = null) => {
+  if (
+    domInfo === null ||
+    !domInfo.getParsedBubbles().includes(domInfo.getBubble())
+  ) {
+    const msg = domInfo
+      .getBubble()
+      .querySelector('.html-div.xexx8yu.x18d9i69.x1gslohp.x12nagc.x1yc453h');
     let texBounds;
 
     if (msg !== null && msg.textContent != '') {
@@ -443,7 +471,7 @@ const parseContent = (bubble, domInfo = null) => {
       });
     }
     if (domInfo !== null) {
-      domInfo.markAsParsed(bubble);
+      domInfo.markAsParsed(domInfo.getBubble());
     }
   }
 };
@@ -506,7 +534,8 @@ const handleChatBubbles = (domInfo) => {
       );
 
     chatBubbles.forEach((bubble) => {
-      parseContent(bubble, domInfo);
+      domInfo.setBubble(bubble);
+      parseContent(domInfo);
     });
   }
 };
@@ -632,9 +661,12 @@ const handleChatBoxContainer = (domInfo) => {
 const startUp = () => {
   const domInfo = new DomInfo();
 
+  domInfo.setAccountControlsAndSettings();
+  domInfo.observeAccountControlsAndSettings();
+
   if (window.location.href.startsWith('https://www.facebook.com/messages')) {
-    domInfo.setAccountControlsAndSettings();
-    domInfo.observeAccountControlsAndSettings();
+    // domInfo.setAccountControlsAndSettings();
+    // domInfo.observeAccountControlsAndSettings();
 
     domInfo.setMessengerChatContainer();
     domInfo.observeMessengerChatContainer();
