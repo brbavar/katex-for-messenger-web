@@ -60,7 +60,7 @@ class DomInfo {
           ))
         ) {
           this.#chat = convo;
-          this.setMessageGrid(convo);
+          this.setMessageGrid();
           handleChat(this);
         }
       });
@@ -113,7 +113,7 @@ class DomInfo {
     return this.#chat;
   }
 
-  setChat(chatBox) {
+  setChat(chat) {
     if (arguments.length === 0) {
       this.#chat = document.querySelector(
         'div[aria-label^="Conversation"][role="main"].x1ja2u2z.x9f619.x78zum5.xdt5ytf.x193iq5w.x1l7klhg.x1iyjqo2.xs83m0k.x2lwn1j.x6prxxf.x85a59c.x1n2onr6.xjbqb8w.xuce83p.x1bft6iq'
@@ -121,7 +121,7 @@ class DomInfo {
     }
     // Condition below never satisfied in actual use of method
     if (arguments.length === 1) {
-      this.#chat = chatBox;
+      this.#chat = chat;
     }
   }
 
@@ -206,8 +206,8 @@ class DomInfo {
     return this.#messageGrid;
   }
 
-  setMessageGrid(chat) {
-    this.#messageGrid = chat.querySelector(
+  setMessageGrid() {
+    this.#messageGrid = this.#chat.querySelector(
       'div[aria-label^="Messages in conversation"][role="grid"].x78zum5.xdt5ytf.x1iyjqo2.x6ikm8r.x10wlt62'
     );
   }
@@ -394,7 +394,7 @@ const parseContent = (domInfo = null) => {
 
 const isOfTheClasses = (el, theCs) => {
   for (const c of theCs) {
-    if (!el.classList.contains(c)) return false;
+    if (!'classList' in el || !el.classList.contains(c)) return false;
   }
   return true;
 };
@@ -406,13 +406,13 @@ const getNewChatBubble = (sendStatusTxtNode) => {
     !isOfTheClasses(searchNode, [
       'html-div',
       'xdj266r',
-      'x11i5rnm',
+      // 'x11i5rnm',
       'xat24cr',
-      'x1mh8g0r',
+      // 'x1mh8g0r',
       'xexx8yu',
-      'x4uap5',
+      // 'x4uap5',
       'x18d9i69',
-      'xkhd6sd',
+      // 'xkhd6sd',
       'x1eb86dx',
       'x78zum5',
       'x13a6bvl',
@@ -421,7 +421,7 @@ const getNewChatBubble = (sendStatusTxtNode) => {
     searchNode = searchNode.parentNode;
   }
 
-  return searchNode.previousSibling;
+  return searchNode.previousSibling || searchNode.nextSibling;
 };
 
 const sendStatusObserver = new MutationObserver((mutations) => {
@@ -476,8 +476,11 @@ const handleMessageGrid = (domInfo = null) => {
 };
 
 const listenForNewMessages = (chat, textbox, domInfo) => {
+  // const messageGrid = chat.querySelector(
+  //   'div[aria-label^="Messages in conversation"][role="grid"].x1uipg7g.xu3j5b3.xol2nv.xlauuyb.x26u7qi.x19p7ews.x78zum5.xdt5ytf.x1iyjqo2.x6ikm8r.x10wlt62'
+  // );
   const messageGrid = chat.querySelector(
-    'div[aria-label^="Messages in conversation"][role="grid"].x1uipg7g.xu3j5b3.xol2nv.xlauuyb.x26u7qi.x19p7ews.x78zum5.xdt5ytf.x1iyjqo2.x6ikm8r.x10wlt62'
+    'div[aria-label^="Messages in conversation"][role="grid"].x78zum5.xdt5ytf.x1iyjqo2.x6ikm8r.x10wlt62'
   );
   textbox.addEventListener('keydown', (keystroke) => {
     if (
@@ -486,13 +489,16 @@ const listenForNewMessages = (chat, textbox, domInfo) => {
       keystroke.key === 'Enter'
     ) {
       setTimeout(() => {
+        // const sendStatus = messageGrid.querySelector(
+        //   'div[role="row"].x1n2onr6 > div > div[data-release-focus-from="CLICK"][data-scope="messages_table"][role="gridcell"].x78zum5.xdt5ytf.x1n2onr6 > .html-div.xdj266r.x11i5rnm.xat24cr.x1mh8g0r.xexx8yu.x4uap5.x18d9i69.xkhd6sd.x1eb86dx.x78zum5.x13a6bvl > [role="presentation"].html-span.x1mh8g0r.x1hl2dhg.x16tdsg8.x1vvkbs.x1eb86dx.xexx8yu.x4uap5.x18d9i69.xkhd6sd.x1n2onr6.x12nagc.xpdqn1h.x1gslohp > [dir="auto"].x193iq5w.xeuugli.x13faqbe.x1vvkbs.xlh3980.xvmahel.x1n0sxbx.x1lliihq.x1s928wv.xhkezso.x1gmr53x.x1cpjm7i.x1fgarty.x1943h6x.x1tu3fi.x676frb.x1pg5gke.xvq8zen.xo1l8bm.xi81zsa.xp4054r > .html-span.xdj266r.x11i5rnm.xat24cr.x1mh8g0r.xexx8yu.x4uap5.x18d9i69.xkhd6sd.x1hl2dhg.x16tdsg8.x1vvkbs.x1xf6ywa'
+        // );
         const sendStatus = messageGrid.querySelector(
-          'div[role="row"].x1n2onr6 > div > div[data-release-focus-from="CLICK"][data-scope="messages_table"][role="gridcell"].x78zum5.xdt5ytf.x1n2onr6 > .html-div.xdj266r.x11i5rnm.xat24cr.x1mh8g0r.xexx8yu.x4uap5.x18d9i69.xkhd6sd.x1eb86dx.x78zum5.x13a6bvl > [role="presentation"].html-span.x1mh8g0r.x1hl2dhg.x16tdsg8.x1vvkbs.x1eb86dx.xexx8yu.x4uap5.x18d9i69.xkhd6sd.x1n2onr6.x12nagc.xpdqn1h.x1gslohp > [dir="auto"].x193iq5w.xeuugli.x13faqbe.x1vvkbs.xlh3980.xvmahel.x1n0sxbx.x1lliihq.x1s928wv.xhkezso.x1gmr53x.x1cpjm7i.x1fgarty.x1943h6x.x1tu3fi.x676frb.x1pg5gke.xvq8zen.xo1l8bm.xi81zsa.xp4054r > .html-span.xdj266r.x11i5rnm.xat24cr.x1mh8g0r.xexx8yu.x4uap5.x18d9i69.xkhd6sd.x1hl2dhg.x16tdsg8.x1vvkbs.x1xf6ywa'
+          'div[role="row"].x1n2onr6 > div > div[data-release-focus-from="CLICK"][data-scope="messages_table"][role="gridcell"].x78zum5.xdt5ytf.x1n2onr6 > .html-div.xdj266r.xat24cr.xexx8yu.x18d9i69.x1eb86dx.x78zum5.x13a6bvl > [role="presentation"].html-span.x1hl2dhg.x16tdsg8.x1vvkbs.x1eb86dx.xexx8yu.x18d9i69.x1n2onr6.x12nagc.x1gslohp > [dir="auto"].x193iq5w.xeuugli.x13faqbe.x1vvkbs.xlh3980.xvmahel.x1n0sxbx.x1lliihq.x1s928wv.xhkezso.x1gmr53x.x1cpjm7i.x1fgarty.x1943h6x.x1tu3fi.x676frb.x1pg5gke.xvq8zen.xo1l8bm.xi81zsa.xp4054r > .html-span.xdj266r.xat24cr.xexx8yu.x18d9i69.x1hl2dhg.x16tdsg8.x1vvkbs.x1xf6ywa'
         );
         if (sendStatus !== null) {
           if (sendStatus.firstChild.nodeValue === 'Sent') {
-            const bubble = getNewChatBubble(sendStatus.firstChild);
-            parseContent(bubble, domInfo);
+            domInfo.setBubble(getNewChatBubble(sendStatus.firstChild));
+            parseContent(domInfo);
           } else {
             sendStatusObserver.observe(sendStatus.firstChild, {
               characterData: true,
@@ -540,7 +546,8 @@ const handleChat = (domInfo = null) => {
     if (domInfo.getMessageGrid() === null) {
       console.log(`messageGrid starts off null`);
       setTimeout(() => {
-        domInfo.setMessageGrid(chat);
+        domInfo.setChat(chat);
+        domInfo.setMessageGrid();
         console.log(
           `But after 1250 ms messageGrid is ${domInfo.getMessageGrid()}`
         ); // sometimes still null after 1000 ms
