@@ -92,13 +92,6 @@ class DomInfo {
     });
   });
 
-  // #incomingMessageObserver = new MutationObserver((mutations) => {
-  //   mutations.forEach((mutation) => {
-  //     const characterData = mutation.target;
-
-  //   });
-  // });
-
   getAccountControlsAndSettings() {
     return this.#accountControlsAndSettings;
   }
@@ -233,17 +226,6 @@ class DomInfo {
   setBubble(bbl) {
     this.#bubble = bbl;
   }
-
-  // observeIncomingMessage() {
-  //   this.#incomingMessageObserver.observe(
-  //     this.#bubble.querySelector(
-  //       '.html-div.xexx8yu.x18d9i69.x1gslohp.x12nagc.x1yc453h'
-  //     ),
-  //     {
-  //       characterData: true,
-  //     }
-  //   );
-  // }
 
   getParsedBubbles() {
     return this.#parsedBubbles;
@@ -445,26 +427,14 @@ const handleChatBubbles = (domInfo) => {
     domInfo.getBubbleSource() !== null &&
     'querySelectorAll' in domInfo.getBubbleSource()
   ) {
-    console.log(`tests passed`);
     const chatBubbles = domInfo
       .getBubbleSource()
       .querySelectorAll(
         '.html-div.xexx8yu.x18d9i69.xat24cr.xdj266r.xeuugli.x1vjfegm'
       );
 
-    console.log(`${chatBubbles.length} chatBubbles found`);
-
     chatBubbles.forEach((bubble) => {
-      console.log(`looping over bubbles`);
       domInfo.setBubble(bubble);
-      // const msg = bubble.querySelector(
-      //   '.html-div.xexx8yu.x18d9i69.x1gslohp.x12nagc.x1yc453h'
-      // );
-      // if (msg !== null) {
-      //   console.log(`msg.textContent = ${msg.textContent}`);
-      // }
-      console.log(`bubble.textContent = ${bubble.textContent}`);
-      console.log(`bubble.classList = ${bubble.classList}`);
       if (bubble.textContent === '') {
         const waitToParseContent = () => {
           if (
@@ -475,7 +445,6 @@ const handleChatBubbles = (domInfo) => {
           ) {
             setTimeout(waitToParseContent, 100);
           } else {
-            // domInfo.observeIncomingMessage();
             let txt = bubble.textContent;
             const waitForCompleteMessage = () => {
               setTimeout(() => {
@@ -516,10 +485,6 @@ const handleMessageGrid = (domInfo = null) => {
     subtree: true,
   });
 };
-
-// const listenForIncomingMessages = () => {
-//   const .querySelector('[dir="auto"]html-div.xexx8yu.xyri2b.x18d9i69.x1c1uobl.x1gslohp.x14z9mp.x12nagc.x1lziwak.x1yc453h.x126k92a.x18lvrbx');
-// };
 
 const listenForOutgoingMessages = (chat, textbox, domInfo) => {
   const messageGrid = chat.querySelector(
