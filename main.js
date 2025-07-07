@@ -476,9 +476,6 @@ const handleMessageGrid = (domInfo = null) => {
 };
 
 const listenForNewMessages = (chat, textbox, domInfo) => {
-  // const messageGrid = chat.querySelector(
-  //   'div[aria-label^="Messages in conversation"][role="grid"].x1uipg7g.xu3j5b3.xol2nv.xlauuyb.x26u7qi.x19p7ews.x78zum5.xdt5ytf.x1iyjqo2.x6ikm8r.x10wlt62'
-  // );
   const messageGrid = chat.querySelector(
     'div[aria-label^="Messages in conversation"][role="grid"].x78zum5.xdt5ytf.x1iyjqo2.x6ikm8r.x10wlt62'
   );
@@ -489,9 +486,6 @@ const listenForNewMessages = (chat, textbox, domInfo) => {
       keystroke.key === 'Enter'
     ) {
       setTimeout(() => {
-        // const sendStatus = messageGrid.querySelector(
-        //   'div[role="row"].x1n2onr6 > div > div[data-release-focus-from="CLICK"][data-scope="messages_table"][role="gridcell"].x78zum5.xdt5ytf.x1n2onr6 > .html-div.xdj266r.x11i5rnm.xat24cr.x1mh8g0r.xexx8yu.x4uap5.x18d9i69.xkhd6sd.x1eb86dx.x78zum5.x13a6bvl > [role="presentation"].html-span.x1mh8g0r.x1hl2dhg.x16tdsg8.x1vvkbs.x1eb86dx.xexx8yu.x4uap5.x18d9i69.xkhd6sd.x1n2onr6.x12nagc.xpdqn1h.x1gslohp > [dir="auto"].x193iq5w.xeuugli.x13faqbe.x1vvkbs.xlh3980.xvmahel.x1n0sxbx.x1lliihq.x1s928wv.xhkezso.x1gmr53x.x1cpjm7i.x1fgarty.x1943h6x.x1tu3fi.x676frb.x1pg5gke.xvq8zen.xo1l8bm.xi81zsa.xp4054r > .html-span.xdj266r.x11i5rnm.xat24cr.x1mh8g0r.xexx8yu.x4uap5.x18d9i69.xkhd6sd.x1hl2dhg.x16tdsg8.x1vvkbs.x1xf6ywa'
-        // );
         const sendStatus = messageGrid.querySelector(
           'div[role="row"].x1n2onr6 > div > div[data-release-focus-from="CLICK"][data-scope="messages_table"][role="gridcell"].x78zum5.xdt5ytf.x1n2onr6 > .html-div.xdj266r.xat24cr.xexx8yu.x18d9i69.x1eb86dx.x78zum5.x13a6bvl > [role="presentation"].html-span.x1hl2dhg.x16tdsg8.x1vvkbs.x1eb86dx.xexx8yu.x18d9i69.x1n2onr6.x12nagc.x1gslohp > [dir="auto"].x193iq5w.xeuugli.x13faqbe.x1vvkbs.xlh3980.xvmahel.x1n0sxbx.x1lliihq.x1s928wv.xhkezso.x1gmr53x.x1cpjm7i.x1fgarty.x1943h6x.x1tu3fi.x676frb.x1pg5gke.xvq8zen.xo1l8bm.xi81zsa.xp4054r > .html-span.xdj266r.xat24cr.xexx8yu.x18d9i69.x1hl2dhg.x16tdsg8.x1vvkbs.x1xf6ywa'
         );
