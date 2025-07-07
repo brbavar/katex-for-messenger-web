@@ -406,13 +406,9 @@ const getNewChatBubble = (sendStatusTxtNode) => {
     !isOfTheClasses(searchNode, [
       'html-div',
       'xdj266r',
-      // 'x11i5rnm',
       'xat24cr',
-      // 'x1mh8g0r',
       'xexx8yu',
-      // 'x4uap5',
       'x18d9i69',
-      // 'xkhd6sd',
       'x1eb86dx',
       'x78zum5',
       'x13a6bvl',
@@ -424,17 +420,17 @@ const getNewChatBubble = (sendStatusTxtNode) => {
   return searchNode.previousSibling || searchNode.nextSibling;
 };
 
-const sendStatusObserver = new MutationObserver((mutations) => {
-  mutations.forEach((mutation) => {
-    const characterData = mutation.target;
-    if (characterData.data === 'Sent') {
-      const bubble = getNewChatBubble(mutation.target);
-      parseContent(bubble);
+// const sendStatusObserver = new MutationObserver((mutations) => {
+//   mutations.forEach((mutation) => {
+//     const characterData = mutation.target;
+//     if (characterData.data === 'Sent') {
+//       const bubble = getNewChatBubble(mutation.target);
+//       parseContent(bubble);
 
-      sendStatusObserver.disconnect();
-    }
-  });
-});
+//       sendStatusObserver.disconnect();
+//     }
+//   });
+// });
 
 let chatBubbleObserver;
 
@@ -485,25 +481,65 @@ const listenForNewMessages = (chat, textbox, domInfo) => {
       messageGrid !== null &&
       keystroke.key === 'Enter'
     ) {
-      setTimeout(() => {
-        const sendStatus = messageGrid.querySelector(
-          'div[role="row"].x1n2onr6 > div > div[data-release-focus-from="CLICK"][data-scope="messages_table"][role="gridcell"].x78zum5.xdt5ytf.x1n2onr6 > .html-div.xdj266r.xat24cr.xexx8yu.x18d9i69.x1eb86dx.x78zum5.x13a6bvl > [role="presentation"].html-span.x1hl2dhg.x16tdsg8.x1vvkbs.x1eb86dx.xexx8yu.x18d9i69.x1n2onr6.x12nagc.x1gslohp > [dir="auto"].x193iq5w.xeuugli.x13faqbe.x1vvkbs.xlh3980.xvmahel.x1n0sxbx.x1lliihq.x1s928wv.xhkezso.x1gmr53x.x1cpjm7i.x1fgarty.x1943h6x.x1tu3fi.x676frb.x1pg5gke.xvq8zen.xo1l8bm.xi81zsa.xp4054r > .html-span.xdj266r.xat24cr.xexx8yu.x18d9i69.x1hl2dhg.x16tdsg8.x1vvkbs.x1xf6ywa'
-        );
-        if (sendStatus !== null) {
-          if (sendStatus.firstChild.nodeValue === 'Sent') {
-            domInfo.setBubble(getNewChatBubble(sendStatus.firstChild));
-            parseContent(domInfo);
-          } else {
-            sendStatusObserver.observe(sendStatus.firstChild, {
-              characterData: true,
-            });
-          }
+      // setTimeout(() => {
+      //   const sendStatus = messageGrid.querySelector(
+      //     'div[role="row"].x1n2onr6 > div > div[data-release-focus-from="CLICK"][data-scope="messages_table"][role="gridcell"].x78zum5.xdt5ytf.x1n2onr6 > .html-div.xdj266r.xat24cr.xexx8yu.x18d9i69.x1eb86dx.x78zum5.x13a6bvl > [role="presentation"].html-span.x1hl2dhg.x16tdsg8.x1vvkbs.x1eb86dx.xexx8yu.x18d9i69.x1n2onr6.x12nagc.x1gslohp > [dir="auto"].x193iq5w.xeuugli.x13faqbe.x1vvkbs.xlh3980.xvmahel.x1n0sxbx.x1lliihq.x1s928wv.xhkezso.x1gmr53x.x1cpjm7i.x1fgarty.x1943h6x.x1tu3fi.x676frb.x1pg5gke.xvq8zen.xo1l8bm.xi81zsa.xp4054r > .html-span.xdj266r.xat24cr.xexx8yu.x18d9i69.x1hl2dhg.x16tdsg8.x1vvkbs.x1xf6ywa'
+      //   );
+      //   if (sendStatus !== null) {
+      //     if (sendStatus.firstChild.nodeValue === 'Sent') {
+      //       domInfo.setBubble(getNewChatBubble(sendStatus.firstChild));
+      //       parseContent(domInfo);
+      //     } else {
+      //       sendStatusObserver.observe(sendStatus.firstChild, {
+      //         characterData: true,
+      //       });
+      //     }
+      //   } else {
+      //     console.log(
+      //       `The message was sent too slowly for your formulas to be typeset. Try again!`
+      //     );
+      //   }
+      // }, 2000);
+
+      const oldSendStatus = messageGrid.querySelector(
+        'div[role="row"].x1n2onr6 > div > div[data-release-focus-from="CLICK"][data-scope="messages_table"][role="gridcell"].x78zum5.xdt5ytf.x1n2onr6 > .html-div.xdj266r.xat24cr.xexx8yu.x18d9i69.x1eb86dx.x78zum5.x13a6bvl > [role="presentation"].html-span.x1hl2dhg.x16tdsg8.x1vvkbs.x1eb86dx.xexx8yu.x18d9i69.x1n2onr6.x12nagc.x1gslohp > [dir="auto"].x193iq5w.xeuugli.x13faqbe.x1vvkbs.xlh3980.xvmahel.x1n0sxbx.x1lliihq.x1s928wv.xhkezso.x1gmr53x.x1cpjm7i.x1fgarty.x1943h6x.x1tu3fi.x676frb.x1pg5gke.xvq8zen.xo1l8bm.xi81zsa.xp4054r > .html-span.xdj266r.xat24cr.xexx8yu.x18d9i69.x1hl2dhg.x16tdsg8.x1vvkbs.x1xf6ywa'
+      );
+      let sendStatus = oldSendStatus;
+      const waitForNewSendStatus = () => {
+        if (sendStatus === oldSendStatus) {
+          setTimeout(() => {
+            sendStatus = messageGrid.querySelector(
+              'div[role="row"].x1n2onr6 > div > div[data-release-focus-from="CLICK"][data-scope="messages_table"][role="gridcell"].x78zum5.xdt5ytf.x1n2onr6 > .html-div.xdj266r.xat24cr.xexx8yu.x18d9i69.x1eb86dx.x78zum5.x13a6bvl > [role="presentation"].html-span.x1hl2dhg.x16tdsg8.x1vvkbs.x1eb86dx.xexx8yu.x18d9i69.x1n2onr6.x12nagc.x1gslohp > [dir="auto"].x193iq5w.xeuugli.x13faqbe.x1vvkbs.xlh3980.xvmahel.x1n0sxbx.x1lliihq.x1s928wv.xhkezso.x1gmr53x.x1cpjm7i.x1fgarty.x1943h6x.x1tu3fi.x676frb.x1pg5gke.xvq8zen.xo1l8bm.xi81zsa.xp4054r > .html-span.xdj266r.xat24cr.xexx8yu.x18d9i69.x1hl2dhg.x16tdsg8.x1vvkbs.x1xf6ywa'
+            );
+            waitForNewSendStatus();
+          }, 100);
         } else {
-          console.log(
-            `The message was sent too slowly for your formulas to be typeset. Try again!`
-          );
+          const waitToParseContent = () => {
+            if (sendStatus === null) {
+              console.log(`sendStatus is still null...`);
+              setTimeout(() => {
+                sendStatus = messageGrid.querySelector(
+                  'div[role="row"].x1n2onr6 > div > div[data-release-focus-from="CLICK"][data-scope="messages_table"][role="gridcell"].x78zum5.xdt5ytf.x1n2onr6 > .html-div.xdj266r.xat24cr.xexx8yu.x18d9i69.x1eb86dx.x78zum5.x13a6bvl > [role="presentation"].html-span.x1hl2dhg.x16tdsg8.x1vvkbs.x1eb86dx.xexx8yu.x18d9i69.x1n2onr6.x12nagc.x1gslohp > [dir="auto"].x193iq5w.xeuugli.x13faqbe.x1vvkbs.xlh3980.xvmahel.x1n0sxbx.x1lliihq.x1s928wv.xhkezso.x1gmr53x.x1cpjm7i.x1fgarty.x1943h6x.x1tu3fi.x676frb.x1pg5gke.xvq8zen.xo1l8bm.xi81zsa.xp4054r > .html-span.xdj266r.xat24cr.xexx8yu.x18d9i69.x1hl2dhg.x16tdsg8.x1vvkbs.x1xf6ywa'
+                );
+                waitToParseContent();
+              }, 100);
+            } else {
+              if (sendStatus.firstChild.nodeValue !== 'Sent') {
+                console.log(
+                  `Not done sending yet... (nodeValue = ${sendStatus.firstChild.nodeValue})`
+                );
+                setTimeout(waitToParseContent, 100);
+              } else {
+                console.log(`Sent!`);
+                domInfo.setBubble(getNewChatBubble(sendStatus.firstChild));
+                parseContent(domInfo);
+              }
+            }
+          };
+          waitToParseContent();
         }
-      }, 2000);
+      };
+      waitForNewSendStatus();
     }
   });
 };
@@ -512,17 +548,30 @@ const handleTextbox = (chat, domInfo) => {
   let textbox = chat.querySelector(
     'div[aria-label="Message"][role="textbox"][contenteditable="true"][data-lexical-editor="true"].xzsf02u.x1a2a7pz.x1n2onr6.x14wi4xw.notranslate'
   );
-  if (textbox === null) {
-    setTimeout(() => {
-      textbox = chat.querySelector(
-        'div[aria-label="Message"][role="textbox"][contenteditable="true"][data-lexical-editor="true"].xzsf02u.x1a2a7pz.x1n2onr6.x14wi4xw.notranslate'
-      );
+  // if (textbox === null) {
+  //   setTimeout(() => {
+  //     textbox = chat.querySelector(
+  //       'div[aria-label="Message"][role="textbox"][contenteditable="true"][data-lexical-editor="true"].xzsf02u.x1a2a7pz.x1n2onr6.x14wi4xw.notranslate'
+  //     );
 
+  //     listenForNewMessages(chat, textbox, domInfo);
+  //   }, 500);
+  // } else {
+  //   listenForNewMessages(chat, textbox, domInfo);
+  // }
+
+  const waitToListenForNewMessages = () => {
+    if (textbox === null) {
+      setTimeout(() => {
+        textbox = chat.querySelector(
+          'div[aria-label="Message"][role="textbox"][contenteditable="true"][data-lexical-editor="true"].xzsf02u.x1a2a7pz.x1n2onr6.x14wi4xw.notranslate'
+        );
+      }, 100);
+    } else {
       listenForNewMessages(chat, textbox, domInfo);
-    }, 500);
-  } else {
-    listenForNewMessages(chat, textbox, domInfo);
-  }
+    }
+  };
+  waitToListenForNewMessages();
 
   // TODO: Listen for clicks on send button, not just keypresses on textbox. Likely still need something like sendButtonCreationObserver.
   //
@@ -536,28 +585,46 @@ const handleTextbox = (chat, domInfo) => {
 const handleChat = (domInfo = null) => {
   const chat = domInfo.getChat();
   // TODO: Make sure chat is not null
-  if ('querySelector' in domInfo.getChat() && domInfo !== null) {
-    if (domInfo.getMessageGrid() === null) {
-      console.log(`messageGrid starts off null`);
-      setTimeout(() => {
-        domInfo.setChat(chat);
-        domInfo.setMessageGrid();
-        console.log(
-          `But after 1250 ms messageGrid is ${domInfo.getMessageGrid()}`
-        ); // sometimes still null after 1000 ms
+  if (
+    domInfo !== null &&
+    domInfo.getChat() !== null &&
+    'querySelector' in domInfo.getChat()
+  ) {
+    // if (domInfo.getMessageGrid() === null) {
+    //   console.log(`messageGrid starts off null`);
+    //   setTimeout(() => {
+    //     domInfo.setChat(chat);
+    //     domInfo.setMessageGrid();
+    //     console.log(
+    //       `But after 1250 ms messageGrid is ${domInfo.getMessageGrid()}`
+    //     ); // sometimes still null after 1000 ms
+    //     handleMessageGrid(domInfo);
+
+    //     // Set up keydown event listener below, parse and render preexisting messages containing TeX code above
+
+    //     handleTextbox(chat, domInfo);
+    //   }, 1250);
+    // } else {
+    //   handleMessageGrid(domInfo);
+
+    //   // Set up keydown event listener below, parse and render preexisting messages containing TeX code above
+
+    //   handleTextbox(chat, domInfo);
+    // }
+
+    const waitToHandleMessages = () => {
+      if (domInfo.getMessageGrid() === null) {
+        setTimeout(() => {
+          domInfo.setChat(chat);
+          domInfo.setMessageGrid();
+          waitToHandleMessages();
+        }, 100);
+      } else {
         handleMessageGrid(domInfo);
-
-        // Set up keydown event listener below, parse and render preexisting messages containing TeX code above
-
         handleTextbox(chat, domInfo);
-      }, 1250);
-    } else {
-      handleMessageGrid(domInfo);
-
-      // Set up keydown event listener below, parse and render preexisting messages containing TeX code above
-
-      handleTextbox(chat, domInfo);
-    }
+      }
+    };
+    waitToHandleMessages();
   }
 };
 
@@ -575,6 +642,26 @@ const handleChatBoxContainer = (domInfo) => {
   domInfo.observeChatBoxContainer();
 };
 
+// const waitTo = (
+//   handle,
+//   args,
+//   condition,
+//   doBeforeWait,
+//   doAfterWait /*, reset*/
+// ) => {
+//   console.log(`inside waitTo`);
+//   if (condition) {
+//     doBeforeWait();
+//     setTimeout(() => {
+//       doAfterWait();
+//       // reset(condition);
+//       waitTo(handle, args, condition, doBeforeWait, doAfterWait /*, reset*/);
+//     }, 100);
+//   } else {
+//     handle(...args);
+//   }
+// };
+
 const startUp = () => {
   const domInfo = new DomInfo();
 
@@ -590,40 +677,96 @@ const startUp = () => {
 
     domInfo.setChat();
 
-    if (domInfo.getChat() === undefined || domInfo.getChat() === null) {
-      console.log('chat starts off null');
-      domInfo.ignoreMessengerChatContainer();
-      setTimeout(() => {
-        domInfo.setMessengerChatContainer();
-        domInfo.observeMessengerChatContainer();
+    // if (domInfo.getChat() === null) {
+    //   console.log('chat starts off null');
+    //   domInfo.ignoreMessengerChatContainer();
+    //   setTimeout(() => {
+    //     domInfo.setMessengerChatContainer();
+    //     domInfo.observeMessengerChatContainer();
 
-        domInfo.setChat();
-        console.log(
-          `But after 1500 ms chat is ${domInfo.getChat()} and messengerChatContainer is ${domInfo.getMessengerChatContainer()}`
-        ); // sometimes chat is still null after 1250 ms
+    //     domInfo.setChat();
+    //     console.log(
+    //       `But after 1500 ms chat is ${domInfo.getChat()} and messengerChatContainer is ${domInfo.getMessengerChatContainer()}`
+    //     ); // sometimes chat is still null after 1250 ms
 
+    //     handleChat(domInfo);
+    //   }, 1500);
+    // } else {
+    //   handleChat(domInfo);
+    // }
+
+    const waitToHandleChat = () => {
+      if (domInfo.getChat() === null) {
+        // console.log('chat is null');
+        domInfo.ignoreMessengerChatContainer();
+        setTimeout(() => {
+          domInfo.setMessengerChatContainer();
+          domInfo.observeMessengerChatContainer();
+
+          domInfo.setChat();
+
+          waitToHandleChat();
+        }, 100);
+      } else {
         handleChat(domInfo);
-      }, 1500);
-    } else {
-      handleChat(domInfo);
-    }
+      }
+    };
+    waitToHandleChat();
+
+    // // let condition = domInfo.getChat() === null;
+
+    // const doBeforeWait = () => {
+    //   domInfo.ignoreMessengerChatContainer();
+    // };
+
+    // const doAfterWait = () => {
+    //   domInfo.setMessengerChatContainer();
+    //   domInfo.observeMessengerChatContainer();
+
+    //   domInfo.setChat();
+    // };
+
+    // // const reset = (condition) => {
+    // //   condition = domInfo.getChat() === null;
+    // // };
+
+    // waitTo(
+    //   handleChat,
+    //   [domInfo],
+    //   domInfo.getChat === null,
+    //   doBeforeWait,
+    //   doAfterWait /*,
+    //   reset*/
+    // );
   } else {
     domInfo.setChatBoxContainer();
-    console.log(
-      `chatBoxContainer starts off with value of ${domInfo.getChatBoxContainer()}`
-    );
+    // console.log(
+    //   `chatBoxContainer starts off with value of ${domInfo.getChatBoxContainer()}`
+    // );
 
-    if (domInfo.getChatBoxContainer() === null) {
-      setTimeout(() => {
-        domInfo.setChatBoxContainer();
-        console.log(
-          `But after 1750 ms chatBoxContainer is ${domInfo.getChatBoxContainer()}`
-        ); // sometimes still null after 1500 ms
+    // if (domInfo.getChatBoxContainer() === null) {
+    //   setTimeout(() => {
+    //     domInfo.setChatBoxContainer();
+    //     console.log(
+    //       `But after 1750 ms chatBoxContainer is ${domInfo.getChatBoxContainer()}`
+    //     ); // sometimes still null after 1500 ms
+    //     handleChatBoxContainer(domInfo);
+    //   }, 1750);
+    // } else {
+    //   handleChatBoxContainer(domInfo);
+    // }
+
+    const waitToHandleChatBoxContainer = () => {
+      if (domInfo.getChatBoxContainer() === null) {
+        setTimeout(() => {
+          domInfo.setChatBoxContainer();
+          waitToHandleChatBoxContainer();
+        }, 100);
+      } else {
         handleChatBoxContainer(domInfo);
-      }, 1750);
-    } else {
-      handleChatBoxContainer(domInfo);
-    }
+      }
+    };
+    waitToHandleChatBoxContainer();
   }
 };
 
