@@ -343,7 +343,7 @@ class DomInfo {
                         );
                         let texBounds;
 
-                        if (msg !== null && msg.textContent != '') {
+                        if (msg !== null && msg.textContent !== '') {
                           texBounds = getTexBounds(msg);
                         }
 
@@ -368,7 +368,7 @@ class DomInfo {
               );
               let texBounds;
 
-              if (msg !== null && msg.textContent != '') {
+              if (msg !== null && msg.textContent !== '') {
                 texBounds = getTexBounds(msg);
               }
 
@@ -478,7 +478,7 @@ const parseContent = (domInfo = null, bubble) => {
     );
     let texBounds;
 
-    if (msg !== null && msg.textContent != '') {
+    if (msg !== null && msg.textContent !== '') {
       texBounds = getTexBounds(msg);
     }
 
