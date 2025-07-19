@@ -5,7 +5,6 @@ class DomInfo {
   #messengerChatContainer = null;
   #chatBoxContainer = null;
   #messageGrid = null;
-  #bubbleSource = null;
   #chatBoxes = [];
   #parsedBubbles = [];
   #handledChats = [];
@@ -55,7 +54,7 @@ class DomInfo {
         ) {
           this.#chat = convo;
           this.setMessageGrid();
-          this.handleChatBubbles(this.#messageGrid);
+          this.handleChatBubbles();
           handleMessageGrid(this);
         }
       });
@@ -122,7 +121,7 @@ class DomInfo {
                 // if (!this.#handledChats.includes(node)) {
                 this.#chat = node;
                 this.#messageGrid = messageGrid;
-                this.handleChatBubbles(this.#messageGrid);
+                this.handleChatBubbles();
                 handleMessageGrid(this);
                 // this.#handledChats.push(node);
                 // }
@@ -311,74 +310,83 @@ class DomInfo {
   }
 
   handleChatBubbles(bubbleSource) {
-    if (bubbleSource && 'querySelectorAll' in bubbleSource) {
-      const chatBubbles = bubbleSource.querySelectorAll(
-        '.html-div.xexx8yu.x18d9i69.xat24cr.xdj266r.xeuugli.x1vjfegm'
-      );
+    const bubbleHandler = (source) => {
+      if (source && 'querySelectorAll' in source) {
+        const chatBubbles = source.querySelectorAll(
+          '.html-div.xexx8yu.x18d9i69.xat24cr.xdj266r.xeuugli.x1vjfegm'
+        );
 
-      chatBubbles.forEach((bubble) => {
-        // if (!domInfo.getParsedBubbles().includes(bubble)) {
-        // console.log('bubble still needs parsed');
-        if (bubble.textContent === '') {
-          const waitToParseContent = () => {
-            if (
-              bubble.textContent === '' ||
-              bubble.querySelector(
+        chatBubbles.forEach((bubble) => {
+          // if (!domInfo.getParsedBubbles().includes(bubble)) {
+          // console.log('bubble still needs parsed');
+          if (bubble.textContent === '') {
+            const waitToParseContent = () => {
+              if (
+                bubble.textContent === '' ||
+                bubble.querySelector(
+                  '.html-div.xexx8yu.x18d9i69.x1gslohp.x12nagc.x1yc453h'
+                ) === null
+              ) {
+                setTimeout(waitToParseContent, 100);
+              } else {
+                let txt = bubble.textContent;
+                const waitForCompleteMessage = () => {
+                  setTimeout(() => {
+                    if (bubble.textContent !== txt) {
+                      txt = bubble.textContent;
+                      waitForCompleteMessage();
+                    } else {
+                      parseContent(this, bubble);
+                      setTimeout(() => {
+                        const msg = bubble.querySelector(
+                          '.html-div.xexx8yu.x18d9i69.x1gslohp.x12nagc.x1yc453h'
+                        );
+                        let texBounds;
+
+                        if (msg !== null && msg.textContent != '') {
+                          texBounds = getTexBounds(msg);
+                        }
+
+                        if (texBounds !== undefined && texBounds.length) {
+                          this.unmarkAsParsed(bubble);
+                          parseContent(this, bubble);
+                        }
+                      }, 2000);
+                    }
+                  }, 100);
+                };
+                waitForCompleteMessage();
+              }
+            };
+            waitToParseContent();
+          } else {
+            parseContent(this, bubble);
+
+            setTimeout(() => {
+              const msg = bubble.querySelector(
                 '.html-div.xexx8yu.x18d9i69.x1gslohp.x12nagc.x1yc453h'
-              ) === null
-            ) {
-              setTimeout(waitToParseContent, 100);
-            } else {
-              let txt = bubble.textContent;
-              const waitForCompleteMessage = () => {
-                setTimeout(() => {
-                  if (bubble.textContent !== txt) {
-                    txt = bubble.textContent;
-                    waitForCompleteMessage();
-                  } else {
-                    parseContent(this, bubble);
-                    setTimeout(() => {
-                      const msg = bubble.querySelector(
-                        '.html-div.xexx8yu.x18d9i69.x1gslohp.x12nagc.x1yc453h'
-                      );
-                      let texBounds;
+              );
+              let texBounds;
 
-                      if (msg !== null && msg.textContent != '') {
-                        texBounds = getTexBounds(msg);
-                      }
+              if (msg !== null && msg.textContent != '') {
+                texBounds = getTexBounds(msg);
+              }
 
-                      if (texBounds !== undefined && texBounds.length) {
-                        this.unmarkAsParsed(bubble);
-                        parseContent(this, bubble);
-                      }
-                    }, 2000);
-                  }
-                }, 100);
-              };
-              waitForCompleteMessage();
-            }
-          };
-          waitToParseContent();
-        } else {
-          parseContent(this, bubble);
+              if (texBounds !== undefined && texBounds.length) {
+                this.unmarkAsParsed(bubble);
+                parseContent(this, bubble);
+              }
+            }, 2000);
+          }
+        });
+      }
+    };
 
-          setTimeout(() => {
-            const msg = bubble.querySelector(
-              '.html-div.xexx8yu.x18d9i69.x1gslohp.x12nagc.x1yc453h'
-            );
-            let texBounds;
-
-            if (msg !== null && msg.textContent != '') {
-              texBounds = getTexBounds(msg);
-            }
-
-            if (texBounds !== undefined && texBounds.length) {
-              this.unmarkAsParsed(bubble);
-              parseContent(this, bubble);
-            }
-          }, 2000);
-        }
-      });
+    if (arguments.length === 0) {
+      bubbleHandler(this.#messageGrid);
+    }
+    if (arguments.length === 1) {
+      bubbleHandler(bubbleSource);
     }
   }
 
@@ -561,7 +569,7 @@ const parseContent = (domInfo = null, bubble) => {
 
 let chatBubbleObserver;
 
-const handleMessageGrid = (domInfo = null) => {
+const handleMessageGrid = (domInfo) => {
   chatBubbleObserver = new MutationObserver((mutations) => {
     mutations.forEach((mutation) => {
       mutation.addedNodes.forEach((node) => {
@@ -578,13 +586,9 @@ const handleMessageGrid = (domInfo = null) => {
   }
 };
 
-const handleChat = (domInfo = null) => {
+const handleChat = (domInfo) => {
   const chat = domInfo.getChat();
-  if (
-    domInfo !== null &&
-    domInfo.getChat() &&
-    'querySelector' in domInfo.getChat()
-  ) {
+  if (domInfo.getChat() && 'querySelector' in domInfo.getChat()) {
     const waitToHandleMessages = () => {
       if (domInfo.getMessageGrid() === null) {
         setTimeout(() => {
@@ -649,7 +653,7 @@ const startUp = () => {
       waitToHandleChat();
     } else {
       domInfo.setMessageGrid();
-      domInfo.handleChatBubbles(domInfo.getMessageGrid());
+      domInfo.handleChatBubbles();
       handleMessageGrid(domInfo);
     }
   } else {
@@ -669,10 +673,7 @@ const startUp = () => {
   }
 };
 
-window.onload = () => {
-  console.log('Page loaded');
-  startUp();
-};
+window.onload = startUp;
 
 // A variant of startUp, specifically for cases where addition of Messenger control is observed (switching from Messenger to chat box view)
 const reset = () => {
@@ -701,7 +702,7 @@ const reset = () => {
             waitToHandleMessages();
           }, 100);
         } else {
-          domInfo.handleChatBubbles(domInfo.getMessageGrid());
+          domInfo.handleChatBubbles();
           handleMessageGrid(domInfo);
         }
       };
