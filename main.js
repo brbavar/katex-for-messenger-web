@@ -1,7 +1,6 @@
 class DomInfo {
   #accountControlsAndSettings = null;
   #chat = null;
-  #sendButton = null;
   #messengerChatContainer = null;
   #chatBoxContainer = null;
   #messageGrids = [null, null];
@@ -9,13 +8,29 @@ class DomInfo {
   #parsedBubbles = [];
   #handledChats = [];
   #chatBoxToObserver = new Map();
+  #accountControlsAndSettingsSelector =
+    'div[aria-label="Account Controls and Settings"][role="navigation"].x6s0dn4.x78zum5.x1s65kcs.x1n2onr6.x1ja2u2z';
+  #messengerControlSelector = '[aria-label="Messenger"]';
+  #chatSelector =
+    'div[aria-label^="Conversation"][role="main"].x1ja2u2z.x9f619.x78zum5.xdt5ytf.x193iq5w.x1l7klhg.x1iyjqo2.xs83m0k.x2lwn1j.x6prxxf.x85a59c.x1n2onr6.xjbqb8w.xuce83p.x1bft6iq';
+  #messengerChatContainerSelector =
+    'div.x78zum5.xdt5ytf.x1iyjqo2.x1t2pt76.xeuugli.x1n2onr6.x1ja2u2z.x1vhhd5d:has(div[aria-label^="Conversation"][role="main"].x1ja2u2z.x9f619.x78zum5.xdt5ytf.x193iq5w.x1l7klhg.x1iyjqo2.xs83m0k.x2lwn1j.x6prxxf.x85a59c.x1n2onr6.xjbqb8w.xuce83p.x1bft6iq)';
+  #chatBoxContainerSelector = 'div.x1ey2m1c.x78zum5.xixxii4.x1vjfegm';
+  #messageGridSelector =
+    '[aria-label^="Messages in conversation"], div[role="grid"].x78zum5.xdt5ytf.x1iyjqo2.x6ikm8r.x10wlt62, div.x78zum5.xdt5ytf.x1iyjqo2.x6ikm8r.x10wlt62';
+  #labeledMessageGridSelector = '[aria-label^="Messages in conversation"]';
+  #chatBubbleSelector =
+    '.html-div.xexx8yu.x18d9i69.xat24cr.xdj266r.xeuugli.x1vjfegm';
+  #messageSelector = '.html-div.xexx8yu.x18d9i69.x1gslohp.x12nagc.x1yc453h';
 
   #accountControlsAndSettingsObserver = new MutationObserver((mutations) => {
     let messengerControlSeen = false;
 
     const respondToControlMutation = (nodes, respond) => {
       for (const node of nodes) {
-        const messengerControl = node.querySelector('[aria-label="Messenger"]');
+        const messengerControl = node.querySelector(
+          this.#messengerControlSelector
+        );
         if (messengerControl !== null) {
           this.#accountControlsAndSettingsObserver.disconnect();
           respond();
@@ -40,9 +55,7 @@ class DomInfo {
         let convo = null;
         if (
           'querySelector' in node &&
-          (convo = node.querySelector(
-            'div[aria-label^="Conversation"][role="main"].x1ja2u2z.x9f619.x78zum5.xdt5ytf.x193iq5w.x1l7klhg.x1iyjqo2.xs83m0k.x2lwn1j.x6prxxf.x85a59c.x1n2onr6.xjbqb8w.xuce83p.x1bft6iq'
-          ))
+          (convo = node.querySelector(this.#chatSelector))
         ) {
           this.#chat = convo;
           this.setMessageGrid();
@@ -56,26 +69,21 @@ class DomInfo {
   #chatBoxContainerObserver = new MutationObserver((mutations) => {
     mutations.forEach((mutation) => {
       mutation.addedNodes.forEach((node) => {
-        // console.log(`chat box added`);
         const chatBoxObserver = new MutationObserver((mutations) => {
           mutations.forEach((mutation) => {
             if (
               mutation.attributeName === 'hidden' &&
               !node.firstChild.firstChild.hasAttribute('hidden')
             ) {
-              // console.log(`chat box unhidden`);
-              // this.#messageGrid = node.querySelector(
-              //   '[aria-label^="Messages in conversation"], div[role="grid"].x78zum5.xdt5ytf.x1iyjqo2.x6ikm8r.x10wlt62, div.x78zum5.xdt5ytf.x1iyjqo2.x6ikm8r.x10wlt62'
-              // );
               this.setMessageGrid(1, node);
               const chatBubbles = this.#messageGrids[1].querySelectorAll(
-                '.html-div.xexx8yu.x18d9i69.xat24cr.xdj266r.xeuugli.x1vjfegm'
+                this.#chatBubbleSelector
               );
 
               chatBubbles.forEach((bubble) => {
                 // if (!domInfo.getParsedBubbles().includes(bubble)) {
                 // console.log('bubble still needs parsed');
-                parseContent(this, bubble);
+                this.parseContent(bubble);
               });
 
               handleMessageGrid(this, 1);
@@ -86,46 +94,20 @@ class DomInfo {
         chatBoxObserver.observe(node.firstChild.firstChild, {
           attributes: true,
         });
-
         this.#chatBoxToObserver.set(node, chatBoxObserver);
 
-        // let messageGrid = node.querySelector(
-        //   '[aria-label^="Messages in conversation"], div[role="grid"].x78zum5.xdt5ytf.x1iyjqo2.x6ikm8r.x10wlt62, div.x78zum5.xdt5ytf.x1iyjqo2.x6ikm8r.x10wlt62'
-        // );
         this.setMessageGrid(0, node);
         if (
           this.#messageGrids[0] !== null &&
           !node.firstChild.firstChild.hidden
         ) {
           const waitToHandleChatBox = () => {
-            // if (
-            //   !this.#messageGrids[0].hasAttribute(
-            //     'aria-label'
-            //   ) /* || !this.#messageGrids[1].hasAttribute('aria-label').startsWith('Messages in conversation') */
-            // ) {
-            if (
-              node.querySelector('[aria-label^="Messages in conversation"]') ===
-              null
-            ) {
-              console.log(`waiting to handle chat box...`);
-              setTimeout(() => {
-                // messageGrid = node.querySelector(
-                //   '[aria-label^="Messages in conversation"], div[role="grid"].x78zum5.xdt5ytf.x1iyjqo2.x6ikm8r.x10wlt62, div.x78zum5.xdt5ytf.x1iyjqo2.x6ikm8r.x10wlt62'
-                // );
-                // this.setMessageGrid(0, node);
-                waitToHandleChatBox();
-              }, 100);
+            if (node.querySelector(this.#labeledMessageGridSelector) === null) {
+              setTimeout(waitToHandleChatBox, 100);
             } else {
-              // This condition may not be doing anything for us
-              // if (!this.#chatBoxes.includes(node)) {
-              // console.log(
-              //   `${this.getMessageGrid(0).getAttribute('aria-label')}`
-              // );
               this.#chatBoxes.push(node);
 
               // if (!this.#handledChats.includes(node)) {
-              // this.#chat = node;
-              // this.#messageGrid = messageGrid;
               this.handleChatBubbles();
               handleMessageGrid(this);
               // this.#handledChats.push(node);
@@ -156,7 +138,7 @@ class DomInfo {
 
   setAccountControlsAndSettings() {
     this.#accountControlsAndSettings = document.querySelector(
-      'div[aria-label="Account Controls and Settings"][role="navigation"].x6s0dn4.x78zum5.x1s65kcs.x1n2onr6.x1ja2u2z'
+      this.#accountControlsAndSettingsSelector
     );
   }
 
@@ -173,23 +155,11 @@ class DomInfo {
 
   setChat(chat) {
     if (arguments.length === 0) {
-      this.#chat = document.querySelector(
-        'div[aria-label^="Conversation"][role="main"].x1ja2u2z.x9f619.x78zum5.xdt5ytf.x193iq5w.x1l7klhg.x1iyjqo2.xs83m0k.x2lwn1j.x6prxxf.x85a59c.x1n2onr6.xjbqb8w.xuce83p.x1bft6iq'
-      );
+      this.#chat = document.querySelector(this.#chatSelector);
     }
     if (arguments.length === 1) {
       this.#chat = chat;
     }
-  }
-
-  getSendButton() {
-    return this.#sendButton;
-  }
-
-  setSendButton(chat) {
-    this.#sendButton = chat.querySelector(
-      ':where([aria-label^="Send a"], [aria-label="Press enter to send"]).x1i10hfl.xjqpnuy.xc5r6h4.xqeqjp1.x1phubyo.x13fuv20.x18b5jzi.x1q0q8m5.x1t7ytsu.x1ypdohk.xdl72j9.x2lah0s.xe8uvvx.xdj266r.x14z9mp.xat24cr.x1lziwak.x2lwn1j.xeuugli.xjbqb8w.x972fbf.x10w94by.x1qhh985.x14e42zd.x9f619.x1n2onr6.x16tdsg8.x1hl2dhg.xggy1nq.x1ja2u2z.x1t137rt.x1q0g3np.x87ps6o.x1lku1pv.x1a2a7pz'
-    );
   }
 
   getMessengerChatContainer() {
@@ -198,7 +168,7 @@ class DomInfo {
 
   setMessengerChatContainer() {
     this.#messengerChatContainer = document.querySelector(
-      'div.x78zum5.xdt5ytf.x1iyjqo2.x1t2pt76.xeuugli.x1n2onr6.x1ja2u2z.x1vhhd5d:has(div[aria-label^="Conversation"][role="main"].x1ja2u2z.x9f619.x78zum5.xdt5ytf.x193iq5w.x1l7klhg.x1iyjqo2.xs83m0k.x2lwn1j.x6prxxf.x85a59c.x1n2onr6.xjbqb8w.xuce83p.x1bft6iq)'
+      this.#messengerChatContainerSelector
     );
   }
 
@@ -223,7 +193,7 @@ class DomInfo {
 
   setChatBoxContainer() {
     this.#chatBoxContainer = document.querySelector(
-      'div.x1ey2m1c.x78zum5.xixxii4.x1vjfegm'
+      this.#chatBoxContainerSelector
     );
   }
 
@@ -242,19 +212,14 @@ class DomInfo {
   setChatBoxes() {
     this.#chatBoxes.length = 0;
 
-    console.log(
-      `${this.#chatBoxContainer.children.length} chat boxes in container`
-    );
-
     for (const chatBox of this.#chatBoxContainer.children) {
       if (!this.#chatBoxes.includes(chatBox)) {
         this.#chatBoxes.push(chatBox);
 
-        const grid = chatBox.querySelector(
-          '[aria-label^="Messages in conversation"], div[role="grid"].x78zum5.xdt5ytf.x1iyjqo2.x6ikm8r.x10wlt62, div.x78zum5.xdt5ytf.x1iyjqo2.x6ikm8r.x10wlt62'
-        );
+        console.log(`Inside outer if in for loop in setChatBoxes`);
+
         if (
-          grid ||
+          chatBox.querySelector(this.#messageGridSelector) ||
           (chatBox.firstChild.firstChild &&
             chatBox.firstChild.firstChild.hidden)
         ) {
@@ -264,25 +229,20 @@ class DomInfo {
                 mutation.attributeName === 'hidden' &&
                 !chatBox.firstChild.firstChild.hasAttribute('hidden')
               ) {
-                // console.log(`chat box unhidden`);
-                const chatBubbles = chatBox
-                  .querySelector(
-                    '[aria-label^="Messages in conversation"], div[role="grid"].x78zum5.xdt5ytf.x1iyjqo2.x6ikm8r.x10wlt62, div.x78zum5.xdt5ytf.x1iyjqo2.x6ikm8r.x10wlt62'
-                  )
-                  .querySelectorAll(
-                    '.html-div.xexx8yu.x18d9i69.xat24cr.xdj266r.xeuugli.x1vjfegm'
-                  );
+                console.log(`chat box unhidden`);
+
+                this.setMessageGrid(0, chatBox);
+                const chatBubbles = this.#messageGrids[0].querySelectorAll(
+                  this.#chatBubbleSelector
+                );
 
                 chatBubbles.forEach((bubble) => {
                   // if (!domInfo.getParsedBubbles().includes(bubble)) {
                   // console.log('bubble still needs parsed');
-                  parseContent(this, bubble);
+                  this.parseContent(bubble);
                   //}
                 });
 
-                this.#messageGrids[0] = chatBox.querySelector(
-                  '[aria-label^="Messages in conversation"], div[role="grid"].x78zum5.xdt5ytf.x1iyjqo2.x6ikm8r.x10wlt62, div.x78zum5.xdt5ytf.x1iyjqo2.x6ikm8r.x10wlt62'
-                );
                 handleMessageGrid(this);
               }
             });
@@ -307,34 +267,105 @@ class DomInfo {
   }
 
   setMessageGrid(i = 0, pointOfReference = this.#chat) {
-    // let grid = pointOfReference.querySelector(
-    //   'div[aria-label^="Messages in conversation"][role="grid"].x78zum5.xdt5ytf.x1iyjqo2.x6ikm8r.x10wlt62'
-    // );
-    // if (!grid) {
-    //   console.log(`Couldn't find grid. Try again.`);
-    //   grid = pointOfReference.querySelector(
-    //     '[aria-label^="Messages in conversation"], div[role="grid"].x78zum5.xdt5ytf.x1iyjqo2.x6ikm8r.x10wlt62, div.x78zum5.xdt5ytf.x1iyjqo2.x6ikm8r.x10wlt62'
-    //   );
-
-    //   // console.log(`this.#chat.querySelector(
-    //   //   '[aria-label^="Messages in conversation"], div[role="grid"].x78zum5.xdt5ytf.x1iyjqo2.x6ikm8r.x10wlt62, div.x78zum5.xdt5ytf.x1iyjqo2.x6ikm8r.x10wlt62'
-    //   // ) = ${this.#chat.querySelector(
-    //   //   '[aria-label^="Messages in conversation"], div[role="grid"].x78zum5.xdt5ytf.x1iyjqo2.x6ikm8r.x10wlt62, div.x78zum5.xdt5ytf.x1iyjqo2.x6ikm8r.x10wlt62'
-    //   // )}`);
-    // }
-    let grid = pointOfReference.querySelector(
-      '[aria-label^="Messages in conversation"], div[role="grid"].x78zum5.xdt5ytf.x1iyjqo2.x6ikm8r.x10wlt62, div.x78zum5.xdt5ytf.x1iyjqo2.x6ikm8r.x10wlt62'
-    );
-    // console.log(`grid = ${grid}`);
-
+    let grid = pointOfReference.querySelector(this.#messageGridSelector);
     this.#messageGrids[i] = grid;
+  }
+
+  parseContent(bubble) {
+    if (!this.#parsedBubbles.includes(bubble)) {
+      const msg = bubble.querySelector(this.#messageSelector);
+      let texBounds;
+
+      if (msg !== null && msg.textContent !== '') {
+        texBounds = getTexBounds(msg);
+      }
+
+      if (texBounds !== undefined && texBounds.length) {
+        for (let i = 0; i < texBounds.length; i++) {
+          const offset = 32 * i;
+
+          msg.textContent = `${msg.textContent.substring(
+            0,
+            texBounds[i][0] + offset
+          )}<span class='renderable'>${msg.textContent.substring(
+            texBounds[i][0] + offset,
+            texBounds[i][1] + 2 + offset
+          )}</span>${msg.textContent.substring(texBounds[i][1] + 2 + offset)}`;
+        }
+
+        msg.innerHTML = msg.textContent;
+
+        msg.querySelectorAll('span.renderable').forEach((span) => {
+          try {
+            katex.render(
+              span.textContent.substring(2, span.textContent.length - 2),
+              span,
+              {
+                displayMode: span.textContent[0] === '$',
+              }
+            );
+          } catch (error) {
+            console.error('Caught ' + error);
+          }
+
+          const baseSpans = span.querySelectorAll(
+            'span:where(.katex, .katex-display) span.katex-html > span.base'
+          );
+          let collectiveSpanWidth = 0;
+
+          for (let baseSpan of baseSpans) {
+            collectiveSpanWidth += baseSpan.getBoundingClientRect().width;
+          }
+
+          let partialSumOfSpanWidths = collectiveSpanWidth;
+          if (
+            baseSpans.length > 0 &&
+            collectiveSpanWidth >
+              baseSpans[0].parentNode.getBoundingClientRect().width
+          ) {
+            for (let i = baseSpans.length - 1; i > -1; i--) {
+              if (
+                partialSumOfSpanWidths -
+                  baseSpans[i].getBoundingClientRect().width <=
+                baseSpans[0].parentNode.getBoundingClientRect().width - 10
+              ) {
+                const spacer = document.createElement('div');
+                spacer.style.lineHeight = '2px';
+                baseSpans[0].parentNode.insertBefore(spacer, baseSpans[i]);
+                if (
+                  collectiveSpanWidth - partialSumOfSpanWidths <=
+                  baseSpans[0].parentNode.getBoundingClientRect().width - 10
+                ) {
+                  break;
+                } else {
+                  collectiveSpanWidth = partialSumOfSpanWidths;
+                  // Recursively call the function this code belongs in, to deal
+                  // with cases where arbitrarily many line breaks are needed
+                }
+              } else {
+                partialSumOfSpanWidths -=
+                  baseSpans[i].getBoundingClientRect().width;
+              }
+            }
+          }
+        });
+      }
+      this.markAsParsed(bubble);
+    } else {
+      console.log(
+        `Blocked parsing of bubble with this text: "${bubble.textContent}".\ndomInfo = ${this}`
+      );
+      console.log(
+        `domInfo.getParsedBubbles().includes(bubble) = ${this.#parsedBubbles.includes(
+          bubble
+        )}`
+      );
+    }
   }
 
   ensureParsed(bubble) {
     setTimeout(() => {
-      const msg = bubble.querySelector(
-        '.html-div.xexx8yu.x18d9i69.x1gslohp.x12nagc.x1yc453h'
-      );
+      const msg = bubble.querySelector(this.#messageSelector);
       let texBounds;
 
       if (msg !== null && msg.textContent !== '') {
@@ -343,23 +374,15 @@ class DomInfo {
 
       if (texBounds !== undefined && texBounds.length) {
         this.unmarkAsParsed(bubble);
-        parseContent(this, bubble);
+        this.parseContent(bubble);
       }
     }, 2000);
   }
 
   handleChatBubbles(bubbleSource) {
     const bubbleHandler = (source) => {
-      // console.log(`source = ${source}`);
-      // console.log(
-      //   `'querySelectorAll' in source = ${'querySelectorAll' in source}`
-      // );
       if (source && 'querySelectorAll' in source) {
-        const chatBubbles = source.querySelectorAll(
-          '.html-div.xexx8yu.x18d9i69.xat24cr.xdj266r.xeuugli.x1vjfegm'
-        );
-
-        // console.log(`${chatBubbles.length} chat bubbles found`);
+        const chatBubbles = source.querySelectorAll(this.#chatBubbleSelector);
 
         chatBubbles.forEach((bubble) => {
           // if (!domInfo.getParsedBubbles().includes(bubble)) {
@@ -368,9 +391,7 @@ class DomInfo {
             const waitToParseContent = () => {
               if (
                 bubble.textContent === '' ||
-                bubble.querySelector(
-                  '.html-div.xexx8yu.x18d9i69.x1gslohp.x12nagc.x1yc453h'
-                ) === null
+                bubble.querySelector(this.#messageSelector) === null
               ) {
                 setTimeout(waitToParseContent, 100);
               } else {
@@ -381,7 +402,7 @@ class DomInfo {
                       txt = bubble.textContent;
                       waitForCompleteMessage();
                     } else {
-                      parseContent(this, bubble);
+                      this.parseContent(bubble);
                       this.ensureParsed(bubble);
                     }
                   }, 100);
@@ -391,7 +412,7 @@ class DomInfo {
             };
             waitToParseContent();
           } else {
-            parseContent(this, bubble);
+            this.parseContent(bubble);
             this.ensureParsed(bubble);
           }
         });
@@ -487,109 +508,12 @@ const getTexBounds = (msg) => {
   return bounds;
 };
 
-const parseContent = (domInfo = null, bubble) => {
-  if (domInfo === null || !domInfo.getParsedBubbles().includes(bubble)) {
-    const msg = bubble.querySelector(
-      '.html-div.xexx8yu.x18d9i69.x1gslohp.x12nagc.x1yc453h'
-    );
-    let texBounds;
-
-    if (msg !== null && msg.textContent !== '') {
-      texBounds = getTexBounds(msg);
-    }
-
-    if (texBounds !== undefined && texBounds.length) {
-      for (let i = 0; i < texBounds.length; i++) {
-        const offset = 32 * i;
-
-        msg.textContent = `${msg.textContent.substring(
-          0,
-          texBounds[i][0] + offset
-        )}<span class='renderable'>${msg.textContent.substring(
-          texBounds[i][0] + offset,
-          texBounds[i][1] + 2 + offset
-        )}</span>${msg.textContent.substring(texBounds[i][1] + 2 + offset)}`;
-      }
-
-      msg.innerHTML = msg.textContent;
-
-      msg.querySelectorAll('span.renderable').forEach((span) => {
-        try {
-          katex.render(
-            span.textContent.substring(2, span.textContent.length - 2),
-            span,
-            {
-              displayMode: span.textContent[0] === '$',
-            }
-          );
-        } catch (error) {
-          console.error('Caught ' + error);
-        }
-
-        const baseSpans = span.querySelectorAll(
-          'span:where(.katex, .katex-display) span.katex-html > span.base'
-        );
-        let collectiveSpanWidth = 0;
-
-        for (let baseSpan of baseSpans) {
-          collectiveSpanWidth += baseSpan.getBoundingClientRect().width;
-        }
-
-        let partialSumOfSpanWidths = collectiveSpanWidth;
-        if (
-          baseSpans.length > 0 &&
-          collectiveSpanWidth >
-            baseSpans[0].parentNode.getBoundingClientRect().width
-        ) {
-          for (let i = baseSpans.length - 1; i > -1; i--) {
-            if (
-              partialSumOfSpanWidths -
-                baseSpans[i].getBoundingClientRect().width <=
-              baseSpans[0].parentNode.getBoundingClientRect().width - 10
-            ) {
-              const spacer = document.createElement('div');
-              spacer.style.lineHeight = '2px';
-              baseSpans[0].parentNode.insertBefore(spacer, baseSpans[i]);
-              if (
-                collectiveSpanWidth - partialSumOfSpanWidths <=
-                baseSpans[0].parentNode.getBoundingClientRect().width - 10
-              ) {
-                break;
-              } else {
-                collectiveSpanWidth = partialSumOfSpanWidths;
-                // Recursively call the function this code belongs in, to deal
-                // with cases where arbitrarily many line breaks are needed
-              }
-            } else {
-              partialSumOfSpanWidths -=
-                baseSpans[i].getBoundingClientRect().width;
-            }
-          }
-        }
-      });
-    }
-    if (domInfo !== null) {
-      domInfo.markAsParsed(bubble);
-    }
-  } else {
-    console.log(
-      `Blocked parsing of bubble with this text: "${bubble.textContent}".\ndomInfo = ${domInfo}`
-    );
-    console.log(
-      `domInfo.getParsedBubbles().includes(bubble) = ${domInfo
-        .getParsedBubbles()
-        .includes(bubble)}`
-    );
-  }
-};
-
 let chatBubbleObserver;
 
 const handleMessageGrid = (domInfo, i = 0) => {
   chatBubbleObserver = new MutationObserver((mutations) => {
     mutations.forEach((mutation) => {
       mutation.addedNodes.forEach((node) => {
-        // console.log(`node added to grid`);
         domInfo.handleChatBubbles(node);
       });
     });
@@ -614,7 +538,6 @@ const handleChat = (domInfo) => {
           waitToHandleMessages();
         }, 100);
       } else {
-        // console.log(`handling message grid`);
         handleMessageGrid(domInfo);
       }
     };
@@ -623,14 +546,9 @@ const handleChat = (domInfo) => {
 };
 
 const handleChatBoxContainer = (domInfo) => {
-  console.log(`Handling chat box container.`);
-
   let lengthOfWait = 0;
   const waitToHandleChatBoxes = () => {
     if (domInfo.getChatBoxContainer().children.length === 0) {
-      console.log(
-        `No chat boxes yet. Waiting to handle them... lengthOfWait = ${lengthOfWait}`
-      );
       setTimeout(() => {
         if ((lengthOfWait += 100) < 5000) {
           waitToHandleChatBoxes();
@@ -697,7 +615,6 @@ const startUp = () => {
 
     const waitToHandleChatBoxContainer = () => {
       if (domInfo.getChatBoxContainer() === null) {
-        console.log(`No chat box container yet. Waiting to handle it...`);
         setTimeout(() => {
           domInfo.setChatBoxContainer();
           waitToHandleChatBoxContainer();
