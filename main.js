@@ -234,9 +234,6 @@ class DomInfo {
   #chatBubbleMutationHandler = (mutations) => {
     mutations.forEach((mutation) => {
       mutation.addedNodes.forEach((node) => {
-        console.log(
-          `node added to message grid, detected by chatBubbleObserver`
-        );
         this.handleChatBubbles(node);
       });
     });
