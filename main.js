@@ -7,7 +7,6 @@ class DomInfo {
   #chatBoxes = [];
   #parsedBubbles = [];
   #chatBoxToLabel = new Map();
-  // #labelToWasHandled = new Map();
   #labelToBubbleObserver = new Map();
   #accountControlsAndSettingsSelector =
     'div[aria-label="Account Controls and Settings"][role="navigation"].x6s0dn4.x78zum5.x1s65kcs.x1n2onr6.x1ja2u2z';
@@ -97,29 +96,10 @@ class DomInfo {
                 ) &&
                   !this.#chatBoxToLabel.has(node))
               ) {
-                // this.#chatBoxToLabel.set(node, messageGridLabel);
-                // if (
-                //   // !this.#labelToBubbleObserver.has(messageGridLabel) ||
-                //   // (this.#labelToBubbleObserver.has(messageGridLabel) &&
-                //   //   !this.#chatBoxes.includes(node))
-
-                //   // !this.#chatBoxes.includes(node)
-
-                //   !this.#chatBoxToLabel.has(node)
-                // ) {
-                console.log(
-                  `chat box added, not handled yet; label = ${messageGridLabel}`
-                );
-                // this.#chatBoxes.push(node);
                 this.#chatBoxToLabel.set(node, messageGridLabel);
                 this.handleChatBubbles();
                 this.observeChatBubbles();
-              } else {
-                console.log(
-                  `chat box added, already handled; label = ${messageGridLabel}`
-                );
               }
-              // }
             }
           };
           waitToHandleChatBox();
@@ -135,20 +115,11 @@ class DomInfo {
         const i = this.#chatBoxes.indexOf(node);
         if (i !== -1) {
           this.#chatBoxes.splice(i, 1);
-          // this.#chatBoxToLabel.delete(node);
         }
-        // if (this.#labelToWasHandled.get(messageGridLabel)) {
-        //   this.#labelToWasHandled.delete(messageGridLabel);
-        // }
-        // if (this.#chatBoxToLabel.get(node)) {
-        //   this.#chatBoxToLabel.delete(node);
-        // }
         if (this.#labelToBubbleObserver.get(messageGridLabel)) {
           this.#labelToBubbleObserver.get(messageGridLabel).disconnect();
           this.#labelToBubbleObserver.delete(messageGridLabel);
         }
-
-        console.log(`chat box REMOVED; label = ${messageGridLabel}`);
       });
     });
   });
@@ -160,10 +131,6 @@ class DomInfo {
       }
     }
     return true;
-  }
-
-  getAccountControlsAndSettings() {
-    return this.#accountControlsAndSettings;
   }
 
   setAccountControlsAndSettings() {
@@ -190,10 +157,6 @@ class DomInfo {
     if (arguments.length === 1) {
       this.#chat = chat;
     }
-  }
-
-  getMessengerChatContainer() {
-    return this.#messengerChatContainer;
   }
 
   setMessengerChatContainer() {
@@ -261,7 +224,7 @@ class DomInfo {
   #chatBubbleMutationHandler = (mutations) => {
     mutations.forEach((mutation) => {
       mutation.addedNodes.forEach((node) => {
-        // console.log(`bubble source added to grid`);
+        console.log(`bubble source added to grid`);
         this.handleChatBubbles(node);
       });
     });
@@ -362,17 +325,16 @@ class DomInfo {
         });
       }
       this.markAsParsed(bubble);
+    } else {
+      console.log(
+        `Blocked parsing of bubble with this text: "${bubble.textContent}".\ndomInfo = ${this}`
+      );
+      console.log(
+        `domInfo.getParsedBubbles().includes(bubble) = ${this.#parsedBubbles.includes(
+          bubble
+        )}`
+      );
     }
-    // else {
-    //   console.log(
-    //     `Blocked parsing of bubble with this text: "${bubble.textContent}".\ndomInfo = ${this}`
-    //   );
-    //   console.log(
-    //     `domInfo.getParsedBubbles().includes(bubble) = ${this.#parsedBubbles.includes(
-    //       bubble
-    //     )}`
-    //   );
-    // }
   }
 
   ensureParsed(bubble) {
@@ -454,10 +416,6 @@ class DomInfo {
     }
   }
 
-  // getChatBoxToLabel() {
-  //   return this.#chatBoxToLabel;
-  // }
-
   // Consider removing parameter list along with second conditional statement
   setChatBoxToLabel(box, label) {
     if (arguments.length === 0) {
@@ -476,21 +434,6 @@ class DomInfo {
       this.#chatBoxToLabel.set(box, label);
     }
   }
-
-  //   getLabelToWasHandled() {
-  //     return this.#labelToWasHandled;
-  //   }
-
-  //   setLabelToWasHandled(label, wasHandled) {
-  //     if (arguments.length === 0) {
-  //       for (const value of this.#chatBoxToLabel.values()) {
-  //         this.#labelToWasHandled.set(value, false);
-  //       }
-  //     }
-  //     if (arguments.length === 2) {
-  //       this.#labelToWasHandled.set(label, wasHandled);
-  //     }
-  //   }
 }
 
 const injectCss = (filePath) => {
@@ -584,7 +527,6 @@ const handleChatBoxContainer = (domInfo) => {
         } else {
           domInfo.setChatBoxes();
           domInfo.setChatBoxToLabel();
-          // domInfo.setLabelToWasHandled();
           // Condition below may be superfluous
           if (domInfo.getChatBoxes().length !== 0) {
             for (const chat of domInfo.getChatBoxes()) {
@@ -670,7 +612,6 @@ const reset = () => {
     } else {
       domInfo.setChatBoxes();
       domInfo.setChatBoxToLabel();
-      // domInfo.setLabelToWasHandled();
       // Condition below may be superfluous
       if (domInfo.getChatBoxes().length !== 0) {
         for (const chat of domInfo.getChatBoxes()) {
