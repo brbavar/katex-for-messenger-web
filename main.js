@@ -6,12 +6,9 @@ class DomInfo {
   #messageGrids = [null, null];
   #chatBubbleObservers = [];
   #chatBoxes = [];
-  // #messageGridLabels = [];
   #parsedBubbles = [];
-  // #handledChats = [];
   #chatBoxToLabel = new Map();
   #labelToWasHandled = new Map();
-  // #labelToChatBoxObserver = new Map();
   #labelToBubbleObserver = new Map();
   #accountControlsAndSettingsSelector =
     'div[aria-label="Account Controls and Settings"][role="navigation"].x6s0dn4.x78zum5.x1s65kcs.x1n2onr6.x1ja2u2z';
@@ -80,45 +77,8 @@ class DomInfo {
   #chatBoxContainerObserver = new MutationObserver((mutations) => {
     mutations.forEach((mutation) => {
       mutation.addedNodes.forEach((node) => {
-        console.log(`chat box added`);
-        // const chatBoxObserver = new MutationObserver((mutations) => {
-        //   mutations.forEach((mutation) => {
-        //     if (
-        //       mutation.attributeName === 'hidden' &&
-        //       !node.firstChild.firstChild.hasAttribute('hidden')
-        //     ) {
-        //       // console.log(
-        //       //   `chat box unhidden; message grid inside has label ${node
-        //       //     .querySelector(this.#messageGridSelector)
-        //       //     .getAttribute('aria-label')}`
-        //       // );
-
-        //       this.setMessageGrid(1, node);
-        //       const chatBubbles = this.#messageGrids[1].querySelectorAll(
-        //         this.#chatBubbleSelector
-        //       );
-
-        //       chatBubbles.forEach((bubble) => {
-        //         // if (!domInfo.getParsedBubbles().includes(bubble)) {
-        //         // console.log('bubble still needs parsed');
-        //         this.parseContent(bubble);
-        //       });
-
-        //       this.observeChatBubbles(1);
-        //     }
-        //   });
-        // });
-
-        // chatBoxObserver.observe(node.firstChild.firstChild, {
-        //   attributes: true,
-        // });
-        // // this.#labelToChatBoxObserver.set(node, chatBoxObserver);
-
         this.setMessageGrid(0, node);
-        if (
-          this.#messageGrids[0] !== null /*&&
-          !node.firstChild.firstChild.hidden*/
-        ) {
+        if (this.#messageGrids[0] !== null) {
           const waitToHandleChatBox = () => {
             const labeledGrid = node.querySelector(
               this.#labeledMessageGridSelector
@@ -129,53 +89,18 @@ class DomInfo {
             if (labeledGrid === null || messageGridLabel === null) {
               setTimeout(waitToHandleChatBox, 100);
             } else {
-              // if (!this.#chatBoxes.includes(node)) {
-              // const messageGridLabel = labeledGrid
-              //   .getAttribute('aria-label');
-              // if (!this.#messageGridLabels.includes(messageGridLabel)) {
               if (
-                Array.from(this.#chatBoxToLabel.values()).includes(
+                !Array.from(this.#chatBoxToLabel.values()).includes(
                   messageGridLabel
-                )
+                ) ||
+                (Array.from(this.#chatBoxToLabel.values()).includes(
+                  messageGridLabel
+                ) &&
+                  !this.#chatBoxToLabel.has(node))
               ) {
-                console.log(
-                  `chat box with this grid label already in array; label = ${messageGridLabel}`
-                );
-                if (this.#chatBoxToLabel.has(node)) {
-                  console.log(
-                    `chat box in array is identical to the one just added`
-                  );
-                } else {
-                  console.log(
-                    `chat box in array is distinct from the one just added, though`
-                  );
-                  this.#chatBoxToLabel.set(node, messageGridLabel);
-                  this.handleChatBubbles();
-                  this.observeChatBubbles();
-                }
-              } else {
-                // if (!this.#chatBoxToLabel.get(node) === messageGridLabel) {
-                // this.#messageGridLabels.push(messageGridLabel);
                 this.#chatBoxToLabel.set(node, messageGridLabel);
-
-                // this.#labelToChatBoxObserver.set(
-                //   messageGridLabel,
-                //   chatBoxObserver
-                // );
-
-                console.log(
-                  `this.#chatBoxToLabel.values().length === ${
-                    this.#chatBoxToLabel.values().length
-                  }`
-                );
-                console.log(`label of grid in chat box is ${messageGridLabel}`);
-
-                // if (!this.#handledChats.includes(node)) {
                 this.handleChatBubbles();
                 this.observeChatBubbles();
-                // this.#handledChats.push(node);
-                // }
-                // }
               }
             }
           };
@@ -190,23 +115,13 @@ class DomInfo {
           ? labeledGrid.getAttribute('aria-label')
           : null;
         const i = this.#chatBoxes.indexOf(node);
-        // const j = this.#messageGridLabels.indexOf(messageGridLabel);
         if (i !== -1) {
           this.#chatBoxes.splice(i, 1);
           this.#chatBoxToLabel.delete(node);
         }
-        // if (j !== -1) {
-        //   this.#messageGridLabels.splice(j, 1);
-        // if (this.#messageGridLabels.includes(messageGridLabel)) {
-        // if (this.#chatBoxToLabel.values().includes(messageGridLabel)) {
-        // if (this.#labelToChatBoxObserver.get(messageGridLabel)) {
-        //   this.#labelToChatBoxObserver.get(messageGridLabel).disconnect();
-        //   this.#labelToChatBoxObserver.delete(messageGridLabel);
-        // }
         if (this.#labelToWasHandled.get(messageGridLabel)) {
           this.#labelToWasHandled.delete(messageGridLabel);
         }
-        // }
       });
     });
   });
@@ -298,89 +213,10 @@ class DomInfo {
   }
 
   setChatBoxes() {
-    // this.#chatBoxes is certainly still empty, so the following line is unnecessary
-    // this.#chatBoxes.length = 0;
-
-    // console.log(`this.#chatBoxes.length === ${this.#chatBoxes.length}`);
-    console.log(
-      `this.#chatBoxContainer.children.length === ${
-        this.#chatBoxContainer.children.length
-      }`
-    );
-
     for (const chatBox of this.#chatBoxContainer.children) {
-      // Condition always met; setChatBoxes is invoked only on startUp or reset, before chat boxes are added to this object's chatBoxes array member
-      // if (!this.#chatBoxes.includes(chatBox)) {
       this.#chatBoxes.push(chatBox);
-
-      // console.log(`Inside for loop in setChatBoxes`);
-      // } else {
-      //   console.log('chat box already in array');
-      // }
     }
   }
-
-  // #chatBoxMutationHandler = (mutations) => {
-  //   mutations.forEach((mutation) => {
-  //     if (
-  //       mutation.attributeName === 'hidden' &&
-  //       !mutation.target.hasAttribute('hidden')
-  //     ) {
-  //       console.log(`chat box unhidden`);
-
-  //       this.setMessageGrid(0, mutation.target);
-  //       const chatBubbles = this.#messageGrids[0].querySelectorAll(
-  //         this.#chatBubbleSelector
-  //       );
-
-  //       chatBubbles.forEach((bubble) => {
-  //         // if (!domInfo.getParsedBubbles().includes(bubble)) {
-  //         // console.log('bubble still needs parsed');
-  //         this.parseContent(bubble);
-  //         //}
-  //       });
-
-  //       this.observeChatBubbles();
-  //     }
-  //   });
-  // };
-
-  // observeChatBoxes() {
-  //   let i = 0;
-  //   for (const chatBox of this.#chatBoxes) {
-  //     if (
-  //       chatBox.querySelector(this.#messageGridSelector) ||
-  //       (chatBox.firstChild.firstChild && chatBox.firstChild.firstChild.hidden)
-  //     ) {
-  //       const chatBoxObserver = new MutationObserver(
-  //         this.#chatBoxMutationHandler
-  //       );
-
-  //       chatBoxObserver.observe(chatBox.firstChild.firstChild, {
-  //         attributes: true,
-  //       });
-
-  //       this.#labelToChatBoxObserver.set(
-  //         // this.#messageGridLabels[i++],
-  //         this.#chatBoxToLabel.get(chatBox),
-  //         chatBoxObserver
-  //       );
-  //     }
-  //   }
-  // }
-
-  // getMessageGridLabels() {
-  //   return this.#messageGridLabels;
-  // }
-
-  // setMessageGridLabels() {
-  //   for (const chatBox of this.#chatBoxes) {
-  //     const messageGridLabel = chatBox
-  //       .querySelector(this.#labeledMessageGridSelector)
-  //       .getAttribute('aria-label');
-  //     this.#messageGridLabels.push(messageGridLabel);
-  //   }
-  // }
 
   getMessageGrid(i) {
     if (arguments.length === 0) {
@@ -502,17 +338,16 @@ class DomInfo {
         });
       }
       this.markAsParsed(bubble);
+    } else {
+      console.log(
+        `Blocked parsing of bubble with this text: "${bubble.textContent}".\ndomInfo = ${this}`
+      );
+      console.log(
+        `domInfo.getParsedBubbles().includes(bubble) = ${this.#parsedBubbles.includes(
+          bubble
+        )}`
+      );
     }
-    // else {
-    //   console.log(
-    //     `Blocked parsing of bubble with this text: "${bubble.textContent}".\ndomInfo = ${this}`
-    //   );
-    //   console.log(
-    //     `domInfo.getParsedBubbles().includes(bubble) = ${this.#parsedBubbles.includes(
-    //       bubble
-    //     )}`
-    //   );
-    // }
   }
 
   ensureParsed(bubble) {
@@ -594,19 +429,11 @@ class DomInfo {
     }
   }
 
-  // getHandledChats() {
-  //   return this.#handledChats;
-  // }
-
-  // markAsHandled(gridLabel) {
-  //   this.#handledChats.push(gridLabel);
-  // }
-
   getChatBoxToLabel() {
     return this.#chatBoxToLabel;
   }
 
-  // Consider removing parameter list
+  // Consider removing parameter list along with second conditional statement
   setChatBoxToLabel(box, label) {
     if (arguments.length === 0) {
       for (const chatBox of this.#chatBoxes) {
@@ -614,17 +441,11 @@ class DomInfo {
           .querySelector(this.#labeledMessageGridSelector)
           .getAttribute('aria-label');
         this.#chatBoxToLabel.set(chatBox, messageGridLabel);
-        // if (!messageGridLabel) {
-        //   console.log(`added null value/label to this.#chatBoxToLabel`);
-        // }
       }
     }
     // Condition below never satisfied in practice
     if (arguments.length === 2) {
       this.#chatBoxToLabel.set(box, label);
-      // if (!label) {
-      //   console.log(`added null value/label to this.#chatBoxToLabel`);
-      // }
     }
   }
 
@@ -731,27 +552,16 @@ const handleChatBoxContainer = (domInfo) => {
     } else {
       domInfo.setChatBoxes();
       const waitForGridsToBeLabeled = () => {
-        console.log(`Waiting for grids to be labeled...`);
         if (!domInfo.messageGridsLabeled()) {
           setTimeout(waitForGridsToBeLabeled, 100);
         } else {
-          console.log(`Grids are now labeled!`);
-          // domInfo.setMessageGridLabels();
           domInfo.setChatBoxToLabel();
           domInfo.setLabelToWasHandled();
-          // domInfo.observeChatBoxes();
           // Condition below may be superfluous
           if (domInfo.getChatBoxes().length !== 0) {
-            // let i = 0;
             const chatBoxToLabel = domInfo.getChatBoxToLabel();
             const labelToWasHandled = domInfo.getLabelToWasHandled();
             for (const chat of domInfo.getChatBoxes()) {
-              // if (
-              //   !domInfo
-              //     .getHandledChats()
-              //     .includes(domInfo.getMessageGridLabels()[i]) /* &&
-              //   !chat.firstChild.firstChild.hidden */
-              // ) {
               const label = chatBoxToLabel.get(chat);
               const wasHandled = labelToWasHandled.get(label);
               if (!wasHandled) {
@@ -835,24 +645,16 @@ const reset = () => {
   domInfo.setChatBoxContainer();
   domInfo.setChatBoxes();
   const waitForGridsToBeLabeled = () => {
-    console.log(`Waiting for grids to be labeled...`);
     if (!domInfo.messageGridsLabeled()) {
       setTimeout(waitForGridsToBeLabeled, 100);
     } else {
-      console.log(`Grids are now labeled!`);
-      // domInfo.setMessageGridLabels();
       domInfo.setChatBoxToLabel();
       domInfo.setLabelToWasHandled();
-      // domInfo.observeChatBoxes();
 
       if (domInfo.getChatBoxes().length !== 0) {
         const chatBoxToLabel = domInfo.getChatBoxToLabel();
         const labelToWasHandled = domInfo.getLabelToWasHandled();
         for (const chat of domInfo.getChatBoxes()) {
-          // if (
-          //   /* !domInfo.getHandledChats().includes(chat) && */
-          //   !chat.firstChild.firstChild.hidden
-          // ) {
           const label = chatBoxToLabel.get(chat);
           const wasHandled = labelToWasHandled.get(label);
           if (!wasHandled) {
