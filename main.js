@@ -250,8 +250,14 @@ class DomInfo {
       const msg = bubble.querySelector(this.#messageSelector);
       let texBounds;
 
+      // This line is just for testing purposes
+      let txt;
+
       if (msg !== null && msg.textContent !== '') {
         texBounds = getTexBounds(msg);
+
+        // This line is just for testing purposes
+        txt = msg.textContent;
       }
 
       if (texBounds !== undefined && texBounds.length) {
@@ -293,34 +299,173 @@ class DomInfo {
 
           let partialSumOfSpanWidths = collectiveSpanWidth;
           if (
-            baseSpans.length > 0 &&
+            baseSpans.length > 0 /* &&
             collectiveSpanWidth >
-              baseSpans[0].parentNode.getBoundingClientRect().width
+              baseSpans[0].parentNode.getBoundingClientRect().width */
           ) {
-            for (let i = baseSpans.length - 1; i > -1; i--) {
-              if (
-                partialSumOfSpanWidths -
-                  baseSpans[i].getBoundingClientRect().width <=
-                baseSpans[0].parentNode.getBoundingClientRect().width - 10
-              ) {
-                const spacer = document.createElement('div');
-                spacer.style.lineHeight = '2px';
-                baseSpans[0].parentNode.insertBefore(spacer, baseSpans[i]);
-                if (
-                  collectiveSpanWidth - partialSumOfSpanWidths <=
+            if (
+              txt.startsWith('The expression is:') &&
+              txt.endsWith(
+                'Want to provide more details or explore properties of summations?'
+              )
+            ) {
+              console.log(
+                `baseSpans[0].parentNode.getBoundingClientRect().width - 10 = ${
                   baseSpans[0].parentNode.getBoundingClientRect().width - 10
-                ) {
-                  break;
-                } else {
-                  collectiveSpanWidth = partialSumOfSpanWidths;
-                  // Recursively call the function this code belongs in, to deal
-                  // with cases where arbitrarily many line breaks are needed
-                }
-              } else {
-                partialSumOfSpanWidths -=
-                  baseSpans[i].getBoundingClientRect().width;
-              }
+                }`
+              );
             }
+
+            let i = baseSpans.length - 1;
+            let j = 0;
+            const insertLineBreak = () => {
+              if (
+                txt.startsWith('The expression is:') &&
+                txt.endsWith(
+                  'Want to provide more details or explore properties of summations?'
+                )
+              ) {
+                // console.log(`insertLineBreak(): j = ${j}`);
+                console.log(
+                  `i = ${i}\nj = ${j}\npartialSumOfSpanWidths = ${partialSumOfSpanWidths}\ncollectiveSpanWidth = ${collectiveSpanWidth}\nbaseSpans[i].getBoundingClientRect().width = ${
+                    baseSpans[i].getBoundingClientRect().width
+                  }\nbaseSpans[i].innerHTML = ${baseSpans[i].innerHTML}`
+                );
+              }
+              // if (i > -1) {
+              if (
+                collectiveSpanWidth >
+                  baseSpans[0].parentNode.getBoundingClientRect().width &&
+                i > j
+              ) {
+                // if (
+                //   txt.startsWith('To evaluate') &&
+                //   txt.endsWith(
+                //     'Do you have a specific value for n or a different range for x?'
+                //   )
+                // ) {
+                //   console.log(`test 1 passed`);
+                // }
+
+                if (
+                  partialSumOfSpanWidths -
+                    baseSpans[i].getBoundingClientRect().width <=
+                    baseSpans[0].parentNode.getBoundingClientRect().width -
+                      10 ||
+                  i - j === 1
+                ) {
+                  const spacer = document.createElement('div');
+                  spacer.style.margin = '10px 0px';
+                  baseSpans[0].parentNode.insertBefore(spacer, baseSpans[i]);
+
+                  console.log(`break inserted before span ${i}`);
+
+                  // if (
+                  //   collectiveSpanWidth - partialSumOfSpanWidths >
+                  //   baseSpans[0].parentNode.getBoundingClientRect().width - 10
+                  // ) {
+                  if (
+                    collectiveSpanWidth -
+                      (partialSumOfSpanWidths -
+                        baseSpans[i].getBoundingClientRect().width) >
+                    baseSpans[0].parentNode.getBoundingClientRect().width - 10
+                  ) {
+                    // partialSumOfSpanWidths -=
+                    //   baseSpans[i].getBoundingClientRect().width;
+                    // collectiveSpanWidth = partialSumOfSpanWidths;
+
+                    // collectiveSpanWidth -=
+                    //   baseSpans[i].getBoundingClientRect().width;
+
+                    // partialSumOfSpanWidths =
+                    //   collectiveSpanWidth - partialSumOfSpanWidths;
+                    partialSumOfSpanWidths =
+                      collectiveSpanWidth -
+                      (partialSumOfSpanWidths -
+                        baseSpans[i].getBoundingClientRect().width);
+                    collectiveSpanWidth = partialSumOfSpanWidths;
+                    j = i;
+                    i = baseSpans.length - 1;
+
+                    // if (
+                    //   txt.startsWith('To evaluate') &&
+                    //   txt.endsWith(
+                    //     'Do you have a specific value for n or a different range for x?'
+                    //   )
+                    // ) {
+                    //   console.log(
+                    //     `Inside if: i = ${i}\nj = ${j}\npartialSumOfSpanWidths = ${partialSumOfSpanWidths}\ncollectiveSpanWidth = ${collectiveSpanWidth}\nbaseSpans[i].getBoundingClientRect().width = ${
+                    //       baseSpans[i].getBoundingClientRect().width
+                    //     }\nbaseSpans[i].innerHTML = ${baseSpans[i].innerHTML}`
+                    //   );
+                    // }
+
+                    insertLineBreak();
+                  }
+                } else {
+                  // if (i - j !== 1) {
+                  partialSumOfSpanWidths -=
+                    baseSpans[i--].getBoundingClientRect().width;
+
+                  console.log(
+                    `txt = ${txt}\ni = ${i}\nj = ${j}\npartialSumOfSpanWidths = ${partialSumOfSpanWidths}\ncollectiveSpanWidth = ${collectiveSpanWidth}\nbaseSpans[i].getBoundingClientRect().width = ${
+                      baseSpans[i].getBoundingClientRect().width
+                    }\nbaseSpans[i].innerHTML = ${baseSpans[i].innerHTML}`
+                  );
+                  // } else {
+                  //   const spacer = document.createElement('div');
+                  //   spacer.style.margin = '10px 0px';
+                  //   baseSpans[0].parentNode.insertBefore(spacer, baseSpans[i]);
+
+                  //   console.log(`break inserted before span ${i}`);
+
+                  //   j = i;
+                  //   i = baseSpans.length - 1;
+                  //   insertLineBreak();
+                  // }
+
+                  // if (
+                  //   txt.startsWith('To evaluate') &&
+                  //   txt.endsWith(
+                  //     'Do you have a specific value for n or a different range for x?'
+                  //   )
+                  // ) {
+                  //   console.log(
+                  //     `Inside else: i = ${i}\nj = ${j}\npartialSumOfSpanWidths = ${partialSumOfSpanWidths}\ncollectiveSpanWidth = ${collectiveSpanWidth}\nbaseSpans[i].getBoundingClientRect().width = ${
+                  //       baseSpans[i].getBoundingClientRect().width
+                  //     }\nbaseSpans[i].innerHTML = ${baseSpans[i].innerHTML}`
+                  //   );
+                  // }
+
+                  insertLineBreak();
+                }
+              }
+            };
+            insertLineBreak();
+            // for (let i = baseSpans.length - 1; i > -1; i--) {
+            //   if (
+            //     partialSumOfSpanWidths -
+            //       baseSpans[i].getBoundingClientRect().width <=
+            //     baseSpans[0].parentNode.getBoundingClientRect().width - 10
+            //   ) {
+            //     const spacer = document.createElement('div');
+            //     spacer.style.lineHeight = '2px';
+            //     baseSpans[0].parentNode.insertBefore(spacer, baseSpans[i]);
+            //     if (
+            //       collectiveSpanWidth - partialSumOfSpanWidths <=
+            //       baseSpans[0].parentNode.getBoundingClientRect().width - 10
+            //     ) {
+            //       break;
+            //     } else {
+            //       collectiveSpanWidth = partialSumOfSpanWidths;
+            //       // Recursively call the function this code belongs in, to deal
+            //       // with cases where arbitrarily many line breaks are needed
+            //     }
+            //   } else {
+            //     partialSumOfSpanWidths -=
+            //       baseSpans[i].getBoundingClientRect().width;
+            //   }
+            // }
           }
         });
       }
