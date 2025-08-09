@@ -26,7 +26,7 @@ The extension is automatically activated and ready to go!
 
 ## Usage
 
-While composing a message on Facebook, write your TeX code between `$$` and `$$` if you want to display mathematical notation centered on its own line. Enclose your code in `\(` and `\)` if you want your mathematical notation on the same line as other mathematical expressions or ordinary text. The math is rendered only after you hit send (no live preview).
+While composing a message on Facebook, write your TeX code between `$$` and `$$` if you want to display mathematical notation centered on its own line. Enclose your code in `\( ... \)` if you want your mathematical notation on the same line as other mathematical expressions or ordinary text. The math is rendered only after you hit send (no live preview).
 
 Bear in mind that your math will only be rendered on the screens of those using this extension. Send a message containing TeX code to anyone else, and all they'll see is the code.
 
@@ -35,3 +35,9 @@ Here are a couple examples of what the extension can do:
 <img width="406" alt="Screenshot 2025-05-09 at 11 04 05 AM" src="https://github.com/user-attachments/assets/fb4f73f3-ae23-4db6-964e-f446dec84898" />
 <br><br>
 <img width="868" alt="Screenshot 2025-05-09 at 10 58 52 AM" src="https://github.com/user-attachments/assets/e48fc90d-3bea-4c88-bc1a-1ff3721811fe" />
+
+## Limitations
+
+You cannot render inline math by writing commands between single dollar signs (`$ ... $`). You must use the `\( ... \)` syntax.
+
+Once the math is rendered in a message, if that message is subsequently edited, you will have to refresh to view the edited version of the message.
