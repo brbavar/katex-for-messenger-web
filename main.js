@@ -302,7 +302,7 @@ class DomInfo {
   #chatBubbleMutationHandler = (mutations) => {
     mutations.forEach((mutation) => {
       mutation.addedNodes.forEach((node) => {
-        console.log(`bubble source added to grid`);
+        // console.log(`bubble source added to grid`);
         this.handleChatBubbles(node);
       });
     });
@@ -419,16 +419,17 @@ class DomInfo {
         });
       }
       this.markAsParsed(bubble);
-    } else {
-      console.log(
-        `Blocked parsing of bubble with this text: "${bubble.textContent}".\ndomInfo = ${this}`
-      );
-      console.log(
-        `domInfo.getParsedBubbles().includes(bubble) = ${this.#parsedBubbles.includes(
-          bubble
-        )}`
-      );
     }
+    // else {
+    //   console.log(
+    //     `Blocked parsing of bubble with this text: "${bubble.textContent}".\ndomInfo = ${this}`
+    //   );
+    //   console.log(
+    //     `domInfo.getParsedBubbles().includes(bubble) = ${this.#parsedBubbles.includes(
+    //       bubble
+    //     )}`
+    //   );
+    // }
   }
 
   ensureParsed(bubble) {
@@ -513,9 +514,6 @@ class DomInfo {
   // Consider removing parameter list along with second conditional statement
   setChatBoxToLabel(box, label) {
     if (arguments.length === 0) {
-      console.log(
-        `${this.#chatBoxes.length} chatBoxes found; setting chatBoxToLabel now`
-      );
       for (const chatBox of this.#chatBoxes) {
         const messageGridLabel = chatBox
           .querySelector(this.#labeledMessageGridSelector)
@@ -625,7 +623,6 @@ const handleChat = (domInfo) => {
 };
 
 const handleChatBoxContainer = (domInfo) => {
-  console.log(`handling chat box container`);
   let lengthOfWait = 0;
   const waitToHandleChatBoxes = () => {
     if (domInfo.getChatBoxContainer().children.length === 0) {
@@ -636,7 +633,6 @@ const handleChatBoxContainer = (domInfo) => {
       }, 100);
     } else {
       const waitForGridsToBeLabeled = () => {
-        console.log(`waiting for grids to be labeled`);
         if (!domInfo.messageGridsLabeled()) {
           setTimeout(waitForGridsToBeLabeled, 100);
         } else {
@@ -666,7 +662,7 @@ const initMessengerChatContainer = (domInfo) => {
 };
 
 const startUp = () => {
-  console.log(`starting up`);
+  // console.log(`starting up`);
   const domInfo = new DomInfo();
 
   domInfo.listenToDocumentVisibility();
@@ -724,7 +720,7 @@ window.onload = startUp;
 
 // A variant of startUp, specifically for cases where addition of Messenger control is observed (switching from Messenger to chat box view)
 const reset = () => {
-  console.log(`resetting`);
+  // console.log(`resetting`);
   const domInfo = new DomInfo();
 
   domInfo.listenToDocumentVisibility();
@@ -734,7 +730,6 @@ const reset = () => {
 
   domInfo.setChatBoxContainer();
   const waitForGridsToBeLabeled = () => {
-    console.log(`waiting for grids to be labeled`);
     if (!domInfo.messageGridsLabeled()) {
       setTimeout(waitForGridsToBeLabeled, 100);
     } else {
