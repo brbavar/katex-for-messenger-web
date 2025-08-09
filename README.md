@@ -38,8 +38,8 @@ Here are a couple examples of what the extension can do:
 
 ## Limitations
 
-You cannot render inline math by writing commands between single dollar signs (`$ ... $`). You must use the `\( ... \)` syntax.
-
-Once the math is rendered in a message, if that message is subsequently edited, you will have to refresh to view the edited version of the message.
-
-Typesetting only occurs in chat bubbles.
+<ul>
+  <li>You cannot render inline math by writing commands between single dollar signs (`$ ... $`). You must use the `\( ... \)` syntax.</li>
+<li>Once the math is rendered in a message, if that message is subsequently edited, you will have to refresh to view the edited version of the message.</li>
+<li>Typesetting only occurs in chat bubbles.</li>
+</ul>
