@@ -42,16 +42,7 @@ class DomInfo {
           this.#messengerControlSelector
         );
         if (messengerControl !== null) {
-          [
-            this.#accountControlsAndSettingsObserver,
-            this.#chatBoxContainerObserver,
-            this.#messengerChatContainerObserver,
-          ].forEach((observer) => observer.disconnect());
-
-          for (const entry of this.#labelToBubbleObserver.entries()) {
-            entry[1].disconnect();
-          }
-
+          this.disconnectObservers();
           respond();
           messengerControlSeen = true;
           break;
@@ -76,19 +67,9 @@ class DomInfo {
           'querySelector' in node &&
           (convo = node.querySelector(this.#chatSelector))
         ) {
-          console.log(
-            `Messenger chat container has new child; this.#labelToBubbleObserver contains ${
-              this.#labelToBubbleObserver.size
-            } entries`
-          );
           const loneEntry = this.#labelToBubbleObserver.entries().next().value;
           loneEntry[1].disconnect();
           this.#labelToBubbleObserver.delete(loneEntry[0]);
-          console.log(
-            `But after (attempted) removal of (presumably the only) entry, this.#labelToBubbleObserver contains ${
-              this.#labelToBubbleObserver.size
-            } entries`
-          );
 
           this.#chat = convo;
           this.setMessageGrid();
@@ -104,7 +85,6 @@ class DomInfo {
       mutation.addedNodes.forEach((node) => {
         this.setMessageGrid(0, node);
         if (this.#messageGrids[0] !== null) {
-          // if (node !== null) {
           const waitToHandleChatBox = () => {
             const labeledGrid = node.querySelector(
               this.#labeledMessageGridSelector
@@ -113,12 +93,8 @@ class DomInfo {
               ? labeledGrid.getAttribute('aria-label')
               : null;
             if (labeledGrid === null || messageGridLabel === null) {
-              console.log(`grid/label in chat box is still null`);
               setTimeout(waitToHandleChatBox, 100);
             } else {
-              console.log(
-                `grid/label in chat box is no longer null; label = ${messageGridLabel}`
-              );
               if (
                 !Array.from(this.#chatBoxToLabel.values()).includes(
                   messageGridLabel
@@ -126,7 +102,6 @@ class DomInfo {
                 !this.#chatBoxToLabel.has(node)
               ) {
                 this.#chatBoxToLabel.set(node, messageGridLabel);
-                // this.setMessageGrid(0, node);
                 this.handleChatBubbles();
                 this.observeChatBubbles();
               }
@@ -162,46 +137,24 @@ class DomInfo {
 
   #documentVisibilityListener = () => {
     if (document.hidden) {
-      console.log(`tab hidden`);
-      [
-        this.#accountControlsAndSettingsObserver,
-        this.#chatBoxContainerObserver,
-        this.#messengerChatContainerObserver,
-      ].forEach((observer) => observer.disconnect());
-
-      for (const entry of this.#labelToBubbleObserver.entries()) {
-        console.log(`${entry[0]} is a label mapped to an observer`);
-        entry[1].disconnect();
-      }
+      this.disconnectObservers();
     } else {
-      console.log(`tab visible`);
       this.observeAccountControlsAndSettings();
       this.observeChatBoxContainer();
       this.observeMessengerChatContainer();
 
-      // console.log(`${this.#chatBoxes.length} chat boxes found`);
-      console.log(`${this.#chatBoxToLabel.size} chat boxes found`);
-
-      // if (this.#chatBoxes.length === 0) {
       if (this.#chatBoxToLabel.size === 0) {
         const loneEntry = this.#labelToBubbleObserver.entries().next().value;
+
         loneEntry[1].observe(this.#messageGrids[0], {
           childList: true,
           subtree: true,
         });
       } else {
-        // for (const chatBox of this.#chatBoxes) {
         for (const key of this.#chatBoxToLabel.keys()) {
-          // const label = this.#chatBoxToLabel.get(chatBox);
           const label = this.#chatBoxToLabel.get(key);
           const observer = this.#labelToBubbleObserver.get(label);
-
-          // const messageGrid = chatBox.querySelector(this.#messageGridSelector);
           const messageGrid = key.querySelector(this.#messageGridSelector);
-
-          console.log(
-            `label = ${label}, observer = ${observer}, messageGrid = ${messageGrid}`
-          );
 
           observer.observe(messageGrid, { childList: true, subtree: true });
         }
@@ -306,19 +259,12 @@ class DomInfo {
   }
 
   setMessageGrid(i = 0, pointOfReference = this.#chat) {
-    // let grid = pointOfReference.querySelector(this.#messageGridSelector);
     let grid = pointOfReference.querySelector(this.#labeledMessageGridSelector);
     // Conditional statement below may be unnecessary
     if (grid === null) {
       grid = pointOfReference.querySelector(this.#messageGridSelector);
     }
     this.#messageGrids[i] = grid;
-
-    console.log(`grid = ${grid}`);
-
-    console.log(
-      `setting message grid; label = ${grid.getAttribute('aria-label')}`
-    );
   }
 
   // #editorContainerMutationHandler = (mutations) => {
@@ -375,8 +321,6 @@ class DomInfo {
 
     const label = grid.getAttribute('aria-label');
     this.#labelToBubbleObserver.set(label, observer);
-
-    console.log(`mapping ${label} to an observer`);
   }
 
   parseContent(bubble) {
@@ -432,14 +376,14 @@ class DomInfo {
             const insertLineBreak = () => {
               if (
                 collectiveSpanWidth >
-                  /*baseSpans[0].parentNode.getBoundingClientRect().width*/ 169 &&
+                  baseSpans[0].parentNode.getBoundingClientRect().width &&
                 i > j
               ) {
                 if (
                   partialSumOfSpanWidths -
                     baseSpans[i].getBoundingClientRect().width <=
-                    /*baseSpans[0].parentNode.getBoundingClientRect().width -
-                      10*/ 159 ||
+                    baseSpans[0].parentNode.getBoundingClientRect().width -
+                      10 ||
                   i - j === 1
                 ) {
                   const spacer = document.createElement('div');
@@ -450,7 +394,7 @@ class DomInfo {
                     collectiveSpanWidth -
                       (partialSumOfSpanWidths -
                         baseSpans[i].getBoundingClientRect().width) >
-                    /*baseSpans[0].parentNode.getBoundingClientRect().width - 10*/ 159
+                    baseSpans[0].parentNode.getBoundingClientRect().width - 10
                   ) {
                     partialSumOfSpanWidths =
                       collectiveSpanWidth -
@@ -590,6 +534,18 @@ class DomInfo {
       'visibilitychange',
       this.#documentVisibilityListener
     );
+  }
+
+  disconnectObservers() {
+    [
+      this.#accountControlsAndSettingsObserver,
+      this.#chatBoxContainerObserver,
+      this.#messengerChatContainerObserver,
+    ].forEach((observer) => observer.disconnect());
+
+    for (const entry of this.#labelToBubbleObserver.entries()) {
+      entry[1].disconnect();
+    }
   }
 }
 
