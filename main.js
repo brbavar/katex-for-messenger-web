@@ -8,7 +8,6 @@ class DomInfo {
   #chatBoxes = [];
   // #editorContainers = [];
   // #editorContainerObservers = [];
-  // #parsedBubbles = [];
   #chatBoxToLabel = new Map();
   #labelToBubbleObserver = new Map();
   #accountControlsAndSettingsSelector =
@@ -324,7 +323,6 @@ class DomInfo {
   }
 
   parseContent(bubble) {
-    // if (!this.#parsedBubbles.includes(bubble)) {
     const msg = bubble.querySelector(this.#messageSelector);
     let texBounds;
 
@@ -417,18 +415,6 @@ class DomInfo {
         }
       });
     }
-    // this.markAsParsed(bubble);
-    // }
-    // else {
-    //   console.log(
-    //     `Blocked parsing of bubble with this text: "${bubble.textContent}".\ndomInfo = ${this}`
-    //   );
-    //   console.log(
-    //     `domInfo.getParsedBubbles().includes(bubble) = ${this.#parsedBubbles.includes(
-    //       bubble
-    //     )}`
-    //   );
-    // }
   }
 
   ensureParsed(bubble) {
@@ -441,7 +427,6 @@ class DomInfo {
       }
 
       if (texBounds !== undefined && texBounds.length) {
-        // this.unmarkAsParsed(bubble);
         this.parseContent(bubble);
       }
     }, 2000);
@@ -453,8 +438,6 @@ class DomInfo {
         const chatBubbles = source.querySelectorAll(this.#chatBubbleSelector);
 
         chatBubbles.forEach((bubble) => {
-          // if (!domInfo.getParsedBubbles().includes(bubble)) {
-          // console.log('bubble still needs parsed');
           if (bubble.textContent === '') {
             const waitToParseContent = () => {
               if (
@@ -494,21 +477,6 @@ class DomInfo {
       bubbleHandler(bubbleSource);
     }
   }
-
-  // getParsedBubbles() {
-  //   return this.#parsedBubbles;
-  // }
-
-  // markAsParsed(bubble) {
-  //   this.#parsedBubbles.push(bubble);
-  // }
-
-  // unmarkAsParsed(bubble) {
-  //   let i = this.#parsedBubbles.indexOf(bubble);
-  //   if (i !== -1) {
-  //     this.#parsedBubbles.splice(i);
-  //   }
-  // }
 
   // Consider removing parameter list along with second conditional statement
   setChatBoxToLabel(box, label) {
@@ -751,8 +719,6 @@ const reset = () => {
             }
           };
           waitToHandleMessages();
-          // handleChat(domInfo);
-          // domInfo.markAsHandled(chat);
         }
       }
 
