@@ -166,8 +166,12 @@ class DomInfo {
       const labeledMessageGrid = chatBox.querySelector(
         this.#labeledMessageGridSelector
       );
+      if (labeledMessageGrid === null) {
+        return false;
+      }
+
       const label = labeledMessageGrid.getAttribute('aria-label');
-      if (labeledMessageGrid === null || label === null || label === 'null') {
+      if (label === null || label === 'null') {
         return false;
       }
     }
@@ -592,6 +596,7 @@ const handleChat = (domInfo) => {
 const handleChatBoxContainer = (domInfo) => {
   let lengthOfWait = 0;
   const waitToHandleChatBoxes = () => {
+    console.log(`waiting to handle chat boxes...`);
     if (domInfo.getChatBoxContainer().children.length === 0) {
       setTimeout(() => {
         if ((lengthOfWait += 100) < 5000) {
@@ -599,10 +604,13 @@ const handleChatBoxContainer = (domInfo) => {
         }
       }, 100);
     } else {
+      console.log(`handling chat boxes`);
       const waitForGridsToBeLabeled = () => {
+        console.log(`waiting for grids to be labeled...`);
         if (!domInfo.messageGridsLabeled()) {
           setTimeout(waitForGridsToBeLabeled, 100);
         } else {
+          console.log(`grids are labeled`);
           domInfo.setChatBoxes();
           domInfo.setChatBoxToLabel();
           // Condition below may be superfluous
@@ -669,12 +677,14 @@ const startUp = () => {
     domInfo.setChatBoxContainer();
 
     const waitToHandleChatBoxContainer = () => {
+      console.log(`waiting to handle chat box container...`);
       if (domInfo.getChatBoxContainer() === null) {
         setTimeout(() => {
           domInfo.setChatBoxContainer();
           waitToHandleChatBoxContainer();
         }, 100);
       } else {
+        console.log(`handling chat box container`);
         handleChatBoxContainer(domInfo);
       }
     };
