@@ -43,7 +43,6 @@ Here are a couple examples of what the extension can do:
 ## Limitations
 
 - If you open a chat in Messenger, and proceed to narrow your browser window, the chat bubbles tend to narrow with it. The formulas in your messages, however, remain the same width. So if the bubbles get too narrow, the formulas may stick out, past the bubbles' boundaries.
-- You cannot render inline math by writing commands between single dollar signs (`$ ... $`). You must use the  
-  `\( ... \)` syntax.
+- You cannot render inline math by writing commands between single dollar signs (`$ ... $`). You must use the `\( ... \)` syntax.
 - Once the math is rendered in a message, if that message is subsequently edited (by whoever in the chat sent it), you will have to refresh to view the edited version of the message.
 - Typesetting only occurs in chat bubbles.
