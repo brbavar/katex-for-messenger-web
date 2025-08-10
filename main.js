@@ -136,8 +136,10 @@ class DomInfo {
 
   #documentVisibilityListener = () => {
     if (document.hidden) {
+      console.log(`document hidden`);
       this.disconnectObservers();
     } else {
+      console.log(`document unhidden`);
       this.observeAccountControlsAndSettings();
       this.observeChatBoxContainer();
       this.observeMessengerChatContainer();
@@ -145,16 +147,33 @@ class DomInfo {
       if (this.#chatBoxToLabel.size === 0) {
         const loneEntry = this.#labelToBubbleObserver.entries().next().value;
 
+        console.log(`no chat boxes mapped to labels; loneEntry = ${loneEntry}`);
+        if (loneEntry) {
+          console.log(
+            `loneEntry[0] = ${loneEntry[0]}, loneEntry[1] = ${loneEntry[1]}`
+          );
+        }
+
         loneEntry[1].observe(this.#messageGrids[0], {
           childList: true,
           subtree: true,
         });
       } else {
+        // console.log(`some chat boxes are mapped to labels`);
         for (const key of this.#chatBoxToLabel.keys()) {
           const label = this.#chatBoxToLabel.get(key);
-          const observer = this.#labelToBubbleObserver.get(label);
-          const messageGrid = key.querySelector(this.#messageGridSelector);
+          let observer = this.#labelToBubbleObserver.get(label);
+          // const messageGrid = key.querySelector(this.#messageGridSelector);
 
+          // console.log(`label = ${label}, observer = ${observer}`);
+
+          if (observer === undefined) {
+            observer = new MutationObserver(this.#chatBubbleMutationHandler);
+            this.#labelToBubbleObserver.set(label, observer);
+          }
+
+          const messageGrid = key.querySelector(this.#messageGridSelector);
+          // console.log(`messageGrid = ${messageGrid}`);
           observer.observe(messageGrid, { childList: true, subtree: true });
         }
       }
