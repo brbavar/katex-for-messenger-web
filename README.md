@@ -38,7 +38,7 @@ Here are a couple examples of what the extension can do:
 <br><br>
 <img width="406" alt="Screenshot 2025-05-09 at 11 04 05 AM" src="https://github.com/user-attachments/assets/fb4f73f3-ae23-4db6-964e-f446dec84898" />
 <br><br>
-<img width="868" alt="Screenshot 2025-05-09 at 10 58 52 AM" src="https://github.com/user-attachments/assets/e48fc90d-3bea-4c88-bc1a-1ff3721811fe" />
+<img width="700" alt="Screenshot 2025-05-09 at 10 58 52 AM" src="https://github.com/user-attachments/assets/e48fc90d-3bea-4c88-bc1a-1ff3721811fe" />
 
 ## Limitations
 
