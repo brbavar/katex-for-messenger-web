@@ -11,7 +11,11 @@ were still under construction).
 
 ## Installation
 
-[Click here](https://github.com/brbavar/katex-for-messenger-web/archive/refs/heads/main.zip) to download the ZIP. Once you've extracted the files, open Google Chrome, type `chrome://extensions` in the search bar, and press Enter. Click the button labeled "Load unpacked".
+[Click here](https://github.com/brbavar/katex-for-messenger-web/archive/refs/heads/main.zip) to download the ZIP. Once you've extracted the files, open Google Chrome, type `chrome://extensions` in the search bar, and press Enter. Turn on developer mode.
+<br><br>
+<img width="1143" height="315" alt="Screenshot 2025-08-09 at 9 02 38 PM" src="https://github.com/user-attachments/assets/5e95b486-bb52-4b66-8d0d-0ec48d5c96f4" />
+<br><br>
+Click the button labeled "Load unpacked".
 <br><br>
 <img width="967" alt="Screenshot 2025-05-09 at 5 10 21 AM" src="https://github.com/user-attachments/assets/4707376b-c824-4cdc-9a03-941ca0906350" />
 <br><br>
