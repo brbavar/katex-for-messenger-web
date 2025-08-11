@@ -82,7 +82,7 @@ class DomInfo {
   #chatBoxContainerObserver = new MutationObserver((mutations) => {
     mutations.forEach((mutation) => {
       mutation.addedNodes.forEach((node) => {
-        // console.log(`node added to chat box container`);
+        // Condition below may be superfluous
         if (!node.firstChild.firstChild.hasAttribute('hidden')) {
           this.setMessageGrid(0, node);
           if (this.#messageGrids[0] !== null) {
@@ -93,9 +93,7 @@ class DomInfo {
               const messageGridLabel = labeledGrid
                 ? labeledGrid.getAttribute('aria-label')
                 : null;
-              // console.log(`${messageGridLabel} added to chat box container`);
               if (labeledGrid === null || messageGridLabel === null) {
-                // console.log(`waiting to handle chat box`);
                 setTimeout(waitToHandleChatBox, 100);
               } else {
                 if (
@@ -104,14 +102,10 @@ class DomInfo {
                   ) ||
                   !this.#chatBoxToLabel.has(node)
                 ) {
-                  // console.log(`handling ${messageGridLabel}`);
                   if (
                     !this.#chatBoxToLabel.has(node) &&
                     this.#labelToBubbleObserver.has(messageGridLabel)
                   ) {
-                    // console.log(
-                    //   `disconnecting observer associated with grid labeled ${messageGridLabel}`
-                    // );
                     this.#labelToBubbleObserver
                       .get(messageGridLabel)
                       .disconnect();
@@ -119,120 +113,14 @@ class DomInfo {
 
                   this.#chatBoxToLabel.set(node, messageGridLabel);
                   this.handleChatBubbles();
-                  // console.log(
-                  //   `adding new observer to grid labeled ${messageGridLabel}`
-                  // );
                   this.observeChatBubbles();
                 }
-                // else {
-                //   console.log(`${messageGridLabel} already handled`);
-                // }
-
-                // for (const entry of this.#chatBoxToLabel) {
-
-                // for (const entry of this.#labelToBubbleObserver) {
-                //   entry[1].disconnect();
-                //   this.#labelToBubbleObserver.delete(entry[0]);
-                // }
-
-                // const chatBoxes = this.#chatBoxContainer.children;
-                // for (const chatBox of chatBoxes) {
-                //   console.log(
-                //     `handling chat box labeled ${chatBox
-                //       .querySelector(this.#labeledMessageGridSelector)
-                //       .getAttribute('aria-label')}`
-                //   );
-                //   if (!chatBox.firstChild.firstChild.hasAttribute('hidden')) {
-                //     console.log(`box is visible`);
-                //     this.setMessageGrid(0, chatBox);
-                //     this.handleChatBubbles();
-                //     this.observeChatBubbles();
-                //   } else {
-                //     console.log(`box is hidden`);
-                //   }
-                // }
               }
             };
             waitToHandleChatBox();
           }
         }
       });
-      // mutation.removedNodes.forEach((node) => {
-      //   //   // console.log(`node removed from chat box container`);
-      //   const labeledGrid = node.querySelector(
-      //     this.#labeledMessageGridSelector
-      //   );
-      //   const messageGridLabel = labeledGrid
-      //     ? labeledGrid.getAttribute('aria-label')
-      //     : null;
-      //   console.log(`${messageGridLabel} removed from chat box container`);
-      //   //   const i = this.#chatBoxes.indexOf(node);
-      //   //   if (i !== -1) {
-      //   //     this.#chatBoxes.splice(i, 1);
-      //   //   }
-
-      //   //   const identicalBoxStillVisible = () => {
-      //   //     for (const chatBox of this.#chatBoxContainer.children) {
-      //   //       if (!chatBox.firstChild.firstChild.hasAttribute('hidden')) {
-      //   //         const grid = node.querySelector(this.#labeledMessageGridSelector);
-      //   //         const label = grid ? grid.getAttribute('aria-label') : null;
-      //   //         if (label !== null && label === messageGridLabel) {
-      //   //           return true;
-      //   //         }
-      //   //       }
-      //   //     }
-      //   //     return false;
-      //   //   };
-
-      //   //   // // if (this.#labelToBubbleObserver.get(messageGridLabel)) {
-      //   //   // if (this.#labelToBubbleObserver.has(messageGridLabel)) {
-      //   //   //   if (!identicalBoxStillVisible()) {
-      //   //   //     console.log(
-      //   //   //       `disconnecting observer associated with grid labeled ${messageGridLabel}`
-      //   //   //     );
-      //   //   //     this.#labelToBubbleObserver.get(messageGridLabel).disconnect();
-      //   //   //     this.#labelToBubbleObserver.delete(messageGridLabel);
-      //   //   //   }
-      //   //   // } else {
-      //   //   //   console.log(`identical box still visible`);
-      //   //   // }
-
-      //   //   // let lengthOfWait = 0;
-      //   //   // const waitForNodeToHide = () => {
-      //   //   // if (!node.firstChild.firstChild.hasAttribute('hidden')) {
-      //   //   //   console.log(`waiting for ${messageGridLabel} to hide`);
-      //   //   //   setTimeout(() => {
-      //   //   //     if ((lengthOfWait += 100) < 1000) {
-      //   //   //       waitForNodeToHide();
-      //   //   //     }
-      //   //   //   }, 100);
-      //   //   // } else {
-      //   //   // console.log(`${messageGridLabel} now hidden`);
-
-      //   //   if (node.firstChild.firstChild.hasAttribute('hidden')) {
-      //   //     // if (this.#labelToBubbleObserver.get(messageGridLabel)) {
-      //   //     if (this.#labelToBubbleObserver.has(messageGridLabel)) {
-      //   //       console.log(`label ${messageGridLabel} is in map`);
-      //   //       setTimeout(() => {
-      //   //         if (!identicalBoxStillVisible()) {
-      //   //           console.log(
-      //   //             `disconnecting observer associated with grid labeled ${messageGridLabel}`
-      //   //           );
-      //   //           this.#labelToBubbleObserver.get(messageGridLabel).disconnect();
-      //   //           this.#labelToBubbleObserver.delete(messageGridLabel);
-      //   //         } else {
-      //   //           console.log(
-      //   //             `a box with the label ${messageGridLabel} is still visible`
-      //   //           );
-      //   //         }
-      //   //       }, 1000);
-      //   //     } else {
-      //   //       console.log(`label ${messageGridLabel} is NOT in map`);
-      //   //     }
-      //   //   }
-      //   //   // };
-      //   //   // waitForNodeToHide();
-      // });
     });
   });
 
@@ -386,7 +274,6 @@ class DomInfo {
   #chatBubbleMutationHandler = (mutations) => {
     mutations.forEach((mutation) => {
       mutation.addedNodes.forEach((node) => {
-        // console.log(`bubble source added to grid`);
         this.handleChatBubbles(node);
       });
     });
@@ -405,8 +292,6 @@ class DomInfo {
 
     const label = grid.getAttribute('aria-label');
     this.#labelToBubbleObserver.set(label, observer);
-
-    // console.log(`just added new observer to grid labeled ${label}`);
   }
 
   parseContent(bubble) {
@@ -589,9 +474,6 @@ class DomInfo {
     ].forEach((observer) => observer.disconnect());
 
     for (const entry of this.#labelToBubbleObserver.entries()) {
-      // console.log(
-      //   `disconnecting observer associated with grid labeled ${entry[0]}`
-      // );
       entry[1].disconnect();
     }
   }
