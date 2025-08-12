@@ -497,19 +497,18 @@ class DomInfo {
       if (source && 'querySelectorAll' in source) {
         const chatBubbles = source.querySelectorAll(this.#chatBubbleSelector);
 
-        const waitForCompleteMessage = (txt) => {
-          setTimeout(() => {
-            if (bubble.textContent !== txt) {
-              txt = bubble.textContent;
-              waitForCompleteMessage(txt);
-            } else {
-              this.parseContent(bubble);
-              this.ensureParsed(bubble);
-            }
-          }, 300);
-        };
-
         chatBubbles.forEach((bubble) => {
+          const waitForCompleteMessage = (txt) => {
+            setTimeout(() => {
+              if (bubble.textContent !== txt) {
+                txt = bubble.textContent;
+                waitForCompleteMessage(txt);
+              } else {
+                this.parseContent(bubble);
+                this.ensureParsed(bubble);
+              }
+            }, 300);
+          };
           if (bubble.textContent === '') {
             const waitToParseContent = () => {
               if (
