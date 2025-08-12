@@ -497,6 +497,18 @@ class DomInfo {
       if (source && 'querySelectorAll' in source) {
         const chatBubbles = source.querySelectorAll(this.#chatBubbleSelector);
 
+        const waitForCompleteMessage = (txt) => {
+          setTimeout(() => {
+            if (bubble.textContent !== txt) {
+              txt = bubble.textContent;
+              waitForCompleteMessage(txt);
+            } else {
+              this.parseContent(bubble);
+              this.ensureParsed(bubble);
+            }
+          }, 300);
+        };
+
         chatBubbles.forEach((bubble) => {
           if (bubble.textContent === '') {
             const waitToParseContent = () => {
@@ -507,50 +519,13 @@ class DomInfo {
                 setTimeout(waitToParseContent, 100);
               } else {
                 let txt = bubble.textContent;
-                const waitForCompleteMessage = () => {
-                  setTimeout(() => {
-                    if (bubble.textContent !== txt) {
-                      console.log(
-                        `waiting for complete message; bubble.textContent = ${bubble.textContent}, txt = ${txt}`
-                      );
-                      txt = bubble.textContent;
-                      waitForCompleteMessage();
-                    } else {
-                      console.log(
-                        `message now complete; bubble.textContent = ${bubble.textContent}, txt = ${txt}`
-                      );
-                      this.parseContent(bubble);
-                      this.ensureParsed(bubble);
-                    }
-                  }, 300);
-                };
-                waitForCompleteMessage();
+                waitForCompleteMessage(txt);
               }
             };
             waitToParseContent();
           } else {
-            console.log(
-              `bubble not initially empty; bubble.textContent = ${bubble.textContent}`
-            );
             let txt = bubble.textContent;
-            const waitForCompleteMessage = () => {
-              setTimeout(() => {
-                if (bubble.textContent !== txt) {
-                  console.log(
-                    `waiting for complete message; bubble.textContent = ${bubble.textContent}, txt = ${txt}`
-                  );
-                  txt = bubble.textContent;
-                  waitForCompleteMessage();
-                } else {
-                  console.log(
-                    `message now complete; bubble.textContent = ${bubble.textContent}, txt = ${txt}`
-                  );
-                  this.parseContent(bubble);
-                  this.ensureParsed(bubble);
-                }
-              }, 300);
-            };
-            waitForCompleteMessage();
+            waitForCompleteMessage(txt);
           }
         });
       }
