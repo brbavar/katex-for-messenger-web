@@ -517,14 +517,12 @@ class DomInfo {
               ) {
                 setTimeout(waitToParseContent, 100);
               } else {
-                let txt = bubble.textContent;
-                waitForCompleteMessage(txt);
+                waitForCompleteMessage(bubble.textContent);
               }
             };
             waitToParseContent();
           } else {
-            let txt = bubble.textContent;
-            waitForCompleteMessage(txt);
+            waitForCompleteMessage(bubble.textContent);
           }
         });
       }
