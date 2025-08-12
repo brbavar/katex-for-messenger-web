@@ -501,8 +501,7 @@ class DomInfo {
           const waitForCompleteMessage = (txt) => {
             setTimeout(() => {
               if (bubble.textContent !== txt) {
-                txt = bubble.textContent;
-                waitForCompleteMessage(txt);
+                waitForCompleteMessage(bubble.textContent);
               } else {
                 this.parseContent(bubble);
                 this.ensureParsed(bubble);
