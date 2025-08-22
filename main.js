@@ -5,7 +5,6 @@ class DomInfo {
   #chatBoxContainer = null;
   #chatBoxContainerContainer = null;
   // #moreActionsMenuContainer = null;
-  // #messageGrids = [null, null];
   #messageGrid = null;
   #gridcellContainer = null;
   // #editorContainers = [];
@@ -76,19 +75,17 @@ class DomInfo {
           'querySelector' in node &&
           (convo = node.querySelector(this.#chatSelector))
         ) {
-          // const loneEntry = this.#idToBubbleObserver.entries().next().value;
-          // loneEntry[1].disconnect();
-          // this.#idToBubbleObserver.delete(loneEntry[0]);
           const loneEntry = this.#gridcellContainerToObserver
             .entries()
             .next().value;
           loneEntry[1].disconnect();
           this.#gridcellContainerToObserver.delete(loneEntry[0]);
 
+          // TODO: if needed, disconnect other observers and delete associated map entries
+
           this.#chat = convo;
           this.setMessageGrid();
           this.handleChatBubbles();
-          // this.observeChatBubbles();
           this.observeGridcells();
           this.observeGridcellContainer();
         }
