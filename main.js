@@ -11,10 +11,8 @@ class DomInfo {
   // #editorContainers = [];
   // #editorContainerObservers = [];
   #chatBoxToId = new Map();
-  // #idToBubbleObserver = new Map();
   #idToChatBoxObserver = new Map();
   #cellIdToObserver = new Map();
-  // #cellIdToBubbleClone = new Map();
   #gridcellContainerToObserver = new Map();
   #accountControlsAndSettingsSelector =
     'div[aria-label="Account Controls and Settings"][role="navigation"].x6s0dn4.x78zum5.x1s65kcs.x1n2onr6.x1ja2u2z';
@@ -27,8 +25,8 @@ class DomInfo {
   #chatBoxContainerSelector = 'div.x1ey2m1c.x78zum5.xixxii4.x1vjfegm';
   #chatBoxContainerContainerSelector =
     '[id^="mount"] > div > div > div.x9f619.x1n2onr6.x1ja2u2z > div[data-visualcompletion="ignore"]';
-  #chatTitleSelector =
-    'div[aria-label="Chat settings"][role="button"] [dir="auto"].html-h2 > span > span > span';
+  // #chatTitleSelector =
+  //   'div[aria-label="Chat settings"][role="button"] [dir="auto"].html-h2 > span > span > span';
   #labeledMessageGridSelector = '[aria-label^="Messages in conversation"]';
   #messageGridSelector = `${
     this.#labeledMessageGridSelector
@@ -103,79 +101,12 @@ class DomInfo {
       mutation.addedNodes.forEach((node) => {
         // Condition below may be superfluous
         if (!node.firstChild.firstChild.hasAttribute('hidden')) {
-          this.setMessageGrid(/*0,*/ node);
-          // if (this.#messageGrids[0] !== null) {
+          this.setMessageGrid(node);
           if (this.#messageGrid !== null) {
-            // const waitToHandleChatBox = () => {
-            //   const labeledGrid = node.querySelector(
-            //     this.#labeledMessageGridSelector
-            //   );
-            //   const messageGridId = labeledGrid
-            //     ? labeledGrid.getAttribute('aria-label')
-            //     : null;
-
-            //   if (labeledGrid === null || messageGridId === null) {
-            //     setTimeout(waitToHandleChatBox, 100);
-            //   } else {
-            //     if (
-            //       !Array.from(this.#chatBoxToId.values()).includes(
-            //         messageGridId
-            //       ) ||
-            //       !this.#chatBoxToId.has(node)
-            //     ) {
-            //       if (!this.#chatBoxToId.has(node)) {
-            //         if (this.#idToChatBoxObserver.has(messageGridId)) {
-            //           this.#idToChatBoxObserver
-            //             .get(messageGridId)
-            //             .disconnect();
-            //         }
-            //         // if (this.#idToBubbleObserver.has(messageGridId)) {
-            //         //   this.#idToBubbleObserver
-            //         //     .get(messageGridId)
-            //         //     .disconnect();
-            //         // }
-            //         if (
-            //           this.#gridcellContainerToObserver.has(
-            //             this.#gridcellContainer
-            //           )
-            //         ) {
-            //           this.#gridcellContainerToObserver
-            //             .get(this.#gridcellContainer)
-            //             .disconnect();
-            //         }
-            //       }
-
-            //       const visibilityObserver = new MutationObserver(
-            //         this.#chatBoxVisibilityMutationHandler
-            //       );
-            //       visibilityObserver.observe(node.firstChild.firstChild, {
-            //         attributes: true,
-            //       });
-            //       this.#idToChatBoxObserver.set(
-            //         messageGridId,
-            //         visibilityObserver
-            //       );
-
-            //       this.#chatBoxToId.set(node, messageGridId);
-            //       this.handleChatBubbles();
-            //       // this.observeChatBubbles();
-
-            //       // TO BE IMPLEMENTED AND CALLED HERE
-            //       this.observeGridcells();
-            //       this.observeGridcellContainer();
-            //     }
-            //   }
-            // };
-            // waitToHandleChatBox();
             const waitForGridsToBeLabeled = () => {
-              // console.log(
-              //   `chatBoxContainerObserver: waiting for grids to be labeled`
-              // );
               if (!this.messageGridsLabeled()) {
                 setTimeout(waitForGridsToBeLabeled, 100);
               } else {
-                // console.log(`chatBoxContainerObserver: grids are labeled`);
-
                 // this.assignGridsIds();
 
                 const labeledGrid = node.querySelector(
@@ -193,11 +124,7 @@ class DomInfo {
                     if (this.#idToChatBoxObserver.has(messageGridId)) {
                       this.#idToChatBoxObserver.get(messageGridId).disconnect();
                     }
-                    // if (this.#idToBubbleObserver.has(messageGridId)) {
-                    //   this.#idToBubbleObserver
-                    //     .get(messageGridId)
-                    //     .disconnect();
-                    // }
+
                     if (
                       this.#gridcellContainerToObserver.has(
                         this.#gridcellContainer
@@ -222,9 +149,7 @@ class DomInfo {
 
                   this.#chatBoxToId.set(node, messageGridId);
                   this.handleChatBubbles();
-                  // this.observeChatBubbles();
 
-                  // TO BE IMPLEMENTED AND CALLED HERE
                   this.observeGridcells();
                   this.observeGridcellContainer();
                 }
@@ -244,16 +169,9 @@ class DomInfo {
 
         if (this.#chatBoxContainer !== null) {
           const waitForGridsToBeLabeled = () => {
-            // console.log(
-            //   `chatBoxContainerContainerObserver: waiting for grids to be labeled`
-            // );
             if (!this.messageGridsLabeled()) {
               setTimeout(waitForGridsToBeLabeled, 100);
             } else {
-              // console.log(
-              //   `chatBoxContainerContainerObserver: grids are labeled`
-              // );
-
               // this.assignGridsIds();
 
               for (const chatBox of this.#chatBoxContainer.children) {
@@ -271,11 +189,6 @@ class DomInfo {
                       this.#idToChatBoxObserver.get(messageGridId).disconnect();
                     }
 
-                    // if (this.#idToBubbleObserver.has(messageGridId)) {
-                    //   this.#idToBubbleObserver
-                    //     .get(messageGridId)
-                    //     .disconnect();
-                    // }
                     if (
                       this.#gridcellContainerToObserver.has(
                         this.#gridcellContainer
@@ -297,7 +210,6 @@ class DomInfo {
                       visibilityObserver
                     );
 
-                    // this.observeChatBubbles();
                     this.observeGridcells();
                     this.observeGridcellContainer();
                   }
@@ -335,32 +247,7 @@ class DomInfo {
     // // }
 
     mutations.forEach((mutation) => {
-      // console.log(mutation.target);
-      // // console.log(mutation.target.parent.parent);
-      // console.log(mutation.target.getAttribute('id'));
       mutation.addedNodes.forEach((node) => {
-        // console.log(
-        //   `content added to ${
-        //     'hasAttribute' in node && node.hasAttribute('id')
-        //       ? node.id
-        //       : 'cell without id'
-        //   } in grid labeled ${this.#messageGrid.getAttribute(
-        //     'aria-label'
-        //   )}; cell parent's class list is ${
-        //     node.parent !== undefined
-        //       ? node.parent.getAttribute('class')
-        //       : 'undefined'
-        //   }`
-        // );
-
-        // console.log(
-        //   `content added to ${
-        //     node.id
-        //   } in grid labeled ${this.#messageGrid.getAttribute(
-        //     'aria-label'
-        //   )}; cell's class list is ${node.getAttribute('class')}`
-        // );
-        console.log(`content added to ${mutation.target.id}`);
         if ('querySelector' in node) {
           const chatBubble = node.querySelector(this.#chatBubbleSelector);
 
@@ -373,47 +260,8 @@ class DomInfo {
             this.parseContent(chatBubble);
             // this.ensureParsed(chatBubble);
           }
-
-          // if (
-          //   chatBubble !== null &&
-          //   this.#cellIdToBubbleClone.has(mutation.target.id)
-          // ) {
-          //   console.log(
-          //     `chat bubble already cloned in ${
-          //       node.hasAttribute('id') ? node.id : 'cell without id'
-          //     }, to which content was added`
-          //   );
-          //   const bubbleSibling = chatBubble.nextElementSibling;
-
-          //   chatBubble.remove();
-
-          //   const clonedChatBubble = this.#cellIdToBubbleClone.get(
-          //     mutation.target.id
-          //   );
-          //   bubbleSibling.parent.insertBefore(clonedChatBubble, bubbleSibling);
-          // }
         }
       });
-      // mutation.removedNodes.forEach((node) => {
-      //   const cell = mutation.target;
-      //   console.log(
-      //     `${
-      //       cell.hasAttribute('id') ? cell.id : 'cell without id'
-      //     } removed from grid labeled ${this.#messageGrid.getAttribute(
-      //       'aria-label'
-      //     )}`
-      //   );
-      //   // console.log(node);
-      //   // console.log(node.firstChild);
-      //   // console.log(node.firstChild.firstChild);
-      //   // console.log(node.parent);
-      //   // console.log(node.parent.parent);
-      //   // console.log(mutation.target);
-      //   this.#cellIdToObserver.get(cell.id).disconnect();
-      //   this.#cellIdToObserver.delete(cell.id);
-
-      //   // this.#cellIdToBubbleClone.set(cell.id, null);
-      // });
     });
   };
 
@@ -428,40 +276,12 @@ class DomInfo {
   }
 
   #gridcellContainerMutationHandler = (mutations) => {
-    // // const numMutations = mutations.length;
-    // // console.log(`numMutations = ${numMutations}`);
-
-    // let numAddedNodes = 0;
     const addedNodes = [];
     mutations.forEach((mutation) => {
-      // if (mutation.addedNodes.length > 0) {
-      // numAddedNodes += mutation.addedNodes.length;
       for (const node of mutation.addedNodes) {
         addedNodes.push(node);
       }
-      // }
     });
-
-    // console.log(`number of added nodes = ${addedNodes.length}`);
-
-    // if (
-    //   numAddedNodes + 3 < this.#gridcellContainer.children.length &&
-    //   this.#gridcellContainer.children[numAddedNodes + 3] !== undefined &&
-    //   this.#gridcellContainer.children[numAddedNodes + 3].id === 'cell0'
-    // ) {
-    //   let idNum = -1;
-    //   for (let i = 0; i >= 0; i--) {
-    //     this.#gridcellContainer.children[
-    //       numAddedNodes + 2 - i
-    //     ].id = `cell${idNum--}`;
-
-    //     console.log(`this.#gridcellContainer.children[
-    //       numAddedNodes + 2 - i
-    //     ].id = ${this.#gridcellContainer.children[numAddedNodes + 2 - i].id}`);
-    //   }
-    // }
-
-    // let nextSiblingExists = false;
 
     if (this.cellsHaveIds()) {
       if (addedNodes.length > 0) {
@@ -475,11 +295,8 @@ class DomInfo {
           ) &&
           !addedNodes[addedNodes.length - 1].nextSibling.hasAttribute('role')
         ) {
-          // nextSiblingExists = true;
-          console.log(`next sibling exists`);
           for (let i = addedNodes.length - 1; i >= 0; i--) {
             sibling = addedNodes[i].nextSibling;
-            // siblingIdNum = sibling.firstChild.firstChild.id.substring(4);
 
             let colonPos = 0;
             for (let j = 0; j < sibling.firstChild.firstChild.id.length; j++) {
@@ -497,21 +314,12 @@ class DomInfo {
             );
             siblingIdNum = siblingBaseId.substring(4);
 
-            // console.log(`parseInt(siblingIdNum) = ${parseInt(siblingIdNum)}`);
             let idNum = parseInt(siblingIdNum) - 1;
-            // addedNodes[i].firstChild.firstChild.id = `cell${idNum}:${
-            //   this.#messageGrid.id
-            // }`;
             addedNodes[i].firstChild.firstChild.id = `cell${idNum}:${gridId}`;
-            // console.log(
-            //   `addedNodes[i].firstChild.firstChild.id = ${addedNodes[i].firstChild.firstChild.id}`
-            // );
           }
         } else {
-          console.log(`next sibling does NOT exist`);
           for (let i = 0; i < addedNodes.length; i++) {
             sibling = addedNodes[i].previousSibling;
-            // siblingIdNum = sibling.firstChild.firstChild.id.substring(4);
 
             let colonPos = 0;
             for (let j = 0; j < sibling.firstChild.firstChild.id.length; j++) {
@@ -529,29 +337,18 @@ class DomInfo {
             );
             siblingIdNum = siblingBaseId.substring(4);
 
-            // console.log(`parseInt(siblingIdNum) = ${parseInt(siblingIdNum)}`);
             let idNum = parseInt(siblingIdNum) + 1;
-            // addedNodes[i].firstChild.firstChild.id = `cell${idNum}:${
-            //   this.#messageGrid.id
-            // }`;
             addedNodes[i].firstChild.firstChild.id = `cell${idNum}:${gridId}`;
-            // console.log(
-            //   `addedNodes[i].firstChild.firstChild.id = ${addedNodes[i].firstChild.firstChild.id}`
-            // );
           }
         }
       }
     } else {
-      // console.log(`cells do NOT have IDs`);
       const cellAncestors = this.#gridcellContainer.children;
       const numCells = cellAncestors.length;
       for (let i = 1; i < numCells; i++) {
         const cell = cellAncestors[i].firstChild.firstChild;
         if (!cell.hasAttribute('id')) {
-          cell.id = `cell${i - 1}:${
-            /*this.#messageGrid.id*/ mutations[0].target.id.substring(15)
-          }`;
-          // console.log(`cell id = ${cell.id}`);
+          cell.id = `cell${i - 1}:${mutations[0].target.id.substring(15)}`;
         }
 
         // const observer = new MutationObserver(this.#gridcellMutationHandler);
@@ -559,118 +356,10 @@ class DomInfo {
         // this.#cellIdToObserver.set(cell.id, observer);
       }
     }
-    // let sibling = null;
-    // let siblingIdNumStr = '';
-    // let idNum = 0;
-    // if (
-    //   addedNodes[addedNodes.length - 1].nextSibling !== undefined &&
-    //   addedNodes[addedNodes.length - 1].nextSibling !== null
-    // ) {
-    //   for (let i = addedNodes.length - 1; i >= 0; i--) {
-    //     sibling = addedNodes[i].nextSibling;
-    //     siblingIdNumStr = sibling.id.substring(4);
-    //     console.log(siblingIdNumStr);
-    //     idNum = parseInt(siblingIdNumStr) - 1;
-    //     addedNodes[i].id = `cell${idNum}`;
-    //     console.log(`addedNodes[i].id = ${addedNodes[i].id}`);
-    //   }
-    // } else {
-    //   for (let i = 0; i < addedNodes.length; i++) {
-    //     sibling = addedNodes[i].previousSibling;
-    //     siblingIdNumStr = sibling.id.substring(4);
-    //     console.log(siblingIdNumStr);
-    //     idNum = parseInt(siblingIdNumStr) + 1;
-    //     console.log(`idNum = ${idNum}`);
-    //     addedNodes[i].id = `cell${idNum}`;
-    //     console.log(`addedNodes[i].id = ${addedNodes[i].id}`);
-    //   }
-    // }
 
     mutations.forEach((mutation) => {
-      //   // const numAddedNodes = mutation.addedNodes.length;
-      //   // console.log(`numAddedNodes = ${numAddedNodes}`);
       mutation.addedNodes.forEach((node) => {
-        // //     console.log(
-        // //       `gridcell added to grid labeled ${this.#messageGrid.getAttribute(
-        // //         'aria-label'
-        // //       )}`
-        // //     );
-        // //     console.log(
-        // //       `${
-        // //         this.#gridcellContainer.children.length
-        // //       } gridcells present in total`
-        // //     );
         const cell = node.firstChild.firstChild;
-
-        console.log(
-          `${
-            cell.hasAttribute('id') ? cell.id : 'cell without id'
-          } added to grid labeled ${this.#messageGrid.getAttribute(
-            'aria-label'
-          )}`
-        );
-
-        // //     let sibling = null;
-        // //     let offset = 1;
-        // //     if (node.nextSibling !== null) {
-        // //       console.log(`nextSibling is NOT null`);
-        // //       // for (const cell of this.#gridcellContainer.children) {
-        // //       //   console.log(`cell.id = ${cell.id}`);
-        // //       // }
-        // //       // console.log(
-        // //       //   `this.#gridcellContainer.children[numMutations].id = ${
-        // //       //     this.#gridcellContainer.children[numMutations].id
-        // //       //   }`
-        // //       // );
-        // //       console.log(
-        // //         `this.#gridcellContainer.children[numAddedNodes + 1].id = ${
-        // //           this.#gridcellContainer.children[numAddedNodes + 1].id
-        // //         }`
-        // //       );
-        // //       // sibling = node.nextSibling;
-        // //       // sibling = this.#gridcellContainer.children[1];
-        // //       // sibling = this.#gridcellContainer.children[numAddedNodes + 4];
-        // //       // sibling = this.#gridcellContainer.children[2];
-        // //       // sibling = this.#gridcellContainer.children[numMutations];
-        // //       sibling = this.#gridcellContainer.children[numAddedNodes + 1];
-        // //       offset = -1;
-        // //     } else {
-        // //       console.log(`nextSibling is null`);
-        // //       // sibling = node.previousSibling;
-        // //       sibling =
-        // //         this.#gridcellContainer.children[
-        // //           this.#gridcellContainer.children.length - 2
-        // //         ];
-        // //     }
-        // //     // const siblingIndexStr = sibling.id.substring(4);
-        // //     // console.log(
-        // //     //   `sibling.id = ${sibling.id}, siblingIndexStr = ${siblingIndexStr}`
-        // //     // );
-        // //     // const siblingIndex = parseInt(siblingIndexStr);
-        // let sibling = node.nextSibling;
-        // let siblingIndex = 0;
-        // let i = 0;
-        // while (
-        //   !sibling.hasAttribute('id') &&
-        //   'nextSibling' in sibling &&
-        //   sibling.nextSibling !== null
-        // ) {
-        //   siblingIndex = sibling.id.substring(4);
-        //   console.log(
-        //     `iteration ${i++}, sibling.id = ${
-        //       sibling.id
-        //     }, siblingIndex = ${siblingIndex}`
-        //   );
-        //   sibling = sibling.nextSibling;
-        // }
-        // // const siblingIndex = sibling.id.substring(4);
-        // siblingIndex = sibling.id.substring(4);
-        // console.log(
-        //   `sibling.id = ${sibling.id}, siblingIndex = ${siblingIndex}`
-        // );
-        // // node.id = `cell${siblingIndex + offset}`;
-        // node.id = `cell${siblingIndex}`;
-        // // return;
 
         if (!this.#cellIdToObserver.has(cell.id)) {
           console.log(`mapping ${cell.id} to observer`);
@@ -679,49 +368,24 @@ class DomInfo {
           );
           gridcellObserver.observe(cell, {
             childList: true,
-            /* subtree: true, */
           });
           this.#cellIdToObserver.set(cell.id, gridcellObserver);
         }
 
-        // if (this.#cellIdToBubbleClone.has(cell.id)) {
-        //   console.log(
-        //     `chat bubble already cloned in ${
-        //       cell.hasAttribute('id') ? cell.id : 'cell without id'
-        //     }, which was just added`
-        //   );
-        //   const chatBubble = cell.querySelector(this.#chatBubbleSelector);
-        //   if (chatBubble !== null) {
-        //     const bubbleSibling = chatBubble.nextElementSibling;
-
-        //     chatBubble.remove();
-
-        //     const clonedChatBubble = this.#cellIdToBubbleClone.get(cell.id);
-        //     bubbleSibling.parent.insertBefore(clonedChatBubble, bubbleSibling);
-        //   }
-        // } else {
-        //   console.log(
-        //     `chat bubble not yet cloned in ${
-        //       cell.hasAttribute('id') ? cell.id : 'cell without id'
-        //     }, which was just added`
-        //   );
         const chatBubble = cell.querySelector(this.#chatBubbleSelector);
         if (chatBubble !== null) {
           console.log(`new message: ${chatBubble.textContent}`);
           if (
-            /*!nextSiblingExists*/ node.nextSibling === undefined ||
+            node.nextSibling === undefined ||
             node.nextSibling === null ||
             node.nextSibling.hasAttribute('class') ||
             node.nextSibling.hasAttribute('role')
           ) {
-            // console.log(`next sibling does NOT exist`);
-
             const userBubble = chatBubble.querySelector(
               'div > [role="presentation"].html-div > div.x78zum5.xdt5ytf.x193iq5w.x1n2onr6.x1kxipp6.xuk3077'
             );
 
             if (userBubble === null) {
-              // console.log(`user bubble NOT detected`);
               const waitForCompleteMessage = (txt) => {
                 console.log(
                   `waiting for complete message in ${
@@ -740,43 +404,19 @@ class DomInfo {
                     // attributeObserver.disconnect();
 
                     this.parseContent(chatBubble);
-                    // this.ensureParsed(chatBubble);
-
-                    // // const clonedGridcell = cell.cloneNode(true);
-                    // const clonedChatBubble = chatBubble.cloneNode(true);
-                    // // this.#cellCloneToBubbleClone.set(clonedGridcell, clonedChatBubble);
-                    // this.#cellIdToBubbleClone.set(cell.id, clonedChatBubble);
                   }
                 }, 300);
               };
               waitForCompleteMessage(chatBubble.textContent);
             } else {
-              // console.log(`user bubble detected`);
               // this.parseContent(chatBubble);
               this.ensureParsed(chatBubble);
             }
           } else {
-            // console.log(`next sibling exists:`);
-            // console.log(node.nextSibling);
             this.parseContent(chatBubble);
           }
         }
-        // }
       });
-      // mutation.removedNodes.forEach((node) => {
-      //   const cell = node.firstChild.firstChild;
-      //   console.log(
-      //     `${
-      //       cell.hasAttribute('id') ? cell.id : 'cell without id'
-      //     } removed from grid labeled ${this.#messageGrid.getAttribute(
-      //       'aria-label'
-      //     )}`
-      //   );
-      //   this.#cellIdToObserver.get(cell.id).disconnect();
-      //   this.#cellIdToObserver.delete(cell.id);
-
-      //   // this.#cellIdToBubbleClone.set(cell.id, null);
-      // });
     });
   };
 
@@ -902,26 +542,17 @@ class DomInfo {
     }
   }
 
-  // getMessageGrid(i) {
-  //   if (arguments.length === 0) {
-  //     return this.#messageGrids[0];
-  //   }
-
-  //   return this.#messageGrids[i];
-  // }
-
   getMessageGrid() {
     return this.#messageGrid;
   }
 
-  setMessageGrid(/*i = 0,*/ pointOfReference = this.#chat) {
+  setMessageGrid(pointOfReference = this.#chat) {
     let grid = pointOfReference.querySelector(this.#labeledMessageGridSelector);
 
     // Conditional statement below may be unnecessary
     if (grid === null) {
       grid = pointOfReference.querySelector(this.#messageGridSelector);
     }
-    // this.#messageGrids[i] = grid;
     this.#messageGrid = grid;
 
     // Consider moving this assignment to a separate setter
@@ -956,14 +587,6 @@ class DomInfo {
   }
 
   observeGridcells() {
-    // console.log(
-    //   `gridcell container has ${
-    //     this.#gridcellContainer.children.length
-    //   } children`
-    // );
-
-    // let i = 0;
-    // for (const cell of this.#gridcellContainer.children) {
     const cellAncestors = this.#gridcellContainer.children;
     const numCells = cellAncestors.length;
     for (let i = 1; i < numCells; i++) {
@@ -971,13 +594,12 @@ class DomInfo {
 
       if (!cell.hasAttribute('id')) {
         cell.id = `cell${i - 1}:${this.#messageGrid.id}`;
-        // console.log(`cell id = ${cell.id}`);
       }
 
       console.log(`mapping ${cell.id} to observer`);
 
       const observer = new MutationObserver(this.#gridcellMutationHandler);
-      observer.observe(cell, { childList: true /*subtree: true*/ });
+      observer.observe(cell, { childList: true });
       this.#cellIdToObserver.set(cell.id, observer);
     }
   }
@@ -987,9 +609,6 @@ class DomInfo {
   }
 
   observeGridcellContainer() {
-    // this.#gridcellContainerObserver.observe(this.#gridcellContainer, {
-    //   childList: true,
-    // });
     const observer = new MutationObserver(
       this.#gridcellContainerMutationHandler
     );
@@ -1030,31 +649,6 @@ class DomInfo {
   // //     observer.observe(container, { childList: true });
   // //   }
   // // }
-
-  // #chatBubbleMutationHandler = (mutations) => {
-  //   mutations.forEach((mutation) => {
-  //     mutation.addedNodes.forEach((node) => {
-  //       this.handleChatBubbles(node);
-  //     });
-  //   });
-  // };
-
-  // observeChatBubbles(/*i = 0*/) {
-  //   const observer = new MutationObserver(this.#chatBubbleMutationHandler);
-
-  //   // const grid = this.#messageGrids[i];
-
-  //   // Should ensure this.#messageGrids[i] is not null prior to invoking observeChatBubbles
-  //   // if (grid) {
-  //   observer.observe(/*grid*/ this.#messageGrid, {
-  //     childList: true,
-  //     subtree: true,
-  //   });
-
-  //   const label = grid.getAttribute('aria-label');
-  //   this.#idToBubbleObserver.set(label, observer);
-  //   // }
-  // }
 
   parseContent(bubble) {
     const msg = bubble.querySelector(this.#messageSelector);
@@ -1172,81 +766,12 @@ class DomInfo {
         const chatBubbles = source.querySelectorAll(this.#chatBubbleSelector);
 
         chatBubbles.forEach((bubble) => {
-          // // const attributeObserver = new MutationObserver((mutations) => {
-          // //   mutations.forEach((mutation) => {
-          // //     if (mutation.type === 'attributes') {
-          // //       console.log(
-          // //         `attribute named ${mutation.attributeName} just mutated`
-          // //       );
-          // //     }
-          // //     if (mutation.type === 'childList') {
-          // //       mutation.addedNodes.forEach((node) => {
-          // //         console.log(
-          // //           `node of type ${node.constructor.name} added to bubble's child list`
-          // //         );
-          // //         // if (node.constructor.name === 'HTMLDivElement') {
-          // //         //   this.parseContent(bubble);
-          // //         //   this.ensureParsed(bubble);
-          // //         //   attributeObserver.disconnect();
-          // //         // }
-          // //       });
-          // //       mutation.removedNodes.forEach((node) => {
-          // //         console.log(
-          // //           `node of type ${node.constructor.name} removed from bubble's child list`
-          // //         );
-          // //       });
-          // //     }
-          // //     if (mutation.type === 'characterData') {
-          // //       console.log(
-          // //         `characterData changed from ${mutation.oldValue} to ${mutation.target.data}`
-          // //       );
-          // //     }
-          // //   });
-          // // });
-          // const waitForCompleteMessage = (txt) => {
-          //   setTimeout(() => {
-          //     if (bubble.textContent !== txt) {
-          //       waitForCompleteMessage(bubble.textContent);
-          //     } else {
-          //       // attributeObserver.disconnect();
-
-          //       this.parseContent(bubble);
-          //       this.ensureParsed(bubble);
-          //     }
-          //   }, 300);
-          // };
-          // // if (bubble.textContent === '') {
-          // //   console.log(`bubble initially empty`);
-          // //   const waitToParseContent = () => {
-          // //     if (
-          // //       bubble.textContent === '' ||
-          // //       bubble.querySelector(this.#messageSelector) === null
-          // //     ) {
-          // //       setTimeout(waitToParseContent, 100);
-          // //     } else {
-          // //       waitForCompleteMessage(bubble.textContent);
-          // //     }
-          // //   };
-          // //   waitToParseContent();
-          // // } else {
-
-          // // attributeObserver.observe(bubble, {
-          // //   childList: true,
-          // //   subtree: true,
-          // //   attributes: true,
-          // //   characterData: true,
-          // //   characterDataOldValue: true,
-          // // });
-
-          // waitForCompleteMessage(bubble.textContent);
-          // // }
           this.parseContent(bubble);
         });
       }
     };
 
     if (arguments.length === 0) {
-      // bubbleHandler(this.#messageGrids[0]);
       bubbleHandler(this.#messageGrid);
     }
     if (arguments.length === 1) {
@@ -1274,10 +799,6 @@ class DomInfo {
     }
   }
 
-  // getIdToBubbleObserver() {
-  //   return this.#idToBubbleObserver;
-  // }
-
   getGridcellContainerToObserver() {
     return this.#gridcellContainerToObserver;
   }
@@ -1285,62 +806,19 @@ class DomInfo {
   #chatBoxVisibilityMutationHandler = (mutations) => {
     mutations.forEach((mutation) => {
       if (mutation.attributeName === 'hidden') {
-        // const labeledGrid = mutation.target.querySelector(
-        //   this.#labeledMessageGridSelector
-        // );
-        // const messageGridId = labeledGrid
-        //   ? labeledGrid.getAttribute('aria-label')
-        //   : null;
-        this.setMessageGrid(/*0, */ mutation.target);
+        this.setMessageGrid(mutation.target);
 
         if (mutation.target.hasAttribute('hidden')) {
-          // const bubbleObserver =
-          //   this.#idToBubbleObserver.get(messageGridId);
-          // if (bubbleObserver !== undefined) {
-          //   bubbleObserver.disconnect();
-          // }
           const gridcellContainerObserver =
             this.#gridcellContainerToObserver.get(this.#gridcellContainer);
           if (gridcellContainerObserver !== undefined) {
             gridcellContainerObserver.disconnect();
           }
         } else {
-          // // const labeledGrid = mutation.target.querySelector(
-          // //   this.#labeledMessageGridSelector
-          // // );
-          // // const messageGridId = labeledGrid
-          // //   ? labeledGrid.getAttribute('aria-label')
-          // //   : null;
-          // const waitForGridToBeLabeled = () => {
-          //   let labeledGrid = mutation.target.querySelector(
-          //     this.#labeledMessageGridSelector
-          //   );
-          //   let messageGridId = labeledGrid
-          //     ? labeledGrid.getAttribute('aria-label')
-          //     : null;
-          //   if (labeledGrid === null || messageGridId === null) {
-          //     setTimeout(waitForGridToBeLabeled, 100);
-          //   } else {
-          //     // this.setMessageGrid(/*0, */ mutation.target);
-          //     this.#chatBoxToId.set(mutation.target, messageGridId);
-          //     this.handleChatBubbles();
-          //     // this.observeChatBubbles();
-          //     this.observeGridcells();
-          //     this.observeGridcellContainer();
-          //   }
-          // };
-          // waitForGridToBeLabeled();
           const waitForGridsToBeLabeled = () => {
-            // console.log(
-            //   `chatBoxVisibilityMutationHandler: waiting for grids to be labeled`
-            // );
             if (!this.messageGridsLabeled()) {
               setTimeout(waitForGridsToBeLabeled, 100);
             } else {
-              // console.log(
-              //   `chatBoxVisibilityMutationHandler: grids are labeled`
-              // );
-
               // this.assignGridsIds();
 
               const labeledGrid = mutation.target.querySelector(
@@ -1351,7 +829,6 @@ class DomInfo {
               // this.setMessageGrid(/*0, */ mutation.target);
               this.#chatBoxToId.set(mutation.target, messageGridId);
               this.handleChatBubbles();
-              // this.observeChatBubbles();
               this.observeGridcells();
               this.observeGridcellContainer();
             }
@@ -1386,16 +863,8 @@ class DomInfo {
       this.#messengerChatContainerObserver,
     ].forEach((observer) => observer.disconnect());
 
-    // for (const entry of this.#idToChatBoxObserver.entries()) {
-    //   entry[1].disconnect();
-    // }
-
-    // for (const entry of this.#idToBubbleObserver.entries()) {
-    //   entry[1].disconnect();
-    // }
     [
       this.#idToChatBoxObserver,
-      // this.#idToBubbleObserver,
       this.#cellIdToObserver,
       this.#gridcellContainerToObserver,
     ].forEach((map) => {
@@ -1474,33 +943,14 @@ const handleChat = (domInfo) => {
           waitToHandleMessages();
         }, 100);
       } else {
-        // if (!domInfo.getChatBoxToId().has(chat)) {
-        // const messageGridId = domInfo
-        //   .getMessageGrid()
-        //   .getAttribute('aria-label');
-        // if (!domInfo.getIdToBubbleObserver().has(messageGridId)) {
         if (
           !domInfo
             .getGridcellContainerToObserver()
             .has(domInfo.getGridcellContainer())
         ) {
           domInfo.handleChatBubbles();
-          // domInfo.observeChatBubbles();
           domInfo.observeGridcells();
           domInfo.observeGridcellContainer();
-        } else {
-          // // console.log(
-          // //   `chat labeled ${domInfo
-          // //     .getMessageGrid()
-          // //     .getAttribute('aria-label')} is already mapped to said label`
-          // // );
-          // console.log(
-          //   `this chat's label, ${domInfo
-          //     .getMessageGrid()
-          //     .getAttribute(
-          //       'aria-label'
-          //     )}, is already mapped to a bubble observer`
-          // );
         }
       }
     };
@@ -1511,7 +961,6 @@ const handleChat = (domInfo) => {
 const handleChatBoxContainer = (domInfo) => {
   let lengthOfWait = 0;
   const waitToHandleChatBoxes = () => {
-    // console.log(`waiting to handle chat boxes`);
     if (domInfo.getChatBoxContainer().children.length === 0) {
       setTimeout(() => {
         if ((lengthOfWait += 100) < 5000) {
@@ -1519,14 +968,10 @@ const handleChatBoxContainer = (domInfo) => {
         }
       }, 100);
     } else {
-      // console.log(`handling chat boxes`);
       const waitForGridsToBeLabeled = () => {
-        // console.log(`handleChatBoxContainer: waiting for grids to be labeled`);
         if (!domInfo.messageGridsLabeled()) {
           setTimeout(waitForGridsToBeLabeled, 100);
         } else {
-          // console.log(`handleChatBoxContainer: grids are labeled`);
-
           // domInfo.assignGridsIds();
 
           domInfo.setChatBoxToId();
@@ -1536,15 +981,9 @@ const handleChatBoxContainer = (domInfo) => {
           if (chatBoxes.length !== 0) {
             for (const chat of chatBoxes) {
               domInfo.setChat(chat);
-              // if (!chat.firstCHild.firstChild.hasAttribute('hidden')) {
-              domInfo.setMessageGrid(/*0,*/ chat);
-              // May need to un-comment out the line directly below this
-              // domInfo.handleChatBubbles();
-              // }
+              domInfo.setMessageGrid(chat);
               handleChat(domInfo);
             }
-          } else {
-            // console.log(`no chat boxes found`);
           }
         }
       };
@@ -1591,7 +1030,6 @@ const startUp = () => {
     } else {
       domInfo.setMessageGrid();
       domInfo.handleChatBubbles();
-      // domInfo.observeChatBubbles();
       domInfo.observeGridcells();
       domInfo.observeGridcellContainer();
 
@@ -1603,7 +1041,6 @@ const startUp = () => {
 
     let lengthOfWait = 0;
     const waitToObserveChatBoxContainerContainer = () => {
-      // console.log(`waiting to observe chat box container container`);
       if (domInfo.getChatBoxContainerContainer() === null) {
         setTimeout(() => {
           if ((lengthOfWait += 100) < 5000) {
@@ -1613,7 +1050,6 @@ const startUp = () => {
         }, 100);
         // domInfo.setChatBoxContainerContainer();
       } else {
-        // console.log(`observing chat box container container`);
         domInfo.observeChatBoxContainerContainer();
       }
     };
@@ -1623,7 +1059,6 @@ const startUp = () => {
 
     lengthOfWait = 0;
     const waitToHandleChatBoxContainer = () => {
-      // console.log(`waiting to handle chat box container`);
       if (domInfo.getChatBoxContainer() === null) {
         setTimeout(() => {
           if ((lengthOfWait += 100) < 5000) {
@@ -1634,7 +1069,6 @@ const startUp = () => {
           }
         }, 100);
       } else {
-        // console.log(`handling chat box container`);
         waitToObserveChatBoxContainerContainer();
         handleChatBoxContainer(domInfo);
       }
@@ -1657,12 +1091,9 @@ const reset = () => {
 
   domInfo.setChatBoxContainer();
   const waitForGridsToBeLabeled = () => {
-    // console.log(`reset: waiting for grids to be labeled`);
     if (!domInfo.messageGridsLabeled()) {
       setTimeout(waitForGridsToBeLabeled, 100);
     } else {
-      // console.log(`reset: grids are labeled`);
-
       // domInfo.assignGridsIds();
 
       domInfo.setChatBoxToId();
@@ -1681,7 +1112,6 @@ const reset = () => {
               }, 100);
             } else {
               domInfo.handleChatBubbles();
-              // domInfo.observeChatBubbles();
               domInfo.observeGridcells();
               domInfo.observeGridcellContainer();
             }
