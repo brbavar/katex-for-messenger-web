@@ -104,66 +104,6 @@ class DomInfo {
               if (!this.messageGridsLabeled()) {
                 setTimeout(waitForGridsToBeLabeled, 100);
               } else {
-                // // this.assignGridsIds();
-
-                // // const labeledGrid = node.querySelector(
-                // //   this.#labeledMessageGridSelector
-                // // );
-                // // const messageGridId = labeledGrid ? labeledGrid.id : null;
-
-                // if (
-                //   // !Array.from(this.#chatBoxToId.values()).includes(
-                //   //   messageGridId
-                //   // ) ||
-                //   !this.#chatBoxToId.has(node)
-                // ) {
-                //   const labeledMessageGrid = node.querySelector(
-                //     this.#labeledMessageGridSelector
-                //   );
-                //   // const messageGridId = labeledGrid ? labeledGrid.id : null;
-
-                //   console.log(
-                //     `chat box with label ${labeledMessageGrid.getAttribute(
-                //       'aria-label'
-                //     )} not yet mapped to id; labeledMessageGrid.id = ${
-                //       labeledMessageGrid.id
-                //     }`
-                //   );
-
-                //   this.#chatBoxToId.set(node, labeledMessageGrid.id);
-
-                //   // if (!this.#chatBoxToId.has(node)) {
-                //   if (this.#idToChatBoxObserver.has(labeledMessageGrid.id)) {
-                //     this.#idToChatBoxObserver
-                //       .get(labeledMessageGrid.id)
-                //       .disconnect();
-                //   }
-
-                //   if (
-                //     this.#gridcellContainerToObserver.has(
-                //       this.#gridcellContainer
-                //     )
-                //   ) {
-                //     this.#gridcellContainerToObserver
-                //       .get(this.#gridcellContainer)
-                //       .disconnect();
-                //   }
-                //   // }
-
-                //   const visibilityObserver = new MutationObserver(
-                //     this.#chatBoxVisibilityMutationHandler
-                //   );
-                //   visibilityObserver.observe(node.firstChild.firstChild, {
-                //     attributes: true,
-                //   });
-                //   this.#idToChatBoxObserver.set(
-                //     labeledMessageGrid.id,
-                //     visibilityObserver
-                //   );
-
-                //   // this.#chatBoxToId.set(node, labeledMessageGrid.id;
-                //   this.activateRendering();
-                // }
                 this.prepareChatBoxForRendering(node);
               }
             };
@@ -178,63 +118,15 @@ class DomInfo {
     mutations.forEach((mutation) => {
       if (mutation.addedNodes.length > 0) {
         this.setChatBoxContainer();
-
         if (this.#chatBoxContainer !== null) {
           const waitForGridsToBeLabeled = () => {
             if (!this.messageGridsLabeled()) {
               setTimeout(waitForGridsToBeLabeled, 100);
             } else {
               // this.assignGridsIds();
-
               for (const chatBox of this.#chatBoxContainer.children) {
                 if (!chatBox.firstChild.firstChild.hasAttribute('hidden')) {
                   this.setMessageGrid(chatBox);
-                  // if (!this.#chatBoxToId.has(chatBox)) {
-                  //   const labeledMessageGrid = chatBox.querySelector(
-                  //     this.#labeledMessageGridSelector
-                  //   );
-                  //   // const messageGridId = labeledMessageGrid.id;
-
-                  //   console.log(
-                  //     `chat box with label ${labeledMessageGrid.getAttribute(
-                  //       'aria-label'
-                  //     )} not yet mapped to id; labeledMessageGrid.id = ${
-                  //       labeledMessageGrid.id
-                  //     }`
-                  //   );
-
-                  //   this.#chatBoxToId.set(chatBox, labeledMessageGrid.id);
-
-                  //   if (this.#idToChatBoxObserver.has(labeledMessageGrid.id)) {
-                  //     this.#idToChatBoxObserver
-                  //       .get(labeledMessageGrid.id)
-                  //       .disconnect();
-                  //   }
-
-                  //   if (
-                  //     this.#gridcellContainerToObserver.has(
-                  //       this.#gridcellContainer
-                  //     )
-                  //   ) {
-                  //     this.#gridcellContainerToObserver
-                  //       .get(this.#gridcellContainer)
-                  //       .disconnect();
-                  //   }
-
-                  //   const visibilityObserver = new MutationObserver(
-                  //     this.#chatBoxVisibilityMutationHandler
-                  //   );
-                  //   visibilityObserver.observe(chatBox.firstChild.firstChild, {
-                  //     attributes: true,
-                  //   });
-                  //   this.#idToChatBoxObserver.set(
-                  //     labeledMessageGrid.id,
-                  //     visibilityObserver
-                  //   );
-
-                  //   this.observeGridcells();
-                  //   this.observeGridcellContainer();
-                  // }
                   this.prepareChatBoxForRendering(chatBox, false);
                 }
               }
@@ -1036,18 +928,14 @@ const handleChatBoxContainer = (domInfo) => {
           setTimeout(waitForGridsToBeLabeled, 100);
         } else {
           // domInfo.assignGridsIds();
-
           domInfo.setChatBoxToId();
           domInfo.observeChatBoxes();
-          // Condition below may be superfluous
           const chatBoxes = domInfo.getChatBoxContainer().children;
-          // if (chatBoxes.length !== 0) {
           for (const chat of chatBoxes) {
             domInfo.setChat(chat);
             domInfo.setMessageGrid(chat);
             handleChat(domInfo);
           }
-          // }
         }
       };
       waitForGridsToBeLabeled();
