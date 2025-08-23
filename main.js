@@ -1,7 +1,5 @@
 class DomInfo {
-  #accountControlsAndSettings = null;
   #chat = null;
-  #messengerChatContainer = null;
   #chatBoxContainer = null;
   #chatBoxContainerContainer = null;
   // #moreActionsMenuContainer = null;
@@ -42,6 +40,37 @@ class DomInfo {
   // #moreActionsMenuSelector = 'div[aria-label="More actions"][role="menu"]';
   // #editorContainerSelector =
   //   'div[aria-label="Thread composer"].xuk3077.x57kliw.x78zum5.x6prxxf.xz9dl7a.xsag5q8, div:has(> .html-div.xdj266r.x14z9mp.xat24cr.x1lziwak.xexx8yu.xyri2b.x18d9i69.x1c1uobl.xt5xv9l.x6wvzqs.xpqajaz.x78zum5.xdt5ytf.x1c4vz4f.xs83m0k.x13qp9f6), div:has(> div[aria-label="Thread composer"].xuk3077.x57kliw.x78zum5.x6prxxf.xz9dl7a.xsag5q8)';
+
+  listenToDocumentVisibility() {
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) {
+        console.log(`document hidden`);
+        this.disable(
+          [
+            this.#accountControlsAndSettingsObserver,
+            this.#chatBoxContainerObserver,
+            this.#chatBoxContainerContainerObserver,
+            this.#messengerChatContainerObserver,
+          ],
+          [
+            this.#idToChatBoxObserver,
+            this.#cellIdToObserver,
+            this.#gridcellContainerToObserver,
+          ]
+        );
+      } else {
+        console.log(`document shown`);
+        this.observeAccountControlsAndSettings();
+        if (
+          window.location.href.startsWith('https://www.facebook.com/messages')
+        ) {
+          this.#prepareMessengerView();
+        } else {
+          this.#prepareChatBoxView();
+        }
+      }
+    });
+  }
 
   #prepareMessengerView = () => {
     console.log(`preparing Messenger view`);
@@ -495,15 +524,9 @@ class DomInfo {
   //   }
   // }
 
-  setAccountControlsAndSettings() {
-    this.#accountControlsAndSettings = document.querySelector(
-      this.#accountControlsAndSettingsSelector
-    );
-  }
-
   observeAccountControlsAndSettings() {
     this.#accountControlsAndSettingsObserver.observe(
-      this.#accountControlsAndSettings,
+      document.querySelector(this.#accountControlsAndSettingsSelector),
       { childList: true }
     );
   }
@@ -521,20 +544,14 @@ class DomInfo {
     }
   }
 
-  setMessengerChatContainer() {
-    this.#messengerChatContainer = document.querySelector(
+  observeMessengerChatContainer() {
+    const messengerChatContainer = document.querySelector(
       this.#messengerChatContainerSelector
     );
-  }
-
-  observeMessengerChatContainer() {
-    if (this.#messengerChatContainer) {
-      this.#messengerChatContainerObserver.observe(
-        this.#messengerChatContainer,
-        {
-          childList: true,
-        }
-      );
+    if (messengerChatContainer) {
+      this.#messengerChatContainerObserver.observe(messengerChatContainer, {
+        childList: true,
+      });
     }
   }
 
@@ -1029,7 +1046,6 @@ const handleChatBoxContainer = (domInfo) => {
 };
 
 const initMessengerChatContainer = (domInfo) => {
-  domInfo.setMessengerChatContainer();
   domInfo.observeMessengerChatContainer();
   domInfo.setChat();
 };
@@ -1038,7 +1054,7 @@ const startUp = () => {
   console.log(`starting up`);
   const domInfo = new DomInfo();
 
-  domInfo.setAccountControlsAndSettings();
+  domInfo.listenToDocumentVisibility();
   domInfo.observeAccountControlsAndSettings();
 
   if (window.location.href.startsWith('https://www.facebook.com/messages')) {
