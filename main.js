@@ -43,7 +43,100 @@ class DomInfo {
   // #editorContainerSelector =
   //   'div[aria-label="Thread composer"].xuk3077.x57kliw.x78zum5.x6prxxf.xz9dl7a.xsag5q8, div:has(> .html-div.xdj266r.x14z9mp.xat24cr.x1lziwak.xexx8yu.xyri2b.x18d9i69.x1c1uobl.xt5xv9l.x6wvzqs.xpqajaz.x78zum5.xdt5ytf.x1c4vz4f.xs83m0k.x13qp9f6), div:has(> div[aria-label="Thread composer"].xuk3077.x57kliw.x78zum5.x6prxxf.xz9dl7a.xsag5q8)';
 
+  #prepareMessengerView = () => {
+    console.log(`preparing Messenger view`);
+    // this.disconnectChatBoxObservers();
+    this.disable(
+      [this.#chatBoxContainerObserver, this.#chatBoxContainerContainerObserver],
+      [
+        this.#idToChatBoxObserver,
+        this.#cellIdToObserver,
+        this.#gridcellContainerToObserver,
+      ]
+    );
+
+    initMessengerChatContainer(this);
+
+    const waitToHandleChat = () => {
+      if (this.#chat === null) {
+        this.ignoreMessengerChatContainer();
+        setTimeout(() => {
+          initMessengerChatContainer(this);
+          waitToHandleChat();
+        }, 100);
+      } else {
+        handleChat(this);
+
+        // domInfo.setEditorContainers();
+        // domInfo.observeEditorContainers();
+      }
+    };
+
+    if (this.#chat === null) {
+      waitToHandleChat();
+    } else {
+      this.setMessageGrid();
+      this.activateRendering();
+
+      // domInfo.setEditorContainers();
+      // domInfo.observeEditorContainers();
+    }
+  };
+
+  prepareMessengerView() {
+    this.#prepareMessengerView();
+  }
+
+  #prepareChatBoxView = () => {
+    console.log(`preparing chat box view`);
+    // this.disconnectMessengerObservers();
+    this.disable(
+      [this.#messengerChatContainerObserver],
+      [this.#cellIdToObserver, this.#gridcellContainerToObserver]
+    );
+
+    this.setChatBoxContainerContainer();
+    this.observeChatBoxContainerContainer();
+    this.setChatBoxContainer();
+    const waitForGridsToBeLabeled = () => {
+      if (!this.messageGridsLabeled()) {
+        setTimeout(waitForGridsToBeLabeled, 100);
+      } else {
+        // this.assignGridsIds();
+        this.setChatBoxToId();
+        const chatBoxes = this.getChatBoxContainer().children;
+        // Condition below may be superfluous
+        if (chatBoxes.length !== 0) {
+          this.observeChatBoxes();
+          for (const chat of chatBoxes) {
+            this.setChat(chat);
+            this.setMessageGrid();
+            const waitToHandleMessages = () => {
+              if (this.getMessageGrid() === null) {
+                setTimeout(() => {
+                  this.setMessageGrid();
+                  waitToHandleMessages();
+                }, 100);
+              } else {
+                this.activateRendering();
+              }
+            };
+            waitToHandleMessages();
+          }
+        }
+        this.observeChatBoxContainer();
+      }
+    };
+    waitForGridsToBeLabeled();
+  };
+
+  // prepareChatBoxView() {
+  //   this.#prepareChatBoxView();
+  // }
+
   #accountControlsAndSettingsObserver = new MutationObserver((mutations) => {
+    console.log(`controls and settings mutated`);
+
     let messengerControlSeen = false;
 
     const respondToControlMutation = (nodes, respond) => {
@@ -52,7 +145,7 @@ class DomInfo {
           this.#messengerControlSelector
         );
         if (messengerControl !== null) {
-          this.disconnectObservers();
+          // this.disconnectObservers();
           respond();
           messengerControlSeen = true;
           break;
@@ -61,8 +154,13 @@ class DomInfo {
     };
 
     for (const mutation of mutations) {
-      respondToControlMutation(mutation.addedNodes, reset);
-      respondToControlMutation(mutation.removedNodes, startUp);
+      // respondToControlMutation(mutation.addedNodes, reset);
+      respondToControlMutation(mutation.addedNodes, this.#prepareChatBoxView);
+      // respondToControlMutation(mutation.removedNodes, startUp);
+      respondToControlMutation(
+        mutation.removedNodes,
+        this.#prepareMessengerView
+      );
       if (messengerControlSeen) {
         break;
       }
@@ -375,20 +473,22 @@ class DomInfo {
   // });
 
   messageGridsLabeled() {
-    for (const chatBox of this.#chatBoxContainer.children) {
-      const labeledMessageGrid = chatBox.querySelector(
-        this.#labeledMessageGridSelector
-      );
-      if (labeledMessageGrid === null) {
-        return false;
-      }
+    if (this.#chatBoxContainer !== null) {
+      for (const chatBox of this.#chatBoxContainer.children) {
+        const labeledMessageGrid = chatBox.querySelector(
+          this.#labeledMessageGridSelector
+        );
+        if (labeledMessageGrid === null) {
+          return false;
+        }
 
-      const label = labeledMessageGrid.getAttribute('aria-label');
-      if (label === null || label === 'null') {
-        return false;
+        const label = labeledMessageGrid.getAttribute('aria-label');
+        if (label === null || label === 'null') {
+          return false;
+        }
       }
+      return true;
     }
-    return true;
   }
 
   // assignGridsIds() {
@@ -812,12 +912,30 @@ class DomInfo {
     }
   }
 
-  disconnectObservers() {
+  // disconnectObservers() {
+  //   [
+  //     this.#accountControlsAndSettingsObserver,
+  //     this.#chatBoxContainerObserver,
+  //     this.#chatBoxContainerContainerObserver,
+  //     this.#messengerChatContainerObserver,
+  //   ].forEach((observer) => observer.disconnect());
+
+  //   [
+  //     this.#idToChatBoxObserver,
+  //     this.#cellIdToObserver,
+  //     this.#gridcellContainerToObserver,
+  //   ].forEach((map) => {
+  //     for (const entry of map.entries()) {
+  //       entry[1].disconnect();
+  //     }
+  //   });
+  // }
+
+  disconnectChatBoxObservers() {
+    console.log(`disconnecting chat box observers`);
     [
-      this.#accountControlsAndSettingsObserver,
       this.#chatBoxContainerObserver,
       this.#chatBoxContainerContainerObserver,
-      this.#messengerChatContainerObserver,
     ].forEach((observer) => observer.disconnect());
 
     [
@@ -825,6 +943,31 @@ class DomInfo {
       this.#cellIdToObserver,
       this.#gridcellContainerToObserver,
     ].forEach((map) => {
+      for (const entry of map.entries()) {
+        entry[1].disconnect();
+      }
+    });
+  }
+
+  disconnectMessengerObservers() {
+    console.log(`disconnecting Messenger observers`);
+    [this.#messengerChatContainerObserver].forEach((observer) =>
+      observer.disconnect()
+    );
+
+    [this.#cellIdToObserver, this.#gridcellContainerToObserver].forEach(
+      (map) => {
+        for (const entry of map.entries()) {
+          entry[1].disconnect();
+        }
+      }
+    );
+  }
+
+  disable(observers, mapsWithObserverVals) {
+    observers.forEach((observer) => observer.disconnect());
+
+    mapsWithObserverVals.forEach((map) => {
       for (const entry of map.entries()) {
         entry[1].disconnect();
       }
@@ -953,38 +1096,14 @@ const initMessengerChatContainer = (domInfo) => {
 };
 
 const startUp = () => {
+  console.log(`starting up`);
   const domInfo = new DomInfo();
 
   domInfo.setAccountControlsAndSettings();
   domInfo.observeAccountControlsAndSettings();
 
   if (window.location.href.startsWith('https://www.facebook.com/messages')) {
-    initMessengerChatContainer(domInfo);
-
-    const waitToHandleChat = () => {
-      if (domInfo.getChat() === null) {
-        domInfo.ignoreMessengerChatContainer();
-        setTimeout(() => {
-          initMessengerChatContainer(domInfo);
-          waitToHandleChat();
-        }, 100);
-      } else {
-        handleChat(domInfo);
-
-        // domInfo.setEditorContainers();
-        // domInfo.observeEditorContainers();
-      }
-    };
-
-    if (domInfo.getChat() === null) {
-      waitToHandleChat();
-    } else {
-      domInfo.setMessageGrid();
-      domInfo.activateRendering();
-
-      // domInfo.setEditorContainers();
-      // domInfo.observeEditorContainers();
-    }
+    domInfo.prepareMessengerView();
   } else {
     domInfo.setChatBoxContainerContainer();
 
@@ -1028,47 +1147,47 @@ const startUp = () => {
 
 window.onload = startUp;
 
-// A variant of startUp, specifically for cases where addition of Messenger control is observed (switching from Messenger to chat box view)
-const reset = () => {
-  const domInfo = new DomInfo();
+// // A variant of startUp, specifically for cases where addition of Messenger control is observed (switching from Messenger to chat box view)
+// const reset = () => {
+//   const domInfo = new DomInfo();
 
-  domInfo.setChatBoxContainerContainer();
-  domInfo.observeChatBoxContainerContainer();
+//   domInfo.setChatBoxContainerContainer();
+//   domInfo.observeChatBoxContainerContainer();
 
-  domInfo.setAccountControlsAndSettings();
-  domInfo.observeAccountControlsAndSettings();
+//   domInfo.setAccountControlsAndSettings();
+//   domInfo.observeAccountControlsAndSettings();
 
-  domInfo.setChatBoxContainer();
-  const waitForGridsToBeLabeled = () => {
-    if (!domInfo.messageGridsLabeled()) {
-      setTimeout(waitForGridsToBeLabeled, 100);
-    } else {
-      // domInfo.assignGridsIds();
+//   domInfo.setChatBoxContainer();
+//   const waitForGridsToBeLabeled = () => {
+//     if (!domInfo.messageGridsLabeled()) {
+//       setTimeout(waitForGridsToBeLabeled, 100);
+//     } else {
+//       // domInfo.assignGridsIds();
 
-      domInfo.setChatBoxToId();
-      const chatBoxes = domInfo.getChatBoxContainer().children;
-      // Condition below may be superfluous
-      if (chatBoxes.length !== 0) {
-        domInfo.observeChatBoxes();
-        for (const chat of chatBoxes) {
-          domInfo.setChat(chat);
-          domInfo.setMessageGrid();
-          const waitToHandleMessages = () => {
-            if (domInfo.getMessageGrid() === null) {
-              setTimeout(() => {
-                domInfo.setMessageGrid();
-                waitToHandleMessages();
-              }, 100);
-            } else {
-              domInfo.activateRendering();
-            }
-          };
-          waitToHandleMessages();
-        }
-      }
+//       domInfo.setChatBoxToId();
+//       const chatBoxes = domInfo.getChatBoxContainer().children;
+//       // Condition below may be superfluous
+//       if (chatBoxes.length !== 0) {
+//         domInfo.observeChatBoxes();
+//         for (const chat of chatBoxes) {
+//           domInfo.setChat(chat);
+//           domInfo.setMessageGrid();
+//           const waitToHandleMessages = () => {
+//             if (domInfo.getMessageGrid() === null) {
+//               setTimeout(() => {
+//                 domInfo.setMessageGrid();
+//                 waitToHandleMessages();
+//               }, 100);
+//             } else {
+//               domInfo.activateRendering();
+//             }
+//           };
+//           waitToHandleMessages();
+//         }
+//       }
 
-      domInfo.observeChatBoxContainer();
-    }
-  };
-  waitForGridsToBeLabeled();
-};
+//       domInfo.observeChatBoxContainer();
+//     }
+//   };
+//   waitForGridsToBeLabeled();
+// };
