@@ -323,8 +323,11 @@ class DomInfo {
 
     mutations.forEach((mutation) => {
       mutation.addedNodes.forEach((node) => {
+        console.log(mutation.target);
+        console.log(node);
         if ('querySelector' in node) {
           const chatBubble = node.querySelector(this.#chatBubbleSelector);
+          console.log(`chatBubble = ${chatBubble}`);
           if (chatBubble !== null) {
             this.parseContent(chatBubble);
             // this.ensureParsed(chatBubble);
@@ -344,6 +347,27 @@ class DomInfo {
     return false;
   }
 
+  assignAddedCellsIds(addedNodes, i, nextSiblingExists = true) {
+    const sibling = nextSiblingExists
+      ? addedNodes[i].nextSibling
+      : addedNodes[i].previousSibling;
+    const siblingId = sibling.firstChild.firstChild.id;
+
+    let colonPos = 0;
+    for (let j = 0; j < siblingId.length; j++) {
+      if (siblingId[j] === ':') {
+        colonPos = j;
+        break;
+      }
+    }
+    const gridId = siblingId.substring(colonPos + 1);
+    const siblingBaseId = siblingId.substring(0, colonPos);
+    const siblingIdNum = siblingBaseId.substring(4);
+
+    let idNum = parseInt(siblingIdNum) + (nextSiblingExists ? -1 : 1);
+    addedNodes[i].firstChild.firstChild.id = `cell${idNum}:${gridId}`;
+  }
+
   #gridcellContainerMutationHandler = (mutations) => {
     const addedNodes = [];
     mutations.forEach((mutation) => {
@@ -354,60 +378,20 @@ class DomInfo {
 
     if (this.cellsHaveIds()) {
       if (addedNodes.length > 0) {
-        let sibling = null;
-        let siblingIdNum = 0;
+        const nodeAfterThoseAdded =
+          addedNodes[addedNodes.length - 1].nextSibling;
         if (
-          addedNodes[addedNodes.length - 1].nextSibling !== undefined &&
-          addedNodes[addedNodes.length - 1].nextSibling !== null &&
-          !addedNodes[addedNodes.length - 1].nextSibling.hasAttribute(
-            'class'
-          ) &&
-          !addedNodes[addedNodes.length - 1].nextSibling.hasAttribute('role')
+          nodeAfterThoseAdded !== undefined &&
+          nodeAfterThoseAdded !== null &&
+          !nodeAfterThoseAdded.hasAttribute('class') &&
+          !nodeAfterThoseAdded.hasAttribute('role')
         ) {
           for (let i = addedNodes.length - 1; i >= 0; i--) {
-            sibling = addedNodes[i].nextSibling;
-
-            let colonPos = 0;
-            for (let j = 0; j < sibling.firstChild.firstChild.id.length; j++) {
-              if (sibling.firstChild.firstChild.id[j] === ':') {
-                colonPos = j;
-                break;
-              }
-            }
-            const gridId = sibling.firstChild.firstChild.id.substring(
-              colonPos + 1
-            );
-            const siblingBaseId = sibling.firstChild.firstChild.id.substring(
-              0,
-              colonPos
-            );
-            siblingIdNum = siblingBaseId.substring(4);
-
-            let idNum = parseInt(siblingIdNum) - 1;
-            addedNodes[i].firstChild.firstChild.id = `cell${idNum}:${gridId}`;
+            this.assignAddedCellsIds(addedNodes, i);
           }
         } else {
           for (let i = 0; i < addedNodes.length; i++) {
-            sibling = addedNodes[i].previousSibling;
-
-            let colonPos = 0;
-            for (let j = 0; j < sibling.firstChild.firstChild.id.length; j++) {
-              if (sibling.firstChild.firstChild.id[j] === ':') {
-                colonPos = j;
-                break;
-              }
-            }
-            const gridId = sibling.firstChild.firstChild.id.substring(
-              colonPos + 1
-            );
-            const siblingBaseId = sibling.firstChild.firstChild.id.substring(
-              0,
-              colonPos
-            );
-            siblingIdNum = siblingBaseId.substring(4);
-
-            let idNum = parseInt(siblingIdNum) + 1;
-            addedNodes[i].firstChild.firstChild.id = `cell${idNum}:${gridId}`;
+            this.assignAddedCellsIds(addedNodes, i, false);
           }
         }
       }
@@ -438,24 +422,31 @@ class DomInfo {
             childList: true,
           });
           this.#cellIdToObserver.set(cell.id, gridcellObserver);
+          console.log(`associating an observer with ${cell.id}`);
         }
 
         const chatBubble = cell.querySelector(this.#chatBubbleSelector);
         if (chatBubble !== null) {
-          const sendStatusSpan = cell.querySelector(this.#sendStatusSelector);
-          const messageSent =
-            sendStatusSpan !== null
-              ? sendStatusSpan.textContent.startsWith('Sent')
-              : false;
-          console.log(
-            `${cell.id}: sendStatusSpan = ${sendStatusSpan}, messageSent = ${messageSent}`
-          );
+          // const sendStatusSpan = cell.querySelector(this.#sendStatusSelector);
+          // const messageSent =
+          //   sendStatusSpan !== null
+          //     ? sendStatusSpan.textContent.startsWith('Sent')
+          //     : false;
+          // console.log(
+          //   `${cell.id}: sendStatusSpan = ${sendStatusSpan}, messageSent = ${messageSent}`
+          // );
+          // if (
+          //   (node.nextSibling === undefined ||
+          //     node.nextSibling === null ||
+          //     node.nextSibling.hasAttribute('class') ||
+          //     node.nextSibling.hasAttribute('role')) &&
+          //   !messageSent
+          // ) {
           if (
-            (node.nextSibling === undefined ||
-              node.nextSibling === null ||
-              node.nextSibling.hasAttribute('class') ||
-              node.nextSibling.hasAttribute('role')) &&
-            !messageSent
+            node.nextSibling === undefined ||
+            node.nextSibling === null ||
+            node.nextSibling.hasAttribute('class') ||
+            node.nextSibling.hasAttribute('role')
           ) {
             const userBubble = chatBubble.querySelector(
               'div > [role="presentation"].html-div > div.x78zum5.xdt5ytf.x193iq5w.x1n2onr6.x1kxipp6.xuk3077'
@@ -466,8 +457,6 @@ class DomInfo {
                   if (chatBubble.textContent !== txt) {
                     waitForCompleteMessage(chatBubble.textContent);
                   } else {
-                    // attributeObserver.disconnect();
-
                     this.parseContent(chatBubble);
                   }
                 }, 500); // Sometimes 300 ms is not long enough
@@ -659,6 +648,7 @@ class DomInfo {
       const observer = new MutationObserver(this.#gridcellMutationHandler);
       observer.observe(cell, { childList: true });
       this.#cellIdToObserver.set(cell.id, observer);
+      console.log(`associating an observer with ${cell.id}`);
     }
   }
 
