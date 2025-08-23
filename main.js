@@ -45,7 +45,6 @@ class DomInfo {
 
   #prepareMessengerView = () => {
     console.log(`preparing Messenger view`);
-    // this.disconnectChatBoxObservers();
     this.disable(
       [this.#chatBoxContainerObserver, this.#chatBoxContainerContainerObserver],
       [
@@ -89,7 +88,6 @@ class DomInfo {
 
   #prepareChatBoxView = () => {
     console.log(`preparing chat box view`);
-    // this.disconnectMessengerObservers();
     this.disable(
       [this.#messengerChatContainerObserver],
       [this.#cellIdToObserver, this.#gridcellContainerToObserver]
@@ -130,10 +128,6 @@ class DomInfo {
     waitForGridsToBeLabeled();
   };
 
-  // prepareChatBoxView() {
-  //   this.#prepareChatBoxView();
-  // }
-
   #accountControlsAndSettingsObserver = new MutationObserver((mutations) => {
     console.log(`controls and settings mutated`);
 
@@ -145,7 +139,6 @@ class DomInfo {
           this.#messengerControlSelector
         );
         if (messengerControl !== null) {
-          // this.disconnectObservers();
           respond();
           messengerControlSeen = true;
           break;
@@ -154,9 +147,7 @@ class DomInfo {
     };
 
     for (const mutation of mutations) {
-      // respondToControlMutation(mutation.addedNodes, reset);
       respondToControlMutation(mutation.addedNodes, this.#prepareChatBoxView);
-      // respondToControlMutation(mutation.removedNodes, startUp);
       respondToControlMutation(
         mutation.removedNodes,
         this.#prepareMessengerView
@@ -912,58 +903,6 @@ class DomInfo {
     }
   }
 
-  // disconnectObservers() {
-  //   [
-  //     this.#accountControlsAndSettingsObserver,
-  //     this.#chatBoxContainerObserver,
-  //     this.#chatBoxContainerContainerObserver,
-  //     this.#messengerChatContainerObserver,
-  //   ].forEach((observer) => observer.disconnect());
-
-  //   [
-  //     this.#idToChatBoxObserver,
-  //     this.#cellIdToObserver,
-  //     this.#gridcellContainerToObserver,
-  //   ].forEach((map) => {
-  //     for (const entry of map.entries()) {
-  //       entry[1].disconnect();
-  //     }
-  //   });
-  // }
-
-  disconnectChatBoxObservers() {
-    console.log(`disconnecting chat box observers`);
-    [
-      this.#chatBoxContainerObserver,
-      this.#chatBoxContainerContainerObserver,
-    ].forEach((observer) => observer.disconnect());
-
-    [
-      this.#idToChatBoxObserver,
-      this.#cellIdToObserver,
-      this.#gridcellContainerToObserver,
-    ].forEach((map) => {
-      for (const entry of map.entries()) {
-        entry[1].disconnect();
-      }
-    });
-  }
-
-  disconnectMessengerObservers() {
-    console.log(`disconnecting Messenger observers`);
-    [this.#messengerChatContainerObserver].forEach((observer) =>
-      observer.disconnect()
-    );
-
-    [this.#cellIdToObserver, this.#gridcellContainerToObserver].forEach(
-      (map) => {
-        for (const entry of map.entries()) {
-          entry[1].disconnect();
-        }
-      }
-    );
-  }
-
   disable(observers, mapsWithObserverVals) {
     observers.forEach((observer) => observer.disconnect());
 
@@ -1146,48 +1085,3 @@ const startUp = () => {
 };
 
 window.onload = startUp;
-
-// // A variant of startUp, specifically for cases where addition of Messenger control is observed (switching from Messenger to chat box view)
-// const reset = () => {
-//   const domInfo = new DomInfo();
-
-//   domInfo.setChatBoxContainerContainer();
-//   domInfo.observeChatBoxContainerContainer();
-
-//   domInfo.setAccountControlsAndSettings();
-//   domInfo.observeAccountControlsAndSettings();
-
-//   domInfo.setChatBoxContainer();
-//   const waitForGridsToBeLabeled = () => {
-//     if (!domInfo.messageGridsLabeled()) {
-//       setTimeout(waitForGridsToBeLabeled, 100);
-//     } else {
-//       // domInfo.assignGridsIds();
-
-//       domInfo.setChatBoxToId();
-//       const chatBoxes = domInfo.getChatBoxContainer().children;
-//       // Condition below may be superfluous
-//       if (chatBoxes.length !== 0) {
-//         domInfo.observeChatBoxes();
-//         for (const chat of chatBoxes) {
-//           domInfo.setChat(chat);
-//           domInfo.setMessageGrid();
-//           const waitToHandleMessages = () => {
-//             if (domInfo.getMessageGrid() === null) {
-//               setTimeout(() => {
-//                 domInfo.setMessageGrid();
-//                 waitToHandleMessages();
-//               }, 100);
-//             } else {
-//               domInfo.activateRendering();
-//             }
-//           };
-//           waitToHandleMessages();
-//         }
-//       }
-
-//       domInfo.observeChatBoxContainer();
-//     }
-//   };
-//   waitForGridsToBeLabeled();
-// };
