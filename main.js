@@ -33,6 +33,8 @@ class DomInfo {
   #chatBubbleSelector =
     '.html-div.xexx8yu.x18d9i69.xat24cr.xdj266r.xeuugli.x1vjfegm';
   #messageSelector = '.html-div.xexx8yu.x18d9i69.x1gslohp.x12nagc.x1yc453h';
+  #sendStatusSelector =
+    '.html-span.xdj266r.x14z9mp.xat24cr.x1lziwak.xexx8yu.xyri2b.x18d9i69.x1c1uobl.x1hl2dhg.x16tdsg8.x1vvkbs.x1xf6ywa';
   #gridcellContainerSelector =
     'div.x1qjc9v5.x9f619.xdl72j9.x2lwn1j.xeuugli.x1n2onr6.x78zum5.xdt5ytf.x1iyjqo2.xs83m0k.x6ikm8r.x10wlt62.x1ja2u2z > div.x78zum5.xdt5ytf.x1iyjqo2.x6ikm8r.x1odjw0f.xish69e.x16o0dkt > div.x78zum5.xdt5ytf.x1iyjqo2.x2lah0s.xl56j7k.x121v3j4';
   // #moreActionsMenuContainerSelector =
@@ -85,9 +87,7 @@ class DomInfo {
 
           this.#chat = convo;
           this.setMessageGrid();
-          this.handleChatBubbles();
-          this.observeGridcells();
-          this.observeGridcellContainer();
+          this.activateRendering();
         }
       });
     });
@@ -104,52 +104,67 @@ class DomInfo {
               if (!this.messageGridsLabeled()) {
                 setTimeout(waitForGridsToBeLabeled, 100);
               } else {
-                // this.assignGridsIds();
+                // // this.assignGridsIds();
 
-                const labeledGrid = node.querySelector(
-                  this.#labeledMessageGridSelector
-                );
-                const messageGridId = labeledGrid ? labeledGrid.id : null;
+                // // const labeledGrid = node.querySelector(
+                // //   this.#labeledMessageGridSelector
+                // // );
+                // // const messageGridId = labeledGrid ? labeledGrid.id : null;
 
-                if (
-                  !Array.from(this.#chatBoxToId.values()).includes(
-                    messageGridId
-                  ) ||
-                  !this.#chatBoxToId.has(node)
-                ) {
-                  if (!this.#chatBoxToId.has(node)) {
-                    if (this.#idToChatBoxObserver.has(messageGridId)) {
-                      this.#idToChatBoxObserver.get(messageGridId).disconnect();
-                    }
+                // if (
+                //   // !Array.from(this.#chatBoxToId.values()).includes(
+                //   //   messageGridId
+                //   // ) ||
+                //   !this.#chatBoxToId.has(node)
+                // ) {
+                //   const labeledMessageGrid = node.querySelector(
+                //     this.#labeledMessageGridSelector
+                //   );
+                //   // const messageGridId = labeledGrid ? labeledGrid.id : null;
 
-                    if (
-                      this.#gridcellContainerToObserver.has(
-                        this.#gridcellContainer
-                      )
-                    ) {
-                      this.#gridcellContainerToObserver
-                        .get(this.#gridcellContainer)
-                        .disconnect();
-                    }
-                  }
+                //   console.log(
+                //     `chat box with label ${labeledMessageGrid.getAttribute(
+                //       'aria-label'
+                //     )} not yet mapped to id; labeledMessageGrid.id = ${
+                //       labeledMessageGrid.id
+                //     }`
+                //   );
 
-                  const visibilityObserver = new MutationObserver(
-                    this.#chatBoxVisibilityMutationHandler
-                  );
-                  visibilityObserver.observe(node.firstChild.firstChild, {
-                    attributes: true,
-                  });
-                  this.#idToChatBoxObserver.set(
-                    messageGridId,
-                    visibilityObserver
-                  );
+                //   this.#chatBoxToId.set(node, labeledMessageGrid.id);
 
-                  this.#chatBoxToId.set(node, messageGridId);
-                  this.handleChatBubbles();
+                //   // if (!this.#chatBoxToId.has(node)) {
+                //   if (this.#idToChatBoxObserver.has(labeledMessageGrid.id)) {
+                //     this.#idToChatBoxObserver
+                //       .get(labeledMessageGrid.id)
+                //       .disconnect();
+                //   }
 
-                  this.observeGridcells();
-                  this.observeGridcellContainer();
-                }
+                //   if (
+                //     this.#gridcellContainerToObserver.has(
+                //       this.#gridcellContainer
+                //     )
+                //   ) {
+                //     this.#gridcellContainerToObserver
+                //       .get(this.#gridcellContainer)
+                //       .disconnect();
+                //   }
+                //   // }
+
+                //   const visibilityObserver = new MutationObserver(
+                //     this.#chatBoxVisibilityMutationHandler
+                //   );
+                //   visibilityObserver.observe(node.firstChild.firstChild, {
+                //     attributes: true,
+                //   });
+                //   this.#idToChatBoxObserver.set(
+                //     labeledMessageGrid.id,
+                //     visibilityObserver
+                //   );
+
+                //   // this.#chatBoxToId.set(node, labeledMessageGrid.id;
+                //   this.activateRendering();
+                // }
+                this.prepareChatBoxForRendering(node);
               }
             };
             waitForGridsToBeLabeled();
@@ -173,43 +188,54 @@ class DomInfo {
 
               for (const chatBox of this.#chatBoxContainer.children) {
                 if (!chatBox.firstChild.firstChild.hasAttribute('hidden')) {
-                  this.setMessageGrid(/*0,*/ chatBox);
-                  if (!this.#chatBoxToId.has(chatBox)) {
-                    const labeledMessageGrid = chatBox.querySelector(
-                      this.#labeledMessageGridSelector
-                    );
-                    const messageGridId = labeledMessageGrid.id;
+                  this.setMessageGrid(chatBox);
+                  // if (!this.#chatBoxToId.has(chatBox)) {
+                  //   const labeledMessageGrid = chatBox.querySelector(
+                  //     this.#labeledMessageGridSelector
+                  //   );
+                  //   // const messageGridId = labeledMessageGrid.id;
 
-                    this.setChatBoxToId(chatBox, messageGridId);
+                  //   console.log(
+                  //     `chat box with label ${labeledMessageGrid.getAttribute(
+                  //       'aria-label'
+                  //     )} not yet mapped to id; labeledMessageGrid.id = ${
+                  //       labeledMessageGrid.id
+                  //     }`
+                  //   );
 
-                    if (this.#idToChatBoxObserver.has(messageGridId)) {
-                      this.#idToChatBoxObserver.get(messageGridId).disconnect();
-                    }
+                  //   this.#chatBoxToId.set(chatBox, labeledMessageGrid.id);
 
-                    if (
-                      this.#gridcellContainerToObserver.has(
-                        this.#gridcellContainer
-                      )
-                    ) {
-                      this.#gridcellContainerToObserver
-                        .get(this.#gridcellContainer)
-                        .disconnect();
-                    }
+                  //   if (this.#idToChatBoxObserver.has(labeledMessageGrid.id)) {
+                  //     this.#idToChatBoxObserver
+                  //       .get(labeledMessageGrid.id)
+                  //       .disconnect();
+                  //   }
 
-                    const visibilityObserver = new MutationObserver(
-                      this.#chatBoxVisibilityMutationHandler
-                    );
-                    visibilityObserver.observe(chatBox.firstChild.firstChild, {
-                      attributes: true,
-                    });
-                    this.#idToChatBoxObserver.set(
-                      messageGridId,
-                      visibilityObserver
-                    );
+                  //   if (
+                  //     this.#gridcellContainerToObserver.has(
+                  //       this.#gridcellContainer
+                  //     )
+                  //   ) {
+                  //     this.#gridcellContainerToObserver
+                  //       .get(this.#gridcellContainer)
+                  //       .disconnect();
+                  //   }
 
-                    this.observeGridcells();
-                    this.observeGridcellContainer();
-                  }
+                  //   const visibilityObserver = new MutationObserver(
+                  //     this.#chatBoxVisibilityMutationHandler
+                  //   );
+                  //   visibilityObserver.observe(chatBox.firstChild.firstChild, {
+                  //     attributes: true,
+                  //   });
+                  //   this.#idToChatBoxObserver.set(
+                  //     labeledMessageGrid.id,
+                  //     visibilityObserver
+                  //   );
+
+                  //   this.observeGridcells();
+                  //   this.observeGridcellContainer();
+                  // }
+                  this.prepareChatBoxForRendering(chatBox, false);
                 }
               }
             }
@@ -220,6 +246,48 @@ class DomInfo {
       }
     });
   });
+
+  prepareChatBoxForRendering(chatBox, isActive = true) {
+    if (!this.#chatBoxToId.has(chatBox)) {
+      const labeledMessageGrid = chatBox.querySelector(
+        this.#labeledMessageGridSelector
+      );
+
+      console.log(
+        `chat box with label ${labeledMessageGrid.getAttribute(
+          'aria-label'
+        )} not yet mapped to id; labeledMessageGrid.id = ${
+          labeledMessageGrid.id
+        }`
+      );
+
+      this.#chatBoxToId.set(chatBox, labeledMessageGrid.id);
+
+      if (this.#idToChatBoxObserver.has(labeledMessageGrid.id)) {
+        this.#idToChatBoxObserver.get(labeledMessageGrid.id).disconnect();
+      }
+
+      if (this.#gridcellContainerToObserver.has(this.#gridcellContainer)) {
+        this.#gridcellContainerToObserver
+          .get(this.#gridcellContainer)
+          .disconnect();
+      }
+
+      const visibilityObserver = new MutationObserver(
+        this.#chatBoxVisibilityMutationHandler
+      );
+      visibilityObserver.observe(chatBox.firstChild.firstChild, {
+        attributes: true,
+      });
+      this.#idToChatBoxObserver.set(labeledMessageGrid.id, visibilityObserver);
+
+      if (isActive) {
+        this.handleChatBubbles();
+      }
+      this.observeGridcells();
+      this.observeGridcellContainer();
+    }
+  }
 
   #gridcellMutationHandler = (mutations) => {
     // if (!this.cellsHaveIds()) {
@@ -247,13 +315,7 @@ class DomInfo {
       mutation.addedNodes.forEach((node) => {
         if ('querySelector' in node) {
           const chatBubble = node.querySelector(this.#chatBubbleSelector);
-
           if (chatBubble !== null) {
-            const msg = chatBubble.querySelector(this.#messageSelector);
-            if (msg) {
-              console.log(`content = ${msg.textContent}`);
-            }
-
             this.parseContent(chatBubble);
             // this.ensureParsed(chatBubble);
           }
@@ -359,7 +421,6 @@ class DomInfo {
         const cell = node.firstChild.firstChild;
 
         if (!this.#cellIdToObserver.has(cell.id)) {
-          console.log(`mapping ${cell.id} to observer`);
           const gridcellObserver = new MutationObserver(
             this.#gridcellMutationHandler
           );
@@ -371,41 +432,39 @@ class DomInfo {
 
         const chatBubble = cell.querySelector(this.#chatBubbleSelector);
         if (chatBubble !== null) {
-          console.log(`new message: ${chatBubble.textContent}`);
+          const sendStatusSpan = cell.querySelector(this.#sendStatusSelector);
+          const messageSent =
+            sendStatusSpan !== null
+              ? sendStatusSpan.textContent.startsWith('Sent')
+              : false;
+          console.log(
+            `${cell.id}: sendStatusSpan = ${sendStatusSpan}, messageSent = ${messageSent}`
+          );
           if (
-            node.nextSibling === undefined ||
-            node.nextSibling === null ||
-            node.nextSibling.hasAttribute('class') ||
-            node.nextSibling.hasAttribute('role')
+            (node.nextSibling === undefined ||
+              node.nextSibling === null ||
+              node.nextSibling.hasAttribute('class') ||
+              node.nextSibling.hasAttribute('role')) &&
+            !messageSent
           ) {
             const userBubble = chatBubble.querySelector(
               'div > [role="presentation"].html-div > div.x78zum5.xdt5ytf.x193iq5w.x1n2onr6.x1kxipp6.xuk3077'
             );
-
             if (userBubble === null) {
               const waitForCompleteMessage = (txt) => {
-                console.log(
-                  `waiting for complete message in ${
-                    cell.hasAttribute('id') ? cell.id : 'cell without id'
-                  }`
-                );
                 setTimeout(() => {
                   if (chatBubble.textContent !== txt) {
                     waitForCompleteMessage(chatBubble.textContent);
                   } else {
-                    console.log(
-                      `message complete in ${
-                        cell.hasAttribute('id') ? cell.id : 'cell without id'
-                      }`
-                    );
                     // attributeObserver.disconnect();
 
                     this.parseContent(chatBubble);
                   }
-                }, 300);
+                }, 500); // Sometimes 300 ms is not long enough
               };
               waitForCompleteMessage(chatBubble.textContent);
             } else {
+              console.log(`ensuring message in ${cell.id} is parsed`);
               // this.parseContent(chatBubble);
               this.ensureParsed(chatBubble);
             }
@@ -447,7 +506,7 @@ class DomInfo {
   //     );
   //     if (!labeledMessageGrid.hasAttribute('id')) {
   //       const chatTitle = chatBox.querySelector(this.#chatTitleSelector);
-  //       const name = chatTitle.textContent.replace(/\s/g, '-');
+  //       const name = chatTitle.textContent.toLowerCase().replace(/\s/g, '-');
   //       labeledMessageGrid.id = `${name}.${crypto.randomUUID()}`;
   //     }
   //   }
@@ -567,13 +626,17 @@ class DomInfo {
         if (!labeledGrid.hasAttribute('id')) {
           const label = labeledGrid.getAttribute('aria-label');
           const labelEnd = label.substring(25);
+
           let name;
+
           if (labelEnd.startsWith('with')) {
-            name = labelEnd.substring(5).replace(/\s/g, '-');
+            name = labelEnd.substring(5).toLowerCase().replace(/\s/g, '-');
           }
+
           if (labelEnd.startsWith('titled')) {
-            name = labelEnd.substring(7).replace(/\s/g, '-');
+            name = labelEnd.substring(7).toLowerCase().replace(/\s/g, '-');
           }
+
           labeledGrid.id = `${name}.${crypto.randomUUID()}`;
         }
 
@@ -592,8 +655,6 @@ class DomInfo {
       if (!cell.hasAttribute('id')) {
         cell.id = `cell${i - 1}:${this.#messageGrid.id}`;
       }
-
-      console.log(`mapping ${cell.id} to observer`);
 
       const observer = new MutationObserver(this.#gridcellMutationHandler);
       observer.observe(cell, { childList: true });
@@ -646,6 +707,12 @@ class DomInfo {
   // //     observer.observe(container, { childList: true });
   // //   }
   // // }
+
+  activateRendering() {
+    this.handleChatBubbles();
+    this.observeGridcells();
+    this.observeGridcellContainer();
+  }
 
   parseContent(bubble) {
     const msg = bubble.querySelector(this.#messageSelector);
@@ -780,19 +847,12 @@ class DomInfo {
     return this.#chatBoxToId;
   }
 
-  // Consider removing parameter list along with second conditional statement
-  setChatBoxToId(box, id) {
-    if (arguments.length === 0) {
-      for (const chatBox of this.#chatBoxContainer.children) {
-        const messageGridId = chatBox.querySelector(
-          this.#labeledMessageGridSelector
-        ).id;
-        this.#chatBoxToId.set(chatBox, messageGridId);
-      }
-    }
-    // Condition below never satisfied in practice
-    if (arguments.length === 2) {
-      this.#chatBoxToId.set(box, id);
+  setChatBoxToId() {
+    for (const chatBox of this.#chatBoxContainer.children) {
+      const messageGridId = chatBox.querySelector(
+        this.#labeledMessageGridSelector
+      ).id;
+      this.#chatBoxToId.set(chatBox, messageGridId);
     }
   }
 
@@ -806,12 +866,14 @@ class DomInfo {
         this.setMessageGrid(mutation.target);
 
         if (mutation.target.hasAttribute('hidden')) {
+          console.log(`chat box hidden`);
           const gridcellContainerObserver =
             this.#gridcellContainerToObserver.get(this.#gridcellContainer);
           if (gridcellContainerObserver !== undefined) {
             gridcellContainerObserver.disconnect();
           }
         } else {
+          console.log(`chat box shown`);
           const waitForGridsToBeLabeled = () => {
             if (!this.messageGridsLabeled()) {
               setTimeout(waitForGridsToBeLabeled, 100);
@@ -825,9 +887,7 @@ class DomInfo {
 
               // this.setMessageGrid(/*0, */ mutation.target);
               this.#chatBoxToId.set(mutation.target, messageGridId);
-              this.handleChatBubbles();
-              this.observeGridcells();
-              this.observeGridcellContainer();
+              this.activateRendering();
             }
           };
           waitForGridsToBeLabeled();
@@ -837,18 +897,26 @@ class DomInfo {
   };
 
   observeChatBoxes() {
+    console.log(`${this.#chatBoxContainer.children.length} chat boxes found`);
     for (const chatBox of this.#chatBoxContainer.children) {
-      if (!this.#chatBoxToId.has(chatBox)) {
+      // if (!this.#chatBoxToId.has(chatBox)) {
+      const messageGridId = chatBox.querySelector(
+        this.#labeledMessageGridSelector
+      ).id;
+      if (!this.#idToChatBoxObserver.has(messageGridId)) {
         const observer = new MutationObserver(
           this.#chatBoxVisibilityMutationHandler
         );
         observer.observe(chatBox.firstChild.firstChild, { attributes: true });
 
-        const messageGridId = chatBox.querySelector(
-          this.#labeledMessageGridSelector
-        ).id;
+        // const messageGridId = chatBox.querySelector(
+        //   this.#labeledMessageGridSelector
+        // ).id;
         this.#idToChatBoxObserver.set(messageGridId, observer);
+
+        console.log(`observing visibility of ${messageGridId}`);
       }
+      // }
     }
   }
 
@@ -945,9 +1013,7 @@ const handleChat = (domInfo) => {
             .getGridcellContainerToObserver()
             .has(domInfo.getGridcellContainer())
         ) {
-          domInfo.handleChatBubbles();
-          domInfo.observeGridcells();
-          domInfo.observeGridcellContainer();
+          domInfo.activateRendering();
         }
       }
     };
@@ -975,13 +1041,13 @@ const handleChatBoxContainer = (domInfo) => {
           domInfo.observeChatBoxes();
           // Condition below may be superfluous
           const chatBoxes = domInfo.getChatBoxContainer().children;
-          if (chatBoxes.length !== 0) {
-            for (const chat of chatBoxes) {
-              domInfo.setChat(chat);
-              domInfo.setMessageGrid(chat);
-              handleChat(domInfo);
-            }
+          // if (chatBoxes.length !== 0) {
+          for (const chat of chatBoxes) {
+            domInfo.setChat(chat);
+            domInfo.setMessageGrid(chat);
+            handleChat(domInfo);
           }
+          // }
         }
       };
       waitForGridsToBeLabeled();
@@ -1026,9 +1092,7 @@ const startUp = () => {
       waitToHandleChat();
     } else {
       domInfo.setMessageGrid();
-      domInfo.handleChatBubbles();
-      domInfo.observeGridcells();
-      domInfo.observeGridcellContainer();
+      domInfo.activateRendering();
 
       // domInfo.setEditorContainers();
       // domInfo.observeEditorContainers();
@@ -1108,9 +1172,7 @@ const reset = () => {
                 waitToHandleMessages();
               }, 100);
             } else {
-              domInfo.handleChatBubbles();
-              domInfo.observeGridcells();
-              domInfo.observeGridcellContainer();
+              domInfo.activateRendering();
             }
           };
           waitToHandleMessages();
