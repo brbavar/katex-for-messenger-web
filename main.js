@@ -91,56 +91,14 @@ class DomInfo {
         if (!node.firstChild.firstChild.hasAttribute('hidden')) {
           this.setMessageGrid(0, node);
           if (this.#messageGrids[0] !== null) {
-            const waitToHandleChatBox = () => {
-              const labeledGrid = node.querySelector(
-                this.#labeledMessageGridSelector
-              );
-              const messageGridLabel = labeledGrid
-                ? labeledGrid.getAttribute('aria-label')
-                : null;
-
-              if (labeledGrid === null || messageGridLabel === null) {
-                setTimeout(waitToHandleChatBox, 100);
+            const waitForGridsToBeLabeled = () => {
+              if (!this.messageGridsLabeled()) {
+                setTimeout(waitForGridsToBeLabeled, 100);
               } else {
-                if (
-                  !Array.from(this.#chatBoxToLabel.values()).includes(
-                    messageGridLabel
-                  ) ||
-                  !this.#chatBoxToLabel.has(node)
-                ) {
-                  if (!this.#chatBoxToLabel.has(node)) {
-                    if (this.#labelToChatBoxObserver.has(messageGridLabel)) {
-                      this.#labelToChatBoxObserver
-                        .get(messageGridLabel)
-                        .disconnect();
-                    }
-                    if (this.#labelToBubbleObserver.has(messageGridLabel)) {
-                      this.#labelToBubbleObserver
-                        .get(messageGridLabel)
-                        .disconnect();
-                    }
-                  }
-
-                  const visibilityObserver = new MutationObserver(
-                    this.#chatBoxVisibilityMutationHandler
-                  );
-                  visibilityObserver.observe(node.firstChild.firstChild, {
-                    attributes: true,
-                  });
-                  this.#labelToChatBoxObserver.set(
-                    messageGridLabel,
-                    visibilityObserver
-                  );
-
-                  this.markMostRecentMessage(node);
-
-                  this.#chatBoxToLabel.set(node, messageGridLabel);
-                  this.handleChatBubbles();
-                  this.observeChatBubbles();
-                }
+                this.prepareChatBoxForRendering(node);
               }
             };
-            waitToHandleChatBox();
+            waitForGridsToBeLabeled();
           }
         }
       });
@@ -151,61 +109,61 @@ class DomInfo {
     mutations.forEach((mutation) => {
       if (mutation.addedNodes.length > 0) {
         this.setChatBoxContainer();
-
         if (this.#chatBoxContainer !== null) {
-          for (const chatBox of this.#chatBoxContainer.children) {
-            if (!chatBox.firstChild.firstChild.hasAttribute('hidden')) {
-              this.setMessageGrid(0, chatBox);
-              if (!this.#chatBoxToLabel.has(chatBox)) {
-                const waitForGridsToBeLabeled = () => {
-                  if (!this.messageGridsLabeled()) {
-                    setTimeout(waitForGridsToBeLabeled, 100);
-                  } else {
-                    this.markMostRecentMessage(chatBox);
-
-                    const labeledMessageGrid = chatBox.querySelector(
-                      this.#labeledMessageGridSelector
-                    );
-                    const messageGridLabel =
-                      labeledMessageGrid.getAttribute('aria-label');
-
-                    this.setChatBoxToLabel(chatBox, messageGridLabel);
-
-                    if (this.#labelToChatBoxObserver.has(messageGridLabel)) {
-                      this.#labelToChatBoxObserver
-                        .get(messageGridLabel)
-                        .disconnect();
-                    }
-
-                    if (this.#labelToBubbleObserver.has(messageGridLabel)) {
-                      this.#labelToBubbleObserver
-                        .get(messageGridLabel)
-                        .disconnect();
-                    }
-
-                    const visibilityObserver = new MutationObserver(
-                      this.#chatBoxVisibilityMutationHandler
-                    );
-                    visibilityObserver.observe(chatBox.firstChild.firstChild, {
-                      attributes: true,
-                    });
-                    this.#labelToChatBoxObserver.set(
-                      messageGridLabel,
-                      visibilityObserver
-                    );
-
-                    this.observeChatBubbles();
+          this.setMessageGrid(0, chatBox);
+          if (!this.#chatBoxToLabel.has(chatBox)) {
+            const waitForGridsToBeLabeled = () => {
+              if (!this.messageGridsLabeled()) {
+                setTimeout(waitForGridsToBeLabeled, 100);
+              } else {
+                for (const chatBox of this.#chatBoxContainer.children) {
+                  if (!chatBox.firstChild.firstChild.hasAttribute('hidden')) {
+                    this.prepareChatBoxForRendering(chatBox, false);
                   }
-                };
-                waitForGridsToBeLabeled();
+                }
               }
-            }
+            };
+            waitForGridsToBeLabeled();
           }
         }
         this.observeChatBoxContainer();
       }
     });
   });
+
+  prepareChatBoxForRendering(chatBox, isActive = true) {
+    if (!this.#chatBoxToLabel.has(chatBox)) {
+      this.markMostRecentMessage(chatBox);
+
+      const labeledMessageGrid = chatBox.querySelector(
+        this.#labeledMessageGridSelector
+      );
+      const messageGridLabel = labeledMessageGrid.getAttribute('aria-label');
+
+      this.#chatBoxToLabel.set(chatBox, messageGridLabel);
+
+      if (this.#labelToChatBoxObserver.has(messageGridLabel)) {
+        this.#labelToChatBoxObserver.get(messageGridLabel).disconnect();
+      }
+
+      if (this.#labelToBubbleObserver.has(messageGridLabel)) {
+        this.#labelToBubbleObserver.get(messageGridLabel).disconnect();
+      }
+
+      const visibilityObserver = new MutationObserver(
+        this.#chatBoxVisibilityMutationHandler
+      );
+      visibilityObserver.observe(chatBox.firstChild.firstChild, {
+        attributes: true,
+      });
+      this.#labelToChatBoxObserver.set(messageGridLabel, visibilityObserver);
+
+      if (isActive) {
+        this.handleChatBubbles();
+      }
+      this.observeChatBubbles();
+    }
+  }
 
   // #moreActionsMenuContainerObserver = new MutationObserver((mutations) => {
   //   mutations.forEach((mutation) => {
@@ -476,15 +434,15 @@ class DomInfo {
     const observer = new MutationObserver(this.#chatBubbleMutationHandler);
 
     const grid = this.#messageGrids[i];
-    if (grid) {
+    if (grid !== null) {
       observer.observe(grid, {
         childList: true,
         subtree: true,
       });
-    }
 
-    const label = grid.getAttribute('aria-label');
-    this.#labelToBubbleObserver.set(label, observer);
+      const label = grid.getAttribute('aria-label');
+      this.#labelToBubbleObserver.set(label, observer);
+    }
   }
 
   parseContent(bubble) {
@@ -702,20 +660,17 @@ class DomInfo {
     return this.#chatBoxToLabel;
   }
 
-  // Consider removing parameter list along with second conditional statement
-  setChatBoxToLabel(box, label) {
-    if (arguments.length === 0) {
-      for (const chatBox of this.#chatBoxContainer.children) {
-        const messageGridLabel = chatBox
-          .querySelector(this.#labeledMessageGridSelector)
-          .getAttribute('aria-label');
-        this.#chatBoxToLabel.set(chatBox, messageGridLabel);
-      }
+  setChatBoxToLabel() {
+    for (const chatBox of this.#chatBoxContainer.children) {
+      const messageGridLabel = chatBox
+        .querySelector(this.#labeledMessageGridSelector)
+        .getAttribute('aria-label');
+      this.#chatBoxToLabel.set(chatBox, messageGridLabel);
     }
-    // Condition below never satisfied in practice
-    if (arguments.length === 2) {
-      this.#chatBoxToLabel.set(box, label);
-    }
+  }
+
+  getLabelToBubbleObserver() {
+    return this.#labelToBubbleObserver;
   }
 
   #chatBoxVisibilityMutationHandler = (mutations) => {
@@ -854,9 +809,24 @@ const handleChat = (domInfo) => {
           waitToHandleMessages();
         }, 100);
       } else {
-        if (!domInfo.getChatBoxToLabel().has(chat)) {
+        // if (!domInfo.getChatBoxToLabel().has(chat)) {
+        const label = domInfo.getChatBoxToLabel().get(chat);
+        if (
+          label === null ||
+          /*!domInfo
+            .getLabelToBubbleObserver()
+            .has(domInfo.getMessageGrid().getAttribute('aria-label')*/
+          !domInfo.getLabelToBubbleObserver().has(label)
+        ) {
           domInfo.handleChatBubbles();
           domInfo.observeChatBubbles();
+        } else {
+          // console.log(
+          //   `chat already mapped to the label ${domInfo
+          //     .getChatBoxToLabel()
+          //     .get(chat)}`
+          // );
+          console.log(`'${label}' is already mapped to a bubble observer`);
         }
       }
     };
