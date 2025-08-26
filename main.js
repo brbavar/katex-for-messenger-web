@@ -86,80 +86,78 @@ class DomInfo {
 
   #chatBoxContainerObserver = new MutationObserver((mutations) => {
     mutations.forEach((mutation) => {
-      mutation.addedNodes.forEach((node) => {
-        // Condition below may be superfluous
-        if (!node.firstChild.firstChild.hasAttribute('hidden')) {
-          this.setMessageGrid(0, node);
-          if (this.#messageGrids[0] !== null) {
-            const waitForGridsToBeLabeled = () => {
-              if (!this.messageGridsLabeled()) {
-                setTimeout(waitForGridsToBeLabeled, 100);
-              } else {
-                this.prepareChatBoxForRendering(node);
-              }
-            };
-            waitForGridsToBeLabeled();
-          }
-        }
-      });
+      this.prepareChatBoxesForRendering(mutation);
     });
   });
 
   #chatBoxContainerContainerObserver = new MutationObserver((mutations) => {
     mutations.forEach((mutation) => {
-      if (mutation.addedNodes.length > 0) {
-        this.setChatBoxContainer();
-        if (this.#chatBoxContainer !== null) {
-          const waitForGridsToBeLabeled = () => {
-            if (!this.messageGridsLabeled()) {
-              setTimeout(waitForGridsToBeLabeled, 100);
-            } else {
-              for (const chatBox of this.#chatBoxContainer.children) {
-                if (!chatBox.firstChild.firstChild.hasAttribute('hidden')) {
-                  this.setMessageGrid(0, chatBox);
-                  this.prepareChatBoxForRendering(chatBox, false);
-                }
-              }
-            }
-          };
-          waitForGridsToBeLabeled();
-        }
-        this.observeChatBoxContainer();
-      }
+      this.prepareChatBoxesForRendering(mutation, false);
     });
   });
 
-  prepareChatBoxForRendering(chatBox, isActive = true) {
-    if (!this.#chatBoxToLabel.has(chatBox)) {
-      this.markMostRecentMessage(chatBox);
-
-      const labeledMessageGrid = chatBox.querySelector(
-        this.#labeledMessageGridSelector
-      );
-      const messageGridLabel = labeledMessageGrid.getAttribute('aria-label');
-
-      this.#chatBoxToLabel.set(chatBox, messageGridLabel);
-
-      if (this.#labelToChatBoxObserver.has(messageGridLabel)) {
-        this.#labelToChatBoxObserver.get(messageGridLabel).disconnect();
+  prepareChatBoxesForRendering(mutation, inChatBoxContainerObserver = true) {
+    if (mutation.addedNodes.length > 0) {
+      if (!inChatBoxContainerObserver) {
+        this.setChatBoxContainer();
+        this.observeChatBoxContainer();
       }
 
-      if (this.#labelToBubbleObserver.has(messageGridLabel)) {
-        this.#labelToBubbleObserver.get(messageGridLabel).disconnect();
-      }
+      if (this.#chatBoxContainer !== null || inChatBoxContainerObserver) {
+        const waitForGridsToBeLabeled = () => {
+          if (!this.messageGridsLabeled()) {
+            console.log(`waiting for grids to be labeled`);
+            setTimeout(waitForGridsToBeLabeled, 100);
+          } else {
+            console.log(`grids are labeled`);
+            for (const chatBox of this.#chatBoxContainer.children) {
+              if (!chatBox.firstChild.firstChild.hasAttribute('hidden')) {
+                this.setMessageGrid(0, chatBox);
+                if (!this.#chatBoxToLabel.has(chatBox)) {
+                  this.markMostRecentMessage(chatBox);
 
-      const visibilityObserver = new MutationObserver(
-        this.#chatBoxVisibilityMutationHandler
-      );
-      visibilityObserver.observe(chatBox.firstChild.firstChild, {
-        attributes: true,
-      });
-      this.#labelToChatBoxObserver.set(messageGridLabel, visibilityObserver);
+                  const labeledMessageGrid = chatBox.querySelector(
+                    this.#labeledMessageGridSelector
+                  );
+                  const messageGridLabel =
+                    labeledMessageGrid.getAttribute('aria-label');
 
-      if (isActive) {
-        this.handleChatBubbles();
+                  this.#chatBoxToLabel.set(chatBox, messageGridLabel);
+
+                  if (this.#labelToChatBoxObserver.has(messageGridLabel)) {
+                    this.#labelToChatBoxObserver
+                      .get(messageGridLabel)
+                      .disconnect();
+                  }
+
+                  if (this.#labelToBubbleObserver.has(messageGridLabel)) {
+                    this.#labelToBubbleObserver
+                      .get(messageGridLabel)
+                      .disconnect();
+                  }
+
+                  const visibilityObserver = new MutationObserver(
+                    this.#chatBoxVisibilityMutationHandler
+                  );
+                  visibilityObserver.observe(chatBox.firstChild.firstChild, {
+                    attributes: true,
+                  });
+                  this.#labelToChatBoxObserver.set(
+                    messageGridLabel,
+                    visibilityObserver
+                  );
+
+                  if (inChatBoxContainerObserver) {
+                    this.handleChatBubbles();
+                  }
+                  this.observeChatBubbles();
+                }
+              }
+            }
+          }
+        };
+        waitForGridsToBeLabeled();
       }
-      this.observeChatBubbles();
     }
   }
 
@@ -541,21 +539,36 @@ class DomInfo {
   isNewMessage(bubble) {
     const gridcell = this.findGridcell(bubble);
     if (gridcell === null) {
+      console.log(`gridcell is null`);
       return false;
     }
 
     let gridcellContainer = gridcell.parentNode;
-    if (gridcellContainer !== null) {
-      const gridcells = Array.from(gridcellContainer.children);
-      const gridcellPos = gridcells.indexOf(gridcell);
+    // if (gridcellContainer !== null) {
+    const gridcells = Array.from(gridcellContainer.children);
+    const gridcellPos = gridcells.indexOf(gridcell);
 
-      const finalOldMessage = gridcellContainer.querySelector(
+    let finalOldMessage = gridcellContainer.querySelector(
+      '.old-messages-end-here'
+    );
+    if (finalOldMessage === null) {
+      this.markMostRecentMessage(gridcellContainer);
+      finalOldMessage = gridcellContainer.querySelector(
         '.old-messages-end-here'
       );
-      const finalOldMessagePos = gridcells.indexOf(finalOldMessage);
-
-      return gridcellPos > finalOldMessagePos;
     }
+    console.log(`finalOldMessage:`);
+    console.log(finalOldMessage);
+    const finalOldMessagePos = gridcells.indexOf(finalOldMessage);
+    console.log(`finalOldMessagePos = ${finalOldMessagePos}`);
+
+    return gridcellPos > finalOldMessagePos;
+    // } else {
+    //   console.log(`gridcellContainer is null`);
+    // }
+
+    // What should be returned if gridcellContainer is null but gridcell is not?
+    // Impossible scenario, so no need to worry about it
   }
 
   handleChatBubbles(bubbleSource) {
@@ -567,11 +580,16 @@ class DomInfo {
             // const userBubble = bubble.querySelector(
             //   'div > [role="presentation"].html-div > div.x78zum5.xdt5ytf.x193iq5w.x1n2onr6.x1kxipp6.xuk3077'
             // );
+
+            // setTimeout(() => {
+            //   if (bubble.textContent !== txt) {
             setTimeout(
               () => {
                 if (bubble.textContent !== txt) {
+                  console.log(`waiting for complete message`);
                   waitForCompleteMessage(bubble.textContent);
                 } else {
+                  console.log(`message complete`);
                   // console.log(`new message:`);
                   // console.log(bubble);
                   this.parseContent(bubble);
@@ -614,6 +632,10 @@ class DomInfo {
               // userBubble === null ? 2000 : /*300*/ 1500
               2000
             );
+            //   } else {
+            //     this.parseContent(bubble);
+            //   }
+            // }, 300);
           };
           if (bubble.textContent === '') {
             const waitToParseContent = () => {
@@ -621,24 +643,31 @@ class DomInfo {
                 bubble.textContent === '' ||
                 bubble.querySelector(this.#messageSelector) === null
               ) {
+                console.log(`waiting to parse content`);
                 setTimeout(waitToParseContent, 100);
               } else {
+                console.log(`parsing content`);
                 if (this.isNewMessage(bubble)) {
+                  console.log(`this message is new:`);
+                  console.log(bubble);
                   waitForCompleteMessage(bubble.textContent);
                 } else {
-                  console.log(`this bubble is old`);
-                  console.log(bubble);
+                  // console.log(`this bubble is old`);
+                  // console.log(bubble);
                   this.parseContent(bubble);
                 }
               }
             };
             waitToParseContent();
           } else {
+            console.log(`NOT waiting to parse content`);
             if (this.isNewMessage(bubble)) {
+              console.log(`this message is new:`);
+              console.log(bubble);
               waitForCompleteMessage(bubble.textContent);
             } else {
-              console.log(`this bubble is old:`);
-              console.log(bubble);
+              // console.log(`this bubble is old:`);
+              // console.log(bubble);
               this.parseContent(bubble);
             }
           }
@@ -682,12 +711,14 @@ class DomInfo {
           : null;
 
         if (mutation.target.hasAttribute('hidden')) {
+          console.log(`chat box concealed`);
           const bubbleObserver =
             this.#labelToBubbleObserver.get(messageGridLabel);
           if (bubbleObserver !== undefined) {
             bubbleObserver.disconnect();
           }
         } else {
+          console.log(`chat box UNconcealed`);
           this.setMessageGrid(0, mutation.target);
           this.#chatBoxToLabel.set(mutation.target, messageGridLabel);
           this.handleChatBubbles();
