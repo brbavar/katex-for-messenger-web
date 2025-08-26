@@ -110,21 +110,19 @@ class DomInfo {
       if (mutation.addedNodes.length > 0) {
         this.setChatBoxContainer();
         if (this.#chatBoxContainer !== null) {
-          this.setMessageGrid(0, chatBox);
-          if (!this.#chatBoxToLabel.has(chatBox)) {
-            const waitForGridsToBeLabeled = () => {
-              if (!this.messageGridsLabeled()) {
-                setTimeout(waitForGridsToBeLabeled, 100);
-              } else {
-                for (const chatBox of this.#chatBoxContainer.children) {
-                  if (!chatBox.firstChild.firstChild.hasAttribute('hidden')) {
-                    this.prepareChatBoxForRendering(chatBox, false);
-                  }
+          const waitForGridsToBeLabeled = () => {
+            if (!this.messageGridsLabeled()) {
+              setTimeout(waitForGridsToBeLabeled, 100);
+            } else {
+              for (const chatBox of this.#chatBoxContainer.children) {
+                if (!chatBox.firstChild.firstChild.hasAttribute('hidden')) {
+                  this.setMessageGrid(0, chatBox);
+                  this.prepareChatBoxForRendering(chatBox, false);
                 }
               }
-            };
-            waitForGridsToBeLabeled();
-          }
+            }
+          };
+          waitForGridsToBeLabeled();
         }
         this.observeChatBoxContainer();
       }
