@@ -86,15 +86,114 @@ class DomInfo {
 
   #chatBoxContainerObserver = new MutationObserver((mutations) => {
     mutations.forEach((mutation) => {
+      // // mutation.addedNodes.forEach((node) => {
+      // //   console.log(`chat box added to chat box container's child list`);
+      // //   // Condition below may be superfluous
+      // //   if (!node.firstChild.firstChild.hasAttribute('hidden')) {
+      // //     this.setMessageGrid(0, node);
+      // //     if (this.#messageGrids[0] !== null) {
+      // //       const waitForGridsToBeLabeled = () => {
+      // //         if (!this.messageGridsLabeled()) {
+      // //           setTimeout(waitForGridsToBeLabeled, 100);
+      // //         } else {
+      // //           this.prepareChatBoxForRendering(node);
+      // //         }
+      // //       };
+      // //       waitForGridsToBeLabeled();
+      // //     }
+      // //   }
+      // // });
+      // if (mutation.addedNodes.length > 0) {
+      //   console.log(
+      //     `${mutation.addedNodes.length} chat box(es) added to chat box container's child list`
+      //   );
+      //   const waitForGridsToBeLabeled = () => {
+      //     if (!this.messageGridsLabeled()) {
+      //       console.log(`waiting for grids to be labeled`);
+      //       setTimeout(waitForGridsToBeLabeled, 100);
+      //     } else {
+      //       console.log(`grids are labeled`);
+      //       // for (const chatBox of this.#chatBoxContainer.children) {
+      //       for (let i = 0; i < mutation.addedNodes.length; i++) {
+      //         const chatBox = this.#chatBoxContainer.children[i];
+      //         if (!chatBox.firstChild.firstChild.hasAttribute('hidden')) {
+      //           this.setMessageGrid(0, chatBox);
+      //           this.prepareChatBoxForRendering(chatBox);
+      //         }
+      //         // else {
+      //         //   console.log(`chat box is hidden, so not handling`);
+      //         // }
+      //       }
+      //     }
+      //   };
+      //   waitForGridsToBeLabeled();
+      // }
       this.prepareChatBoxesForRendering(mutation);
     });
   });
 
   #chatBoxContainerContainerObserver = new MutationObserver((mutations) => {
     mutations.forEach((mutation) => {
+      // if (mutation.addedNodes.length > 0) {
+      //   this.setChatBoxContainer();
+      //   if (this.#chatBoxContainer !== null) {
+      //     const waitForGridsToBeLabeled = () => {
+      //       if (!this.messageGridsLabeled()) {
+      //         console.log(`waiting for grids to be labeled`);
+      //         setTimeout(waitForGridsToBeLabeled, 100);
+      //       } else {
+      //         console.log(`grids are labeled`);
+      //         // for (const chatBox of this.#chatBoxContainer.children) {
+      //         for (let i = 0; i < this.#chatBoxContainer.children.length; i++) {
+      //           const chatBox = this.#chatBoxContainer.children[i];
+      //           if (!chatBox.firstChild.firstChild.hasAttribute('hidden')) {
+      //             this.setMessageGrid(0, chatBox);
+      //             this.prepareChatBoxForRendering(chatBox, false);
+      //           }
+      //         }
+      //       }
+      //     };
+      //     waitForGridsToBeLabeled();
+      //   }
+      //   this.observeChatBoxContainer();
+      // }
       this.prepareChatBoxesForRendering(mutation, false);
     });
   });
+
+  // prepareChatBoxForRendering(chatBox, isActive = true) {
+  //   if (!this.#chatBoxToLabel.has(chatBox)) {
+  //     this.markMostRecentMessage(chatBox);
+
+  //     const labeledMessageGrid = chatBox.querySelector(
+  //       this.#labeledMessageGridSelector
+  //     );
+  //     const messageGridLabel = labeledMessageGrid.getAttribute('aria-label');
+
+  //     this.#chatBoxToLabel.set(chatBox, messageGridLabel);
+
+  //     if (this.#labelToChatBoxObserver.has(messageGridLabel)) {
+  //       this.#labelToChatBoxObserver.get(messageGridLabel).disconnect();
+  //     }
+
+  //     if (this.#labelToBubbleObserver.has(messageGridLabel)) {
+  //       this.#labelToBubbleObserver.get(messageGridLabel).disconnect();
+  //     }
+
+  //     const visibilityObserver = new MutationObserver(
+  //       this.#chatBoxVisibilityMutationHandler
+  //     );
+  //     visibilityObserver.observe(chatBox.firstChild.firstChild, {
+  //       attributes: true,
+  //     });
+  //     this.#labelToChatBoxObserver.set(messageGridLabel, visibilityObserver);
+
+  //     if (isActive) {
+  //       this.handleChatBubbles();
+  //     }
+  //     this.observeChatBubbles();
+  //   }
+  // }
 
   prepareChatBoxesForRendering(mutation, inChatBoxContainerObserver = true) {
     if (mutation.addedNodes.length > 0) {
@@ -110,7 +209,12 @@ class DomInfo {
             setTimeout(waitForGridsToBeLabeled, 100);
           } else {
             console.log(`grids are labeled`);
-            for (const chatBox of this.#chatBoxContainer.children) {
+            // for (const chatBox of this.#chatBoxContainer.children) {
+            const max = inChatBoxContainerObserver
+              ? mutation.addedNodes.length
+              : this.#chatBoxContainer.children.length;
+            for (let i = 0; i < max; i++) {
+              const chatBox = this.#chatBoxContainer.children[i];
               if (!chatBox.firstChild.firstChild.hasAttribute('hidden')) {
                 this.setMessageGrid(0, chatBox);
                 if (!this.#chatBoxToLabel.has(chatBox)) {
@@ -638,13 +742,18 @@ class DomInfo {
             // }, 300);
           };
           if (bubble.textContent === '') {
+            let lengthOfWait = 0;
             const waitToParseContent = () => {
               if (
                 bubble.textContent === '' ||
                 bubble.querySelector(this.#messageSelector) === null
               ) {
                 console.log(`waiting to parse content`);
-                setTimeout(waitToParseContent, 100);
+                setTimeout(() => {
+                  if ((lengthOfWait += 100) < 5000) {
+                    waitToParseContent();
+                  }
+                }, 100);
               } else {
                 console.log(`parsing content`);
                 if (this.isNewMessage(bubble)) {
