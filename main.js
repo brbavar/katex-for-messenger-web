@@ -106,10 +106,10 @@ class DomInfo {
       if (this.#chatBoxContainer !== null || inChatBoxContainerObserver) {
         const waitForGridsToBeLabeled = () => {
           if (!this.messageGridsLabeled()) {
-            console.log(`waiting for grids to be labeled`);
+            // console.log(`waiting for grids to be labeled`);
             setTimeout(waitForGridsToBeLabeled, 100);
           } else {
-            console.log(`grids are labeled`);
+            // console.log(`grids are labeled`);
             const max = inChatBoxContainerObserver
               ? mutation.addedNodes.length
               : this.#chatBoxContainer.children.length;
@@ -328,50 +328,55 @@ class DomInfo {
     let gridcellContainer = gridcellSource.querySelector(
       this.#gridcellContainerSelector
     );
-    console.log(`gridcellContainer:`);
-    console.log(gridcellContainer);
+    // console.log(`gridcellContainer:`);
+    // console.log(gridcellContainer);
     if (gridcellContainer === null) {
-      console.log(`setting gridcellContainer to gridcellSource, i.e., to:`);
-      console.log(gridcellSource);
+      // console.log(`setting gridcellContainer to gridcellSource, i.e., to:`);
+      // console.log(gridcellSource);
       gridcellContainer = gridcellSource;
     }
 
     const waitForMessagesToAppear = () => {
       if (gridcellContainer.children.length < 2) {
-        console.log(`waiting for messages to appear`);
+        // console.log(`waiting for messages to appear`);
         setTimeout(waitForMessagesToAppear, 100);
       } else {
         const waitForBareGridcell = () => {
-          console.log(`gridcellContainer.children[
-              gridcellContainer.children.length - 1
-            ]:`);
-          console.log(
-            gridcellContainer.children[gridcellContainer.children.length - 1]
-          );
+          // console.log(`gridcellContainer.children[
+          //     gridcellContainer.children.length - 1
+          //   ]:`);
+          // console.log(
+          //   gridcellContainer.children[gridcellContainer.children.length - 1]
+          // );
           const mostRecentMessage =
             gridcellContainer.children[gridcellContainer.children.length - 1];
-          console.log(`mostRecentMessage:`);
-          console.log(mostRecentMessage);
+          // console.log(`mostRecentMessage:`);
+          // console.log(mostRecentMessage);
           if (mostRecentMessage.hasAttribute('role')) {
-            console.log(`waiting for bare gridcell`);
+            // console.log(`waiting for bare gridcell`);
             setTimeout(waitForBareGridcell, 100);
           } else {
-            console.log(`bare gridcell detected:`);
-            console.log(mostRecentMessage);
+            // console.log(`bare gridcell detected:`);
+            // console.log(mostRecentMessage);
             const finalOldMessage = gridcellContainer.querySelector(
               '.old-messages-end-here'
             );
             if (finalOldMessage !== null) {
-              console.log(
-                `removing class from finalOldMessage (or what used to be the final one):`
-              );
-              console.log(finalOldMessage);
+              // console.log(
+              //   `removing class from finalOldMessage (or what used to be the final one):`
+              // );
+              // console.log(finalOldMessage);
               finalOldMessage.removeAttribute('class');
             }
-            console.log(
-              `${gridcellContainer.children.length - 1} messages have appeared`
-            );
+            // console.log(
+            //   `${gridcellContainer.children.length - 1} messages have appeared`
+            // );
             mostRecentMessage.classList.add('old-messages-end-here');
+
+            // const date = new Date();
+            // mostRecentMessage.classList.add(
+            //   `ms-since-1970-began:${date.getTime()}`
+            // );
           }
         };
         waitForBareGridcell();
@@ -424,8 +429,13 @@ class DomInfo {
 
   #chatBubbleMutationHandler = (mutations) => {
     mutations.forEach((mutation) => {
+      // console.log(
+      //   `chat bubble observer detected the addition of ${mutation.addedNodes.length} nodes:`
+      // );
       mutation.addedNodes.forEach((node) => {
-        this.handleChatBubbles(node);
+        // console.log(node);
+        // const date = new Date();
+        this.handleChatBubbles(node /*, date.getTime()*/);
       });
     });
   };
@@ -540,10 +550,10 @@ class DomInfo {
     }
   }
 
-  isNewMessage(bubble) {
+  isNewMessage(bubble /*, timeBubbleAdded*/) {
     const gridcell = this.findGridcell(bubble);
     if (gridcell === null) {
-      console.log(`gridcell is null`);
+      // console.log(`gridcell is null`);
       return false;
     }
 
@@ -560,19 +570,43 @@ class DomInfo {
         '.old-messages-end-here'
       );
     }
+    // console.log(`finalOldMessage:`);
+    // console.log(finalOldMessage);
+    const finalOldMessagePos = gridcells.indexOf(finalOldMessage);
+    // console.log(`finalOldMessagePos = ${finalOldMessagePos}`);
+    // let finalOldMessageTime;
+    // for (const item of finalOldMessage.classList) {
+    //   if (item.startsWith('ms-since-1970-began')) {
+    //     finalOldMessageTime = parseInt(item.substring(20));
+    //     break;
+    //   }
+    // }
+
+    console.log(`bubble:`);
+    console.log(bubble);
     console.log(`finalOldMessage:`);
     console.log(finalOldMessage);
-    const finalOldMessagePos = gridcells.indexOf(finalOldMessage);
-    console.log(`finalOldMessagePos = ${finalOldMessagePos}`);
+    // console.log(
+    //   `finalOldMessageTime = ${finalOldMessageTime}, timeBubbleAdded = ${timeBubbleAdded}`
+    // );
 
+    // if (timeBubbleAdded === -1) {
     return gridcellPos > finalOldMessagePos;
+    // } else {
+    //   return (
+    //     gridcellPos > finalOldMessagePos ||
+    //     finalOldMessageTime < timeBubbleAdded
+    //   );
+    // }
   }
 
-  handleChatBubbles(bubbleSource) {
-    const bubbleHandler = (source) => {
+  handleChatBubbles(bubbleSource /*, timeNodeAdded = -1*/) {
+    const bubbleHandler = (source /*, timeAdded*/) => {
       if (source && 'querySelectorAll' in source) {
         const chatBubbles = source.querySelectorAll(this.#chatBubbleSelector);
+        // console.log(`${chatBubbles.length} chat bubbles found:`);
         chatBubbles.forEach((bubble) => {
+          // console.log(bubble);
           const waitForCompleteMessage = (txt) => {
             // const userBubble = bubble.querySelector(
             //   'div > [role="presentation"].html-div > div.x78zum5.xdt5ytf.x193iq5w.x1n2onr6.x1kxipp6.xuk3077'
@@ -583,10 +617,10 @@ class DomInfo {
             setTimeout(
               () => {
                 if (bubble.textContent !== txt) {
-                  console.log(`waiting for complete message`);
+                  // console.log(`waiting for complete message`);
                   waitForCompleteMessage(bubble.textContent);
                 } else {
-                  console.log(`message complete`);
+                  // console.log(`message complete`);
                   // console.log(`new message:`);
                   // console.log(bubble);
                   this.parseContent(bubble);
@@ -641,17 +675,17 @@ class DomInfo {
                 bubble.textContent === '' ||
                 bubble.querySelector(this.#messageSelector) === null
               ) {
-                console.log(`waiting to parse content`);
+                // console.log(`waiting to parse content`);
                 setTimeout(() => {
                   if ((lengthOfWait += 100) < 5000) {
                     waitToParseContent();
                   }
                 }, 100);
               } else {
-                console.log(`parsing content`);
-                if (this.isNewMessage(bubble)) {
-                  console.log(`this message is new:`);
-                  console.log(bubble);
+                // console.log(`parsing content`);
+                if (this.isNewMessage(bubble /*, timeAdded*/)) {
+                  // console.log(`this message is new:`);
+                  // console.log(bubble);
                   waitForCompleteMessage(bubble.textContent);
                 } else {
                   // console.log(`this bubble is old`);
@@ -662,10 +696,10 @@ class DomInfo {
             };
             waitToParseContent();
           } else {
-            console.log(`NOT waiting to parse content`);
-            if (this.isNewMessage(bubble)) {
-              console.log(`this message is new:`);
-              console.log(bubble);
+            // console.log(`NOT waiting to parse content`);
+            if (this.isNewMessage(bubble /*, timeAdded*/)) {
+              // console.log(`this message is new:`);
+              // console.log(bubble);
               waitForCompleteMessage(bubble.textContent);
             } else {
               // console.log(`this bubble is old:`);
@@ -678,10 +712,10 @@ class DomInfo {
     };
 
     if (arguments.length === 0) {
-      bubbleHandler(this.#messageGrids[0]);
+      bubbleHandler(this.#messageGrids[0] /*, timeNodeAdded*/);
     }
-    if (arguments.length === 1) {
-      bubbleHandler(bubbleSource);
+    if (arguments.length === 1 /*|| arguments.length === 2*/) {
+      bubbleHandler(bubbleSource /*, timeNodeAdded*/);
     }
   }
 
@@ -713,14 +747,14 @@ class DomInfo {
           : null;
 
         if (mutation.target.hasAttribute('hidden')) {
-          console.log(`chat box concealed`);
+          // console.log(`chat box concealed`);
           const bubbleObserver =
             this.#labelToBubbleObserver.get(messageGridLabel);
           if (bubbleObserver !== undefined) {
             bubbleObserver.disconnect();
           }
         } else {
-          console.log(`chat box UNconcealed`);
+          // console.log(`chat box UNconcealed`);
           this.setMessageGrid(0, mutation.target);
           this.#chatBoxToLabel.set(mutation.target, messageGridLabel);
           this.handleChatBubbles();
@@ -840,25 +874,14 @@ const handleChat = (domInfo) => {
           waitToHandleMessages();
         }, 100);
       } else {
-        // if (!domInfo.getChatBoxToLabel().has(chat)) {
         const label = domInfo.getChatBoxToLabel().get(chat);
-        if (
-          label === null ||
-          /*!domInfo
-            .getLabelToBubbleObserver()
-            .has(domInfo.getMessageGrid().getAttribute('aria-label')*/
-          !domInfo.getLabelToBubbleObserver().has(label)
-        ) {
+        if (label === null || !domInfo.getLabelToBubbleObserver().has(label)) {
           domInfo.handleChatBubbles();
           domInfo.observeChatBubbles();
-        } else {
-          // console.log(
-          //   `chat already mapped to the label ${domInfo
-          //     .getChatBoxToLabel()
-          //     .get(chat)}`
-          // );
-          console.log(`'${label}' is already mapped to a bubble observer`);
         }
+        // else {
+        //   console.log(`'${label}' is already mapped to a bubble observer`);
+        // }
       }
     };
     waitToHandleMessages();
