@@ -1,0 +1,5 @@
+This extension collects and stores personal communications only on your device. The
+extension does not transmit this information to me or to any third parties.
+
+All personal information remains local to your browser/device, and I do not have access 
+to it. If you have questions or concerns, please contact me at ben.bavar@gmail.com.
