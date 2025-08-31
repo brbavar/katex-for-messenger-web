@@ -1,16 +1,18 @@
 class DomInfo {
+  #mount = null;
   #accountControlsAndSettings = null;
   #chat = null;
   #messengerChatContainer = null;
   #chatBoxContainer = null;
   #chatBoxContainerContainer = null;
   // #moreActionsMenuContainer = null;
-  #messageGrids = [null, null];
+  #messageGrid = null;
   // #editorContainers = [];
   // #editorContainerObservers = [];
   #chatBoxToLabel = new Map();
   #labelToBubbleObserver = new Map();
   #labelToChatBoxObserver = new Map();
+  #mountSelector = 'div[id^="mount"]';
   #accountControlsAndSettingsSelector =
     'div[aria-label="Account Controls and Settings"][role="navigation"].x6s0dn4.x78zum5.x1s65kcs.x1n2onr6.x1ja2u2z';
   #messengerControlSelector = '[aria-label="Messenger"]';
@@ -20,8 +22,9 @@ class DomInfo {
     this.#chatSelector
   })`;
   #chatBoxContainerSelector = 'div.x1ey2m1c.x78zum5.xixxii4.x1vjfegm';
-  #chatBoxContainerContainerSelector =
-    '[id^="mount"] > div > div > div.x9f619.x1n2onr6.x1ja2u2z > div[data-visualcompletion="ignore"]';
+  #chatBoxContainerContainerSelector = `${
+    this.#mountSelector
+  } > div > div > div.x9f619.x1n2onr6.x1ja2u2z > div[data-visualcompletion="ignore"]`;
   #labeledMessageGridSelector = '[aria-label^="Messages in conversation"]';
   #messageGridSelector = `${
     this.#labeledMessageGridSelector
@@ -114,7 +117,7 @@ class DomInfo {
             for (let i = 0; i < max; i++) {
               const chatBox = this.#chatBoxContainer.children[i];
               if (!chatBox.firstChild.firstChild.hasAttribute('hidden')) {
-                this.setMessageGrid(0, chatBox);
+                this.setMessageGrid(chatBox);
                 if (!this.#chatBoxToLabel.has(chatBox)) {
                   this.markMostRecentMessage(chatBox);
 
@@ -184,6 +187,38 @@ class DomInfo {
       }
     }
     return true;
+  }
+
+  getMount() {
+    return this.#mount;
+  }
+
+  setMount() {
+    this.#mount = document.querySelector(this.#mountSelector);
+  }
+
+  preventBlackPage() {
+    if (this.#mount.style.display === 'none') {
+      console.log(`prevented black page`);
+      this.#mount.style.display = '';
+    } else {
+      const pageDisplayObserver = new MutationObserver(() => {
+        if (
+          this.#mount.hasAttribute('style') &&
+          this.#mount.style.display === 'none'
+        ) {
+          console.log(`prevented black page`);
+          this.#mount.style.display = '';
+        }
+      });
+      pageDisplayObserver.observe(this.#mount, {
+        attributes: true,
+        attributeFilter: ['style'],
+      });
+      setTimeout(() => {
+        pageDisplayObserver.disconnect();
+      }, 5000);
+    }
   }
 
   setAccountControlsAndSettings() {
@@ -272,22 +307,18 @@ class DomInfo {
     }
   }
 
-  getMessageGrid(i) {
-    if (arguments.length === 0) {
-      return this.#messageGrids[0];
-    }
-
-    return this.#messageGrids[i];
+  getMessageGrid() {
+    return this.#messageGrid;
   }
 
-  setMessageGrid(i = 0, pointOfReference = this.#chat) {
+  setMessageGrid(pointOfReference = this.#chat) {
     let grid = pointOfReference.querySelector(this.#labeledMessageGridSelector);
     // Conditional statement below may be unnecessary
     if (grid === null) {
       grid = pointOfReference.querySelector(this.#messageGridSelector);
     }
 
-    this.#messageGrids[i] = grid;
+    this.#messageGrid = grid;
   }
 
   // #editorContainerMutationHandler = (mutations) => {
@@ -405,17 +436,16 @@ class DomInfo {
     });
   };
 
-  observeChatBubbles(i = 0) {
+  observeChatBubbles() {
     const observer = new MutationObserver(this.#chatBubbleMutationHandler);
 
-    const grid = this.#messageGrids[i];
-    if (grid !== null) {
-      observer.observe(grid, {
+    if (this.#messageGrid !== null) {
+      observer.observe(this.#messageGrid, {
         childList: true,
         subtree: true,
       });
 
-      const label = grid.getAttribute('aria-label');
+      const label = this.#messageGrid.getAttribute('aria-label');
       this.#labelToBubbleObserver.set(label, observer);
     }
   }
@@ -595,7 +625,7 @@ class DomInfo {
     };
 
     if (arguments.length === 0) {
-      bubbleHandler(this.#messageGrids[0]);
+      bubbleHandler(this.#messageGrid);
     }
     if (arguments.length === 1) {
       bubbleHandler(bubbleSource);
@@ -636,7 +666,7 @@ class DomInfo {
             bubbleObserver.disconnect();
           }
         } else {
-          this.setMessageGrid(0, mutation.target);
+          this.setMessageGrid(mutation.target);
           this.#chatBoxToLabel.set(mutation.target, messageGridLabel);
           this.handleChatBubbles();
           this.observeChatBubbles();
@@ -808,6 +838,18 @@ const initMessengerChatContainer = (domInfo) => {
 const startUp = () => {
   const domInfo = new DomInfo();
 
+  domInfo.setMount();
+  const waitForMount = () => {
+    if (domInfo.getMount() === null) {
+      setTimeout(() => {
+        domInfo.setMount();
+        waitForMount();
+      }, 100);
+    } else {
+      domInfo.preventBlackPage();
+    }
+  };
+
   domInfo.setAccountControlsAndSettings();
   domInfo.observeAccountControlsAndSettings();
 
@@ -855,7 +897,6 @@ const startUp = () => {
             waitToObserveChatBoxContainerContainer();
           }
         }, 100);
-        domInfo.setChatBoxContainerContainer();
       } else {
         domInfo.observeChatBoxContainerContainer();
       }
