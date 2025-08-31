@@ -11,14 +11,14 @@
   "description": "Render mathematical notation in Messenger on the Facebook website.",
   "content_scripts": [
     {
-      "matches": ["https://www.facebook.com/*", "https://www.messenger.com/*"],
-      "js": ["katex/katex.min.js", "main.js"]
+      "js": ["katex/katex.min.js", "main.js"],
+      "matches": ["https://www.facebook.com/*"]
     }
   ],
   "web_accessible_resources": [
     {
       "resources": ["katex/katex.min.css", "katex/fonts/*", "fb.katex.css"],
-      "matches": ["<all_urls>"]
+      "matches": ["https://www.facebook.com/*"]
     }
   ]
 }
