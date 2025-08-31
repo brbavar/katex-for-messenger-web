@@ -217,7 +217,7 @@ class DomInfo {
       });
       setTimeout(() => {
         pageDisplayObserver.disconnect();
-      }, 20000);
+      }, 5000);
     }
   }
 
@@ -849,6 +849,7 @@ const startUp = () => {
       domInfo.preventBlackPage();
     }
   };
+  waitForMount();
 
   domInfo.setAccountControlsAndSettings();
   domInfo.observeAccountControlsAndSettings();
