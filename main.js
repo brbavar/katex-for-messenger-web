@@ -199,7 +199,7 @@ class DomInfo {
 
   preventBlackPage() {
     if (this.#mount.style.display === 'none') {
-      console.log(`prevented black page`);
+      // console.log(`prevented black page`);
       this.#mount.style.display = '';
     } else {
       const pageDisplayObserver = new MutationObserver(() => {
@@ -207,7 +207,7 @@ class DomInfo {
           this.#mount.hasAttribute('style') &&
           this.#mount.style.display === 'none'
         ) {
-          console.log(`prevented black page`);
+          // console.log(`prevented black page`);
           this.#mount.style.display = '';
         }
       });
@@ -217,7 +217,7 @@ class DomInfo {
       });
       setTimeout(() => {
         pageDisplayObserver.disconnect();
-      }, 5000);
+      }, 20000);
     }
   }
 
