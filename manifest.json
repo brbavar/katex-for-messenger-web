@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "KaTeX for Messenger",
+  "name": "LaTeX for Messenger",
   "version": "1",
   "icons": {
     "16": "icon16.png",
