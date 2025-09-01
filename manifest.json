@@ -20,5 +20,10 @@
       "resources": ["katex/katex.min.css", "katex/fonts/*", "fb.katex.css"],
       "matches": ["https://www.facebook.com/*"]
     }
-  ]
+  ],
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "@katex-for-messenger-web-main.ben-bavar"
+    }
+  }
 }
