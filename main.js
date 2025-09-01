@@ -31,12 +31,6 @@ class DomInfo {
   }, div[role="grid"].x78zum5.xdt5ytf.x1iyjqo2.x6ikm8r.x10wlt62, div.x78zum5.xdt5ytf.x1iyjqo2.x6ikm8r.x10wlt62`;
   #chatBubbleSelector =
     '.html-div.xexx8yu.x18d9i69.xat24cr.xdj266r.xeuugli.x1vjfegm';
-  // #messageSelector = '.html-div.xexx8yu.x18d9i69.x1gslohp.x12nagc.x1yc453h';
-  // #messageSelector = '.html-div.xexx8yu.x18d9i69.x12nagc.x1yc453h';  // Might work for messages received from non-AI (and messages sent)
-  // #messageSelector =
-  //   '.html-div.xexx8yu.x18d9i69.x12nagc.x1yc453h, .html-div.xexx8yu.x18d9i69.xdj266r.x14z9mp.xat24cr.x1lziwak.xyri2b.x1c1uobl > p.xat24cr.xdj266r';
-  // #messageSelector =
-  //   '.html-div.xexx8yu.x18d9i69.x12nagc.x1yc453h, .html-div.xexx8yu.x18d9i69.xdj266r.x14z9mp.xat24cr.x1lziwak.xyri2b.x1c1uobl';
   #gridcellContainerSelector =
     'div.x1qjc9v5.x9f619.xdl72j9.x2lwn1j.xeuugli.x1n2onr6.x78zum5.xdt5ytf.x1iyjqo2.xs83m0k.x6ikm8r.x10wlt62.x1ja2u2z > div.x78zum5.xdt5ytf.x1iyjqo2.x6ikm8r.x1odjw0f.xish69e.x16o0dkt > div.x78zum5.xdt5ytf.x1iyjqo2.x2lah0s.xl56j7k.x121v3j4';
   // #moreActionsMenuContainerSelector =
@@ -204,7 +198,7 @@ class DomInfo {
 
   preventBlackPage() {
     if (this.#mount.style.display === 'none') {
-      console.log(`prevented black page`);
+      // console.log(`prevented black page`);
       this.#mount.style.display = '';
     } else {
       const pageDisplayObserver = new MutationObserver(() => {
@@ -212,7 +206,7 @@ class DomInfo {
           this.#mount.hasAttribute('style') &&
           this.#mount.style.display === 'none'
         ) {
-          console.log(`prevented black page`);
+          // console.log(`prevented black page`);
           this.#mount.style.display = '';
         }
       });
@@ -455,24 +449,11 @@ class DomInfo {
     }
   }
 
-  parseContent(/*bubble*/ msg) {
-    // console.log(`bubble inside parseContent:`);
-    // console.log(bubble);
-    // console.log(`bubble.innerHTML = ${bubble.innerHTML}`);
-    // const msg = bubble.querySelector(this.#messageSelector);
-    console.log(`msg:`);
-    console.log(msg);
-    // console.log(`msg.innerHTML = ${msg.innerHTML}`);
-    // const partialMsgs = bubble.querySelectorAll(this.#messageSelector);
+  parseContent(msg) {
     let texBounds;
-
-    // for (const msg of partialMsgs) {
 
     if (msg !== null && msg.textContent !== '') {
       texBounds = getTexBounds(msg);
-      console.log(
-        `msg.textContent = ${msg.textContent}, msg.innerHTML (before) = ${msg.innerHTML}, texBounds = ${texBounds}`
-      );
     }
 
     if (texBounds !== undefined && texBounds.length) {
@@ -494,9 +475,6 @@ class DomInfo {
           texBounds[i][1] + 2 + offset
         )}</span>${msg.innerHTML.substring(texBounds[i][1] + 2 + offset)}`;
       }
-
-      // msg.innerHTML = msg.textContent;
-      console.log(`msg.innerHTML (after) = ${msg.innerHTML}`);
 
       msg.querySelectorAll('span.renderable').forEach((span) => {
         try {
@@ -600,8 +578,6 @@ class DomInfo {
       if (source && 'querySelectorAll' in source) {
         const chatBubbles = source.querySelectorAll(this.#chatBubbleSelector);
         chatBubbles.forEach((bubble) => {
-          console.log(`bubble:`);
-          console.log(bubble);
           const waitForCompleteMessage = (txt) => {
             setTimeout(() => {
               if (bubble.textContent !== txt) {
