@@ -31,6 +31,10 @@ class DomInfo {
   }, div[role="grid"].x78zum5.xdt5ytf.x1iyjqo2.x6ikm8r.x10wlt62, div.x78zum5.xdt5ytf.x1iyjqo2.x6ikm8r.x10wlt62`;
   #chatBubbleSelector =
     '.html-div.xexx8yu.x18d9i69.xat24cr.xdj266r.xeuugli.x1vjfegm';
+  #simpleMessageSelector =
+    '.html-div.xexx8yu.x18d9i69.x1gslohp.x12nagc.x1yc453h';
+  #complexMessageSelector =
+    'span.x193iq5w.xeuugli.x13faqbe.x1vvkbs.xlh3980.xvmahel.x1n0sxbx.x1lliihq.x1s928wv.xhkezso.x1gmr53x.x1cpjm7i.x1fgarty.x1943h6x.x4zkp8e.x3x7a5m.x6prxxf.xvq8zen.xo1l8bm.xzsf02u';
   #gridcellContainerSelector =
     'div.x1qjc9v5.x9f619.xdl72j9.x2lwn1j.xeuugli.x1n2onr6.x78zum5.xdt5ytf.x1iyjqo2.xs83m0k.x6ikm8r.x10wlt62.x1ja2u2z > div.x78zum5.xdt5ytf.x1iyjqo2.x6ikm8r.x1odjw0f.xish69e.x16o0dkt > div.x78zum5.xdt5ytf.x1iyjqo2.x2lah0s.xl56j7k.x121v3j4';
   // #moreActionsMenuContainerSelector =
@@ -449,102 +453,115 @@ class DomInfo {
     }
   }
 
-  parseContent(msg) {
-    let texBounds;
-
-    if (msg !== null && msg.textContent !== '') {
-      texBounds = getTexBounds(msg);
+  parseContent(bubble) {
+    // const msg = bubble.querySelector(this.#simpleMessageSelector);
+    let msgParts = [];
+    const complexMsg = bubble.querySelector(this.#complexMessageSelector);
+    if (complexMsg === null) {
+      msgParts.push(bubble.querySelector(this.#simpleMessageSelector));
+    } else {
+      for (const div of complexMsg.children) {
+        for (const msgPart of div.children) {
+          msgParts.push(msgPart);
+        }
+      }
     }
 
-    if (texBounds !== undefined && texBounds.length) {
-      for (let i = 0; i < texBounds.length; i++) {
-        const offset = 32 * i;
+    for (const msgPart of msgParts) {
+      let texBounds;
 
-        // msg.textContent = `${msg.textContent.substring(
-        //   0,
-        //   texBounds[i][0] + offset
-        // )}<span class='renderable'>${msg.textContent.substring(
-        //   texBounds[i][0] + offset,
-        //   texBounds[i][1] + 2 + offset
-        // )}</span>${msg.textContent.substring(texBounds[i][1] + 2 + offset)}`;
-        msg.innerHTML = `${msg.innerHTML.substring(
-          0,
-          texBounds[i][0] + offset
-        )}<span class='renderable'>${msg.innerHTML.substring(
-          texBounds[i][0] + offset,
-          texBounds[i][1] + 2 + offset
-        )}</span>${msg.innerHTML.substring(texBounds[i][1] + 2 + offset)}`;
+      if (msgPart !== null && msgPart.textContent !== '') {
+        texBounds = getTexBounds(msgPart);
       }
 
-      msg.querySelectorAll('span.renderable').forEach((span) => {
-        try {
-          katex.render(
-            span.textContent.substring(2, span.textContent.length - 2),
-            span,
-            {
-              displayMode: span.textContent[0] === '$',
-            }
+      if (texBounds !== undefined && texBounds.length) {
+        for (let i = 0; i < texBounds.length; i++) {
+          const offset = 32 * i;
+
+          msgPart.textContent = `${msgPart.textContent.substring(
+            0,
+            texBounds[i][0] + offset
+          )}<span class='renderable'>${msgPart.textContent.substring(
+            texBounds[i][0] + offset,
+            texBounds[i][1] + 2 + offset
+          )}</span>${msgPart.textContent.substring(
+            texBounds[i][1] + 2 + offset
+          )}`;
+        }
+
+        msgPart.innerHTML = msgPart.textContent;
+
+        msgPart.querySelectorAll('span.renderable').forEach((span) => {
+          try {
+            katex.render(
+              span.textContent.substring(2, span.textContent.length - 2),
+              span,
+              {
+                displayMode: span.textContent[0] === '$',
+              }
+            );
+          } catch (error) {
+            console.error('Caught ' + error);
+          }
+
+          const baseSpans = span.querySelectorAll(
+            'span:where(.katex, .katex-display) span.katex-html > span.base'
           );
-        } catch (error) {
-          console.error('Caught ' + error);
-        }
+          let collectiveSpanWidth = 0;
 
-        const baseSpans = span.querySelectorAll(
-          'span:where(.katex, .katex-display) span.katex-html > span.base'
-        );
-        let collectiveSpanWidth = 0;
+          for (let baseSpan of baseSpans) {
+            collectiveSpanWidth += baseSpan.getBoundingClientRect().width;
+          }
 
-        for (let baseSpan of baseSpans) {
-          collectiveSpanWidth += baseSpan.getBoundingClientRect().width;
-        }
-
-        let partialSumOfSpanWidths = collectiveSpanWidth;
-        if (baseSpans.length > 0) {
-          let i = baseSpans.length - 1;
-          let j = 0;
-          const insertLineBreak = () => {
-            if (
-              collectiveSpanWidth >
-                baseSpans[0].parentNode.getBoundingClientRect().width &&
-              i > j
-            ) {
+          let partialSumOfSpanWidths = collectiveSpanWidth;
+          if (baseSpans.length > 0) {
+            let i = baseSpans.length - 1;
+            let j = 0;
+            const insertLineBreak = () => {
               if (
-                partialSumOfSpanWidths -
-                  baseSpans[i].getBoundingClientRect().width <=
-                  baseSpans[0].parentNode.getBoundingClientRect().width - 10 ||
-                i - j === 1
+                collectiveSpanWidth >
+                  baseSpans[0].parentNode.getBoundingClientRect().width &&
+                i > j
               ) {
-                const spacer = document.createElement('div');
-                spacer.style.margin = '10px 0px';
-                baseSpans[0].parentNode.insertBefore(spacer, baseSpans[i]);
-
                 if (
-                  collectiveSpanWidth -
-                    (partialSumOfSpanWidths -
-                      baseSpans[i].getBoundingClientRect().width) >
-                  baseSpans[0].parentNode.getBoundingClientRect().width - 10
+                  partialSumOfSpanWidths -
+                    baseSpans[i].getBoundingClientRect().width <=
+                    baseSpans[0].parentNode.getBoundingClientRect().width -
+                      10 ||
+                  i - j === 1
                 ) {
-                  partialSumOfSpanWidths =
+                  const spacer = document.createElement('div');
+                  spacer.style.margin = '10px 0px';
+                  baseSpans[0].parentNode.insertBefore(spacer, baseSpans[i]);
+
+                  if (
                     collectiveSpanWidth -
-                    (partialSumOfSpanWidths -
-                      baseSpans[i].getBoundingClientRect().width);
-                  collectiveSpanWidth = partialSumOfSpanWidths;
-                  j = i;
-                  i = baseSpans.length - 1;
+                      (partialSumOfSpanWidths -
+                        baseSpans[i].getBoundingClientRect().width) >
+                    baseSpans[0].parentNode.getBoundingClientRect().width - 10
+                  ) {
+                    partialSumOfSpanWidths =
+                      collectiveSpanWidth -
+                      (partialSumOfSpanWidths -
+                        baseSpans[i].getBoundingClientRect().width);
+                    collectiveSpanWidth = partialSumOfSpanWidths;
+                    j = i;
+                    i = baseSpans.length - 1;
+
+                    insertLineBreak();
+                  }
+                } else {
+                  partialSumOfSpanWidths -=
+                    baseSpans[i--].getBoundingClientRect().width;
 
                   insertLineBreak();
                 }
-              } else {
-                partialSumOfSpanWidths -=
-                  baseSpans[i--].getBoundingClientRect().width;
-
-                insertLineBreak();
               }
-            }
-          };
-          insertLineBreak();
-        }
-      });
+            };
+            insertLineBreak();
+          }
+        });
+      }
     }
   }
 
@@ -600,9 +617,11 @@ class DomInfo {
             const waitToParseContent = () => {
               if (
                 bubble.textContent === '' ||
-                /* bubble.querySelector(this.#messageSelector) === null */ getTexBounds(
-                  bubble
-                ).length === 0
+                bubble.querySelector(
+                  `${this.#simpleMessageSelector}, ${
+                    this.#complexMessageSelector
+                  }`
+                ) === null
               ) {
                 setTimeout(() => {
                   if ((lengthOfWait += 100) < 5000) {
@@ -733,8 +752,7 @@ const injectCss = (filePath) => {
 for (filePath of ['katex/katex.min.css', 'fb.katex.css']) injectCss(filePath);
 
 const getTexBounds = (msg) => {
-  // const txt = msg.textContent;
-  const txt = msg.innerHTML;
+  const txt = msg.textContent;
   const bounds = [];
 
   const delimAt = (i) => {

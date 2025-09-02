@@ -32,9 +32,9 @@
 
 #facebook
   .system-fonts--body
-  div.html-div:has(> span.renderable > span:where(.katex, .katex-display))
+  div.html-div:has(span.renderable > span:where(.katex, .katex-display))
   span:is(.sizing, .reset-size6, .size3, .mtight, .mord),
-#facebook .system-fonts--body div.html-div > span.renderable > span.katex,
+#facebook .system-fonts--body div.html-div span.renderable > span.katex,
 #facebook
   .system-fonts--body
   div.html-div
