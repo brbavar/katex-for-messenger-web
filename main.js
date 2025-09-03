@@ -440,9 +440,9 @@ class DomInfo {
   };
 
   observeChatBubbles() {
-    const observer = new MutationObserver(this.#chatBubbleMutationHandler);
-
     if (this.#messageGrid !== null) {
+      const observer = new MutationObserver(this.#chatBubbleMutationHandler);
+
       observer.observe(this.#messageGrid, {
         childList: true,
         subtree: true,
