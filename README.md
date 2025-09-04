@@ -5,30 +5,12 @@ Once upon a time we had Chrome extensions ([1](https://github.com/MALLER-LAGOON/
 Facebook then [added native support](https://thenextweb.com/news/facebook-messenger-lets-you-write-basic-mathematical-formulae-in-latex)
 for LaTeX to Messenger, making the second of the listed extensions obsolete, if not the first. Sadly, Messenger no longer supports LaTeX. Both of the extensions listed above are now defunct as they were not maintained after LaTeX support was implemented natively in Messenger.
 
-Rather than trying to salvage those old extensions whose development I had no part in 
-and whose inner workings were a mystery to me, I wrote a Chrome extension of my own: KaTeX for Messenger. As the name suggests, it uses KaTeX for rendering, which, when I began development, was a better-documented library than the latest version (3) of MathJax (whose docs 
+Rather than trying to salvage those old extensions whose development I had no part in and whose inner workings were a mystery to me, I wrote an extension of my own: KaTeX for Messenger. As the name suggests, it uses KaTeX for rendering, which, when I began development, was a better-documented library than the latest version (3) of MathJax (whose docs 
 were still under construction).
 
 ## Installation
 
-If you use Chrome or Edge, the easiest option is to install via the [Chrome Web Store](https://chromewebstore.google.com/detail/latex-for-messenger/jjfbdmhcinjhlnhcajhdeiaaofkdconk) or the [Microsoft Edge Add-ons Store](https://microsoftedge.microsoft.com/addons/detail/latex-for-messenger/fgbbmlmmanaeinndjkfkplniaclajcgk).
-
-Alternatively, you can [click here](https://github.com/brbavar/katex-for-messenger-web/archive/refs/heads/main.zip) to download the ZIP. Once you've extracted the files, open Google Chrome, type `chrome://extensions` in the search bar, and press Enter. Turn on developer mode.
-<br><br>
-<img width="1143" height="315" alt="Screenshot 2025-08-09 at 9 02 38 PM" src="https://github.com/user-attachments/assets/5e95b486-bb52-4b66-8d0d-0ec48d5c96f4" />
-<br><br>
-Click the button labeled "Load unpacked".
-<br><br>
-<img width="967" alt="Screenshot 2025-05-09 at 5 10 21 AM" src="https://github.com/user-attachments/assets/4707376b-c824-4cdc-9a03-941ca0906350" />
-<br><br>
-This brings up Finder or File Explorer. Once that window opens, select the unpacked ZIP file, which should be a folder named `katex-for-messenger-web-main`, in order to load that entire folder into your collection of extensions.
-<br><br>
-<img width="714" alt="Screenshot 2025-05-09 at 5 14 41 AM" src="https://github.com/user-attachments/assets/bfa4864e-ef4a-4c7c-9f80-1effbe2cdd00" />
-<br><br>
-The extension is automatically activated and ready to go!
-<br><br>
-<img width="402" alt="Screenshot 2025-05-09 at 5 19 08 AM" src="https://github.com/user-attachments/assets/f314a3f1-68d9-47d4-bdc1-20397c1c4878" />
-<br><br>
+If you use Chrome or Edge, the easiest option is to install via the [Chrome Web Store](https://chromewebstore.google.com/detail/latex-for-messenger/jjfbdmhcinjhlnhcajhdeiaaofkdconk) or the [Microsoft Edge Add-ons Store](https://microsoftedge.microsoft.com/addons/detail/latex-for-messenger/fgbbmlmmanaeinndjkfkplniaclajcgk). Alternatively, you can [click here](https://github.com/brbavar/katex-for-messenger-web/archive/refs/heads/main.zip) to download the ZIP from GitHub, if you know what to do with it. This latter approach guarantees you get the latest version of the extension, even if that version has yet to be published in the aforementioned stores.
 
 ## Usage
 
