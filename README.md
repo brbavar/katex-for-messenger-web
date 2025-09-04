@@ -1,3 +1,5 @@
+<img width="300" height="300" alt="icon" src="https://github.com/user-attachments/assets/43eb6de2-4f7b-4548-9e40-563b33f51f90" />
+
 # LaTeX for Messenger
 
 Once upon a time we had Chrome extensions ([1](https://github.com/MALLER-LAGOON/latex-for-facebook), 
