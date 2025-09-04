@@ -1,12 +1,11 @@
-# KaTeX for Messenger
+# LaTeX for Messenger
 
 Once upon a time we had Chrome extensions ([1](https://github.com/MALLER-LAGOON/latex-for-facebook), 
 [2](https://github.com/dshynkev/messenger-latex)) that made TeX math rendering possible on Facebook/in Messenger. 
 Facebook then [added native support](https://thenextweb.com/news/facebook-messenger-lets-you-write-basic-mathematical-formulae-in-latex)
 for LaTeX to Messenger, making the second of the listed extensions obsolete, if not the first. Sadly, Messenger no longer supports LaTeX. Both of the extensions listed above are now defunct as they were not maintained after LaTeX support was implemented natively in Messenger.
 
-Rather than trying to salvage those old extensions whose development I had no part in and whose inner workings were a mystery to me, I wrote an extension of my own: KaTeX for Messenger. As the name suggests, it uses KaTeX for rendering, which, when I began development, was a better-documented library than the latest version (3) of MathJax (whose docs 
-were still under construction).
+Rather than trying to salvage those old extensions whose development I had no part in and whose inner workings were a mystery to me, I wrote an extension of my own: LaTeX for Messenger. As this repository's name suggests, LaTeX for Messenger uses KaTeX for rendering, which, when I began development, was a better-documented library than the latest version (3) of MathJax (whose docs were still under construction).
 
 ## Installation
 
