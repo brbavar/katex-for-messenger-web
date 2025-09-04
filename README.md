@@ -15,7 +15,7 @@ If you use Chrome or Edge, the easiest option is to install via the [Chrome Web 
 
 ## Usage
 
-While composing a message on Facebook, write your TeX code between `$$` and `$$` if you want to display mathematical notation centered on its own line. Enclose your code in `\( ... \)` if you want your mathematical notation on the same line as other mathematical expressions or ordinary text. The math is rendered only after you hit send (no live preview).
+While composing a message on Facebook, write your TeX code between `$$` and `$$` to display mathematical notation centered on its own line. Enclose your code in `\( ... \)` if you want your mathematical notation on the same line as other mathematical expressions or ordinary text. The math is rendered only after you hit send (no live preview).
 
 Bear in mind that your math will only be rendered on the screens of those using this extension. Send a message containing TeX code to anyone else, and all they'll see is the code.
 
