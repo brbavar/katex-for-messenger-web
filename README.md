@@ -11,7 +11,7 @@ Rather than trying to salvage those old extensions whose development I had no pa
 
 ## Installation
 
-If you use Chrome or Edge, the easiest option is to install via the [Chrome Web Store](https://chromewebstore.google.com/detail/latex-for-messenger/jjfbdmhcinjhlnhcajhdeiaaofkdconk) or the [Microsoft Edge Add-ons Store](https://microsoftedge.microsoft.com/addons/detail/latex-for-messenger/fgbbmlmmanaeinndjkfkplniaclajcgk). Alternatively, you can [click here](https://github.com/brbavar/katex-for-messenger-web/archive/refs/heads/main.zip) to download the ZIP from GitHub, if you know what to do with it. This latter approach guarantees you get the latest version of the extension, even if that version has yet to be published in the aforementioned stores.
+If you use Chrome, Firefox, or Edge, the easiest option is to install via the [Chrome Web Store](https://chromewebstore.google.com/detail/latex-for-messenger/jjfbdmhcinjhlnhcajhdeiaaofkdconk), [Firefox Add-ons](https://addons.mozilla.org/addon/latex-for-messenger/), or [Edge Add-ons](https://microsoftedge.microsoft.com/addons/detail/latex-for-messenger/fgbbmlmmanaeinndjkfkplniaclajcgk). Alternatively, you can [click here](https://github.com/brbavar/katex-for-messenger-web/archive/refs/heads/main.zip) to download the ZIP from GitHub, if you know what to do with it. This latter approach guarantees you get the latest version of the extension, even if that version has yet to be published in the aforementioned stores.
 
 ## Usage
 
