@@ -31,3 +31,4 @@ Here are a couple examples of what the extension can do:
 - You cannot render inline math by writing commands between single dollar signs (`$ ... $`). You must use the `\( ... \)` syntax.
 - Once the math is rendered in a message, if that message is subsequently edited (by whoever in the chat sent it), you will have to refresh to view the edited version of the message.
 - Typesetting only occurs in chat bubbles.
+- Some environments KaTeX supports don't render properly, and you must place them between math delimiters to render any of them at all.
