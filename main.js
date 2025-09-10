@@ -732,9 +732,12 @@ class DomInfo {
       entry[1].disconnect();
     }
 
-    this.#messengerChatContainerContainerObserver.unobserve(
-      this.#messengerChatContainerContainer
-    );
+    if (this.#messengerChatContainerContainer !== null) {
+      console.log(`unobserving container container`);
+      this.#messengerChatContainerContainerObserver.unobserve(
+        this.#messengerChatContainerContainer
+      );
+    }
   }
 }
 
