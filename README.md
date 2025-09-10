@@ -15,7 +15,7 @@ If you use Chrome, Firefox, or Edge, the easiest option is to install via the [C
 
 ## Usage
 
-While composing a message on Facebook, write your TeX code between `$$` and `$$` to display mathematical notation centered on its own line. Enclose your code in `\( ... \)` if you want your mathematical notation on the same line as ordinary text or a separate mathematical expression. The math is rendered only after you hit send (no live preview).
+While composing a message on Facebook, write your TeX code between `$$` and `$$`, or `\[` and `\]`, to display mathematical notation centered on its own line. Enclose your code in `$ ... $` or `\( ... \)` if you want your mathematical notation on the same line as ordinary text or a separate mathematical expression. The math is rendered only after you hit send (no live preview).
 
 Bear in mind that your math will only be rendered on the screens of those using this extension. Send a message containing TeX code to anyone else, and all they'll see is the code.
 
@@ -27,8 +27,7 @@ Here are a couple examples of what the extension can do:
 
 ## Limitations
 
-- If you open a chat in Messenger, and proceed to narrow your browser window, the chat bubbles tend to narrow with it. The formulas in your messages, however, remain the same width. So if the bubbles get too narrow, the formulas may stick out, past the bubbles' boundaries.
-- You cannot render inline math by writing commands between single dollar signs (`$ ... $`). You must use the `\( ... \)` syntax.
 - Once the math is rendered in a message, if that message is subsequently edited (by whoever in the chat sent it), you will have to refresh to view the edited version of the message.
 - Typesetting only occurs in chat bubbles.
-- Some environments KaTeX supports don't render properly, and you must place them between math delimiters to render any of them at all.
+- You must place environments between math delimiters to render them.
+- Though KaTeX officially supports the `subarray` environment, this extension can't seem to render it properly.
