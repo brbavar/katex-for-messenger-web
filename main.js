@@ -99,14 +99,9 @@ class DomInfo {
       this.#messengerChatContainerContainer.getBoundingClientRect().width !==
       this.#messengerChatContainerContainerWidth
     ) {
-      console.log(
-        `this.#messengerChatContainerContainer.getBoundingClientRect().width = ${
-          this.#messengerChatContainerContainer.getBoundingClientRect().width
-        }`
-      );
       this.#messengerChatContainerContainerWidth =
         this.#messengerChatContainerContainer.getBoundingClientRect().width;
-      // Remove line breaks from rendered formulas; reinsert line breaks where appropriate
+
       this.#messageGrid.querySelectorAll('span.renderable').forEach((span) => {
         removeLineBreaks(span);
         insertLineBreaks(span);
@@ -226,7 +221,6 @@ class DomInfo {
 
   preventBlackPage() {
     if (this.#mount.style.display === 'none') {
-      console.log(`prevented black page`);
       this.#mount.style.display = '';
     } else {
       const pageDisplayObserver = new MutationObserver(() => {
@@ -234,7 +228,6 @@ class DomInfo {
           this.#mount.hasAttribute('style') &&
           this.#mount.style.display === 'none'
         ) {
-          console.log(`prevented black page`);
           this.#mount.style.display = '';
         }
       });
@@ -504,7 +497,6 @@ class DomInfo {
   }
 
   parseContent(bubble) {
-    // const msg = bubble.querySelector(this.#simpleMessageSelector);
     let msgParts = [];
     const complexMsg = bubble.querySelector(this.#complexMessageSelector);
     if (complexMsg === null) {
@@ -524,11 +516,8 @@ class DomInfo {
         texBounds = getTexBounds(msgPart);
       }
 
-      // console.log(`msgPart.textContent = ${msgPart.textContent}`);
       if (texBounds !== undefined && texBounds.length) {
         for (let i = 0; i < texBounds.length; i++) {
-          // console.log(`texBounds[${i}] = ${texBounds[i]}`);
-
           const offset = 32 * i;
           const delimLen =
             msgPart.textContent[texBounds[i][0] + offset] === '$' &&
@@ -536,37 +525,6 @@ class DomInfo {
               ? 1
               : 2;
 
-          // console.log(`delimLen = ${delimLen}`);
-
-          // console.log(
-          //   `msgPart.textContent.substring(0, texBounds[i][0] + offset) = ${msgPart.textContent.substring(
-          //     0,
-          //     texBounds[i][0] + offset
-          //   )}`
-          // );
-
-          // console.log(
-          //   `msgPart.textContent.substring(texBounds[i][0] + offset, texBounds[i][1] + delimLen + offset) = ${msgPart.textContent.substring(
-          //     texBounds[i][0] + offset,
-          //     texBounds[i][1] + delimLen + offset
-          //   )}`
-          // );
-
-          // console.log(
-          //   `msgPart.textContent.substring(texBounds[i][1] + delimLen + offset) = ${msgPart.textContent.substring(
-          //     texBounds[i][1] + delimLen + offset
-          //   )}`
-          // );
-
-          // msgPart.textContent = `${msgPart.textContent.substring(
-          //   0,
-          //   texBounds[i][0] + offset
-          // )}<span class='renderable'>${msgPart.textContent.substring(
-          //   texBounds[i][0] + offset,
-          //   texBounds[i][1] + 2 + offset
-          // )}</span>${msgPart.textContent.substring(
-          //   texBounds[i][1] + 2 + offset
-          // )}`;
           msgPart.textContent = `${msgPart.textContent.substring(
             0,
             texBounds[i][0] + offset
@@ -586,11 +544,6 @@ class DomInfo {
             const hasSingleDollarDelim =
               hasDollarDelim && span.textContent[1] !== '$';
             const delimLen = hasSingleDollarDelim ? 1 : 2;
-
-            // console.log(`span.textContent = ${span.textContent}`);
-            // console.log(
-            //   `hasDollarDelim = ${hasDollarDelim}, hasSingleDollarDelim = ${hasSingleDollarDelim}, delimLen = ${delimLen}`
-            // );
 
             katex.render(
               span.textContent.substring(
@@ -808,25 +761,6 @@ const getTexBounds = (msg) => {
   const txt = msg.textContent;
   const bounds = [];
 
-  // const delimAt = (i) => {
-  //   // return (
-  //   //   (txt[i] === '$' && txt[i + 1] === '$') ||
-  //   //   (txt[i] === '\\' && (txt[i + 1] === '(' || txt[i + 1] === ')'))
-  //   // );
-  //   return (
-  //     txt[i] === '$' ||
-  //     (txt[i] === '\\' && (txt[i + 1] === '(' || txt[i + 1] === ')'))
-  //   );
-  // };
-
-  // const openingDelimAt = (l) => {
-  //   return delimAt(l) && (txt[l] === '$' || txt[l + 1] === '(');
-  // };
-
-  // const closingDelimAt = (r) => {
-  //   return delimAt(r) && (txt[r] === '$' || txt[r + 1] === ')');
-  // };
-
   const delimAt = (i) => {
     let delim = '';
     if (txt[i] === '$') {
@@ -856,13 +790,6 @@ const getTexBounds = (msg) => {
     return delim[0] === '$' || delim[1] === '(' || delim[1] === '[';
   };
 
-  // const isClosingDelim = (delim) => {
-  //   if (delim.length === 0) {
-  //     return false;
-  //   }
-  //   return delim[0] === '$' || delim[1] === ')' || delim[1] === ']';
-  // };
-
   const pairsWith = (delim1, delim2) => {
     if (delim1[0] === '$') {
       return delim1 === delim2;
@@ -880,43 +807,23 @@ const getTexBounds = (msg) => {
   let l = 0,
     r = 0;
   while (l < txt.length) {
-    // if (
-    //   openingDelimAt(l) &&
-    //   (bounds.length === 0 || l !== bounds[bounds.length - 1][1])
-    // ) {
     let leftDelim = delimAt(l);
     let rightDelim;
-    if (
-      isOpeningDelim(leftDelim) /*&&
-      (bounds.length === 0 || l !== bounds[bounds.length - 1][1])*/
-    ) {
-      // const openingDelim =
-      //   txt[l] === '$' ? (txt[l + 1] === '$' ? '$$' : '$') : '\\(';
-
+    if (isOpeningDelim(leftDelim)) {
       r = l + 2;
       rightDelim = delimAt(r);
 
-      // // while (r + 1 < txt.length && !(closingDelimAt(r) && txt[l] == txt[r])) {
-      // //   if (openingDelimAt(r) && txt[l] == txt[r]) {
-      // while (
-      //   r + 1 < txt.length &&
-      //   !(isClosingDelim(rightDelim) && txt[l] == txt[r])
-      // ) {
-      //   if (isOpeningDelim(rightDelim) && txt[l] == txt[r]) {
       while (r + 1 < txt.length && !pairsWith(leftDelim, rightDelim)) {
-        // if (isOpeningDelim(rightDelim) && txt[l] === txt[r]) {
         if (leftDelim === rightDelim) {
           l = r;
           r += 2;
           leftDelim = delimAt(l);
           rightDelim = delimAt(r);
         } else {
-          // r++;
           rightDelim = delimAt(++r);
         }
       }
 
-      // if (closingDelimAt(r) && txt[l] == txt[r]) {
       if (pairsWith(leftDelim, rightDelim)) {
         bounds.push([l, r]);
       }
@@ -927,7 +834,6 @@ const getTexBounds = (msg) => {
     } else {
       l = bounds[bounds.length - 1][1] + rightDelim.length;
     }
-    // l += leftDelim.length === 0 ? 1 : leftDelim.length;
   }
 
   return bounds;

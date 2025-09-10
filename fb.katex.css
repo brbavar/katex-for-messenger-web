@@ -10,7 +10,7 @@
 #facebook
   .system-fonts--body
   div.html-div:has(span.renderable > span:where(.katex, .katex-display))
-  span:is(.sizing, .reset-size6, /*.size3,*/ .mtight, .mord),
+  span:is(.sizing, .reset-size6, .mtight, .mord),
 #facebook .system-fonts--body div.html-div span.renderable > span.katex,
 #facebook
   .system-fonts--body
@@ -26,7 +26,7 @@
   div.html-div
   span.renderable
   > span:where(.katex, .katex-display)
-  /*.delimsizing,*/ .size3 {
+  .size3 {
   font-family: KaTeX_Size3;
 }
 
@@ -35,7 +35,7 @@
   div.html-div
   span.renderable
   > span:where(.katex, .katex-display)
-  /*.delimsizing,*/ .size4 {
+  .size4 {
   font-family: KaTeX_Size4;
 }
 
