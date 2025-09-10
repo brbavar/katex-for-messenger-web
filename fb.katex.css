@@ -10,15 +10,33 @@
 #facebook
   .system-fonts--body
   div.html-div:has(span.renderable > span:where(.katex, .katex-display))
-  span:is(.sizing, .reset-size6, .size3, .mtight, .mord),
+  span:is(.sizing, .reset-size6, /*.size3,*/ .mtight, .mord),
 #facebook .system-fonts--body div.html-div span.renderable > span.katex,
 #facebook
   .system-fonts--body
   div.html-div
   span.renderable
   > span:where(.katex, .katex-display)
-  :not(.mop, .op-limits) {
+  :not(.mop, .op-limits, .size3) {
   font-family: KaTeX_Main;
+}
+
+#facebook
+  .system-fonts--body
+  div.html-div
+  span.renderable
+  > span:where(.katex, .katex-display)
+  /*.delimsizing,*/ .size3 {
+  font-family: KaTeX_Size3;
+}
+
+#facebook
+  .system-fonts--body
+  div.html-div
+  span.renderable
+  > span:where(.katex, .katex-display)
+  /*.delimsizing,*/ .size4 {
+  font-family: KaTeX_Size4;
 }
 
 #facebook
@@ -31,6 +49,37 @@
   > span.mord
   > span.msupsub {
   padding-left: 1.5px;
+}
+
+#facebook
+  .system-fonts--body
+  div.html-div
+  span.renderable
+  > span:where(.katex, .katex-display)
+  span.katex-html:has(> span.tag)
+  > span {
+  display: block;
+}
+
+#facebook
+  .system-fonts--body
+  div.html-div
+  span.renderable
+  > span:where(.katex, .katex-display)
+  span.katex-html
+  > span.base:has(+ span.tag) {
+  padding-right: 45px;
+}
+
+#facebook
+  .system-fonts--body
+  div.html-div
+  span.renderable
+  > span:where(.katex, .katex-display)
+  span.katex-html
+  > span.base
+  + span.tag {
+  transform: translateY(-55px);
 }
 
 #facebook .system-fonts--body div.html-div span.renderable {

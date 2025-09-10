@@ -3,10 +3,12 @@ class DomInfo {
   #accountControlsAndSettings = null;
   #chat = null;
   #messengerChatContainer = null;
+  #messengerChatContainerContainer = null;
   #chatBoxContainer = null;
   #chatBoxContainerContainer = null;
   // #moreActionsMenuContainer = null;
   #messageGrid = null;
+  #messengerChatContainerContainerWidth = -1;
   // #editorContainers = [];
   // #editorContainerObservers = [];
   #chatBoxToLabel = new Map();
@@ -21,6 +23,8 @@ class DomInfo {
   #messengerChatContainerSelector = `div.x78zum5.xdt5ytf.x1iyjqo2.x1t2pt76.xeuugli.x1n2onr6.x1ja2u2z.x1vhhd5d:has(${
     this.#chatSelector
   })`;
+  #messengerChatContainerContainerSelector =
+    '.x9f619.x1n2onr6.x1ja2u2z.x78zum5.xdt5ytf.x193iq5w.xeuugli.xs83m0k.xjhlixk.xgyuaek';
   #chatBoxContainerSelector = 'div.x1ey2m1c.x78zum5.xixxii4.x1vjfegm';
   #chatBoxContainerContainerSelector = `${
     this.#mountSelector
@@ -88,6 +92,26 @@ class DomInfo {
         }
       });
     });
+  });
+
+  #messengerChatContainerContainerObserver = new ResizeObserver(() => {
+    if (
+      this.#messengerChatContainerContainer.getBoundingClientRect().width !==
+      this.#messengerChatContainerContainerWidth
+    ) {
+      console.log(
+        `this.#messengerChatContainerContainer.getBoundingClientRect().width = ${
+          this.#messengerChatContainerContainer.getBoundingClientRect().width
+        }`
+      );
+      this.#messengerChatContainerContainerWidth =
+        this.#messengerChatContainerContainer.getBoundingClientRect().width;
+      // Remove line breaks from rendered formulas; reinsert line breaks where appropriate
+      this.#messageGrid.querySelectorAll('span.renderable').forEach((span) => {
+        removeLineBreaks(span);
+        insertLineBreaks(span);
+      });
+    }
   });
 
   #chatBoxContainerObserver = new MutationObserver((mutations) => {
@@ -202,7 +226,7 @@ class DomInfo {
 
   preventBlackPage() {
     if (this.#mount.style.display === 'none') {
-      // console.log(`prevented black page`);
+      console.log(`prevented black page`);
       this.#mount.style.display = '';
     } else {
       const pageDisplayObserver = new MutationObserver(() => {
@@ -210,7 +234,7 @@ class DomInfo {
           this.#mount.hasAttribute('style') &&
           this.#mount.style.display === 'none'
         ) {
-          // console.log(`prevented black page`);
+          console.log(`prevented black page`);
           this.#mount.style.display = '';
         }
       });
@@ -251,13 +275,14 @@ class DomInfo {
   }
 
   setMessengerChatContainer() {
-    this.#messengerChatContainer = document.querySelector(
-      this.#messengerChatContainerSelector
-    );
+    this.#messengerChatContainer =
+      this.#messengerChatContainerContainer.querySelector(
+        this.#messengerChatContainerSelector
+      );
   }
 
   observeMessengerChatContainer() {
-    if (this.#messengerChatContainer) {
+    if (this.#messengerChatContainer !== null) {
       this.#messengerChatContainerObserver.observe(
         this.#messengerChatContainer,
         {
@@ -269,6 +294,31 @@ class DomInfo {
 
   ignoreMessengerChatContainer() {
     this.#messengerChatContainerObserver.disconnect();
+  }
+
+  setMessengerChatContainerContainer() {
+    this.#messengerChatContainerContainer = document.querySelector(
+      this.#messengerChatContainerContainerSelector
+    );
+  }
+
+  observeMessengerChatContainerContainer() {
+    if (this.#messengerChatContainerContainer !== null) {
+      this.#messengerChatContainerContainerObserver.observe(
+        this.#messengerChatContainerContainer
+      );
+    }
+  }
+
+  ignoreMessengerChatContainerContainer() {
+    this.#messengerChatContainerContainerObserver.unobserve(
+      this.#messengerChatContainerContainer
+    );
+  }
+
+  setMessengerChatContainerContainerWidth() {
+    this.#messengerChatContainerContainerWidth =
+      this.#messengerChatContainerContainer.getBoundingClientRect().width;
   }
 
   getChatBoxContainer() {
@@ -474,18 +524,57 @@ class DomInfo {
         texBounds = getTexBounds(msgPart);
       }
 
+      // console.log(`msgPart.textContent = ${msgPart.textContent}`);
       if (texBounds !== undefined && texBounds.length) {
         for (let i = 0; i < texBounds.length; i++) {
-          const offset = 32 * i;
+          // console.log(`texBounds[${i}] = ${texBounds[i]}`);
 
+          const offset = 32 * i;
+          const delimLen =
+            msgPart.textContent[texBounds[i][0] + offset] === '$' &&
+            msgPart.textContent[texBounds[i][0] + offset + 1] !== '$'
+              ? 1
+              : 2;
+
+          // console.log(`delimLen = ${delimLen}`);
+
+          // console.log(
+          //   `msgPart.textContent.substring(0, texBounds[i][0] + offset) = ${msgPart.textContent.substring(
+          //     0,
+          //     texBounds[i][0] + offset
+          //   )}`
+          // );
+
+          // console.log(
+          //   `msgPart.textContent.substring(texBounds[i][0] + offset, texBounds[i][1] + delimLen + offset) = ${msgPart.textContent.substring(
+          //     texBounds[i][0] + offset,
+          //     texBounds[i][1] + delimLen + offset
+          //   )}`
+          // );
+
+          // console.log(
+          //   `msgPart.textContent.substring(texBounds[i][1] + delimLen + offset) = ${msgPart.textContent.substring(
+          //     texBounds[i][1] + delimLen + offset
+          //   )}`
+          // );
+
+          // msgPart.textContent = `${msgPart.textContent.substring(
+          //   0,
+          //   texBounds[i][0] + offset
+          // )}<span class='renderable'>${msgPart.textContent.substring(
+          //   texBounds[i][0] + offset,
+          //   texBounds[i][1] + 2 + offset
+          // )}</span>${msgPart.textContent.substring(
+          //   texBounds[i][1] + 2 + offset
+          // )}`;
           msgPart.textContent = `${msgPart.textContent.substring(
             0,
             texBounds[i][0] + offset
           )}<span class='renderable'>${msgPart.textContent.substring(
             texBounds[i][0] + offset,
-            texBounds[i][1] + 2 + offset
+            texBounds[i][1] + delimLen + offset
           )}</span>${msgPart.textContent.substring(
-            texBounds[i][1] + 2 + offset
+            texBounds[i][1] + delimLen + offset
           )}`;
         }
 
@@ -493,73 +582,33 @@ class DomInfo {
 
         msgPart.querySelectorAll('span.renderable').forEach((span) => {
           try {
+            const hasDollarDelim = span.textContent[0] === '$';
+            const hasSingleDollarDelim =
+              hasDollarDelim && span.textContent[1] !== '$';
+            const delimLen = hasSingleDollarDelim ? 1 : 2;
+
+            // console.log(`span.textContent = ${span.textContent}`);
+            // console.log(
+            //   `hasDollarDelim = ${hasDollarDelim}, hasSingleDollarDelim = ${hasSingleDollarDelim}, delimLen = ${delimLen}`
+            // );
+
             katex.render(
-              span.textContent.substring(2, span.textContent.length - 2),
+              span.textContent.substring(
+                delimLen,
+                span.textContent.length - delimLen
+              ),
               span,
               {
-                displayMode: span.textContent[0] === '$',
+                displayMode:
+                  (hasDollarDelim && !hasSingleDollarDelim) ||
+                  span.textContent[1] === '[',
               }
             );
           } catch (error) {
             console.error('Caught ' + error);
           }
 
-          const baseSpans = span.querySelectorAll(
-            'span:where(.katex, .katex-display) span.katex-html > span.base'
-          );
-          let collectiveSpanWidth = 0;
-
-          for (let baseSpan of baseSpans) {
-            collectiveSpanWidth += baseSpan.getBoundingClientRect().width;
-          }
-
-          let partialSumOfSpanWidths = collectiveSpanWidth;
-          if (baseSpans.length > 0) {
-            let i = baseSpans.length - 1;
-            let j = 0;
-            const insertLineBreak = () => {
-              if (
-                collectiveSpanWidth >
-                  baseSpans[0].parentNode.getBoundingClientRect().width &&
-                i > j
-              ) {
-                if (
-                  partialSumOfSpanWidths -
-                    baseSpans[i].getBoundingClientRect().width <=
-                    baseSpans[0].parentNode.getBoundingClientRect().width -
-                      10 ||
-                  i - j === 1
-                ) {
-                  const spacer = document.createElement('div');
-                  spacer.style.margin = '10px 0px';
-                  baseSpans[0].parentNode.insertBefore(spacer, baseSpans[i]);
-
-                  if (
-                    collectiveSpanWidth -
-                      (partialSumOfSpanWidths -
-                        baseSpans[i].getBoundingClientRect().width) >
-                    baseSpans[0].parentNode.getBoundingClientRect().width - 10
-                  ) {
-                    partialSumOfSpanWidths =
-                      collectiveSpanWidth -
-                      (partialSumOfSpanWidths -
-                        baseSpans[i].getBoundingClientRect().width);
-                    collectiveSpanWidth = partialSumOfSpanWidths;
-                    j = i;
-                    i = baseSpans.length - 1;
-
-                    insertLineBreak();
-                  }
-                } else {
-                  partialSumOfSpanWidths -=
-                    baseSpans[i--].getBoundingClientRect().width;
-
-                  insertLineBreak();
-                }
-              }
-            };
-            insertLineBreak();
-          }
+          insertLineBreaks(span);
         });
       }
     }
@@ -729,6 +778,10 @@ class DomInfo {
     for (const entry of this.#labelToBubbleObserver.entries()) {
       entry[1].disconnect();
     }
+
+    this.#messengerChatContainerContainerObserver.unobserve(
+      this.#messengerChatContainerContainer
+    );
   }
 }
 
@@ -755,47 +808,194 @@ const getTexBounds = (msg) => {
   const txt = msg.textContent;
   const bounds = [];
 
+  // const delimAt = (i) => {
+  //   // return (
+  //   //   (txt[i] === '$' && txt[i + 1] === '$') ||
+  //   //   (txt[i] === '\\' && (txt[i + 1] === '(' || txt[i + 1] === ')'))
+  //   // );
+  //   return (
+  //     txt[i] === '$' ||
+  //     (txt[i] === '\\' && (txt[i + 1] === '(' || txt[i + 1] === ')'))
+  //   );
+  // };
+
+  // const openingDelimAt = (l) => {
+  //   return delimAt(l) && (txt[l] === '$' || txt[l + 1] === '(');
+  // };
+
+  // const closingDelimAt = (r) => {
+  //   return delimAt(r) && (txt[r] === '$' || txt[r + 1] === ')');
+  // };
+
   const delimAt = (i) => {
-    return (
-      (txt[i] === '$' && txt[i + 1] === '$') ||
-      (txt[i] === '\\' && (txt[i + 1] === '(' || txt[i + 1] === ')'))
-    );
+    let delim = '';
+    if (txt[i] === '$') {
+      delim += '$';
+      if (txt[i + 1] === '$') {
+        delim += '$';
+      }
+    } else {
+      if (txt[i] === '\\') {
+        if (
+          txt[i + 1] === '(' ||
+          txt[i + 1] === ')' ||
+          txt[i + 1] === '[' ||
+          txt[i + 1] === ']'
+        ) {
+          delim = `${txt[i]}${txt[i + 1]}`;
+        }
+      }
+    }
+    return delim;
   };
 
-  const openingDelimAt = (l) => {
-    return delimAt(l) && (txt[l] === '$' || txt[l + 1] === '(');
+  const isOpeningDelim = (delim) => {
+    if (delim.length === 0) {
+      return false;
+    }
+    return delim[0] === '$' || delim[1] === '(' || delim[1] === '[';
   };
 
-  const closingDelimAt = (r) => {
-    return delimAt(r) && (txt[r] === '$' || txt[r + 1] === ')');
+  // const isClosingDelim = (delim) => {
+  //   if (delim.length === 0) {
+  //     return false;
+  //   }
+  //   return delim[0] === '$' || delim[1] === ')' || delim[1] === ']';
+  // };
+
+  const pairsWith = (delim1, delim2) => {
+    if (delim1[0] === '$') {
+      return delim1 === delim2;
+    } else {
+      if (delim1[1] === '(') {
+        return delim2[1] === ')';
+      }
+      if (delim1[1] === '[') {
+        return delim2[1] === ']';
+      }
+    }
+    return false;
   };
 
   let l = 0,
     r = 0;
   while (l < txt.length) {
+    // if (
+    //   openingDelimAt(l) &&
+    //   (bounds.length === 0 || l !== bounds[bounds.length - 1][1])
+    // ) {
+    let leftDelim = delimAt(l);
+    let rightDelim;
     if (
-      openingDelimAt(l) &&
-      (bounds.length === 0 || l !== bounds[bounds.length - 1][1])
+      isOpeningDelim(leftDelim) /*&&
+      (bounds.length === 0 || l !== bounds[bounds.length - 1][1])*/
     ) {
-      r = l + 2;
+      // const openingDelim =
+      //   txt[l] === '$' ? (txt[l + 1] === '$' ? '$$' : '$') : '\\(';
 
-      while (r + 1 < txt.length && !(closingDelimAt(r) && txt[l] == txt[r])) {
-        if (openingDelimAt(r) && txt[l] == txt[r]) {
+      r = l + 2;
+      rightDelim = delimAt(r);
+
+      // // while (r + 1 < txt.length && !(closingDelimAt(r) && txt[l] == txt[r])) {
+      // //   if (openingDelimAt(r) && txt[l] == txt[r]) {
+      // while (
+      //   r + 1 < txt.length &&
+      //   !(isClosingDelim(rightDelim) && txt[l] == txt[r])
+      // ) {
+      //   if (isOpeningDelim(rightDelim) && txt[l] == txt[r]) {
+      while (r + 1 < txt.length && !pairsWith(leftDelim, rightDelim)) {
+        // if (isOpeningDelim(rightDelim) && txt[l] === txt[r]) {
+        if (leftDelim === rightDelim) {
           l = r;
           r += 2;
+          leftDelim = delimAt(l);
+          rightDelim = delimAt(r);
         } else {
-          r++;
+          // r++;
+          rightDelim = delimAt(++r);
         }
       }
 
-      if (closingDelimAt(r) && txt[l] == txt[r]) {
+      // if (closingDelimAt(r) && txt[l] == txt[r]) {
+      if (pairsWith(leftDelim, rightDelim)) {
         bounds.push([l, r]);
       }
     }
-    l++;
+
+    if (bounds.length === 0 || l > bounds[bounds.length - 1][1]) {
+      l++;
+    } else {
+      l = bounds[bounds.length - 1][1] + rightDelim.length;
+    }
+    // l += leftDelim.length === 0 ? 1 : leftDelim.length;
   }
 
   return bounds;
+};
+
+insertLineBreaks = (span) => {
+  const baseSpans = span.querySelectorAll(
+    'span:where(.katex, .katex-display) span.katex-html > span.base'
+  );
+  let collectiveSpanWidth = 0;
+
+  for (let baseSpan of baseSpans) {
+    collectiveSpanWidth += baseSpan.getBoundingClientRect().width;
+  }
+
+  let partialSumOfSpanWidths = collectiveSpanWidth;
+  if (baseSpans.length > 0) {
+    let i = baseSpans.length - 1;
+    let j = 0;
+    const insertLineBreak = () => {
+      if (
+        collectiveSpanWidth >
+          baseSpans[0].parentNode.getBoundingClientRect().width &&
+        i > j
+      ) {
+        if (
+          partialSumOfSpanWidths - baseSpans[i].getBoundingClientRect().width <=
+            baseSpans[0].parentNode.getBoundingClientRect().width - 10 ||
+          i - j === 1
+        ) {
+          const spacer = document.createElement('div');
+          spacer.style.margin = '10px 0px';
+          baseSpans[0].parentNode.insertBefore(spacer, baseSpans[i]);
+
+          if (
+            collectiveSpanWidth -
+              (partialSumOfSpanWidths -
+                baseSpans[i].getBoundingClientRect().width) >
+            baseSpans[0].parentNode.getBoundingClientRect().width - 10
+          ) {
+            partialSumOfSpanWidths =
+              collectiveSpanWidth -
+              (partialSumOfSpanWidths -
+                baseSpans[i].getBoundingClientRect().width);
+            collectiveSpanWidth = partialSumOfSpanWidths;
+            j = i;
+            i = baseSpans.length - 1;
+
+            insertLineBreak();
+          }
+        } else {
+          partialSumOfSpanWidths -=
+            baseSpans[i--].getBoundingClientRect().width;
+
+          insertLineBreak();
+        }
+      }
+    };
+    insertLineBreak();
+  }
+};
+
+const removeLineBreaks = (span) => {
+  span.querySelectorAll('div').forEach((div) => {
+    if (div.style.margin === '10px 0px' && div.attributes.length === 1) {
+      div.remove();
+    }
+  });
 };
 
 const handleChat = (domInfo) => {
@@ -853,9 +1053,14 @@ const handleChatBoxContainer = (domInfo) => {
   domInfo.observeChatBoxContainer();
 };
 
-const initMessengerChatContainer = (domInfo) => {
+const initMessengerChat = (domInfo) => {
+  domInfo.setMessengerChatContainerContainer();
+  domInfo.setMessengerChatContainerContainerWidth();
+  domInfo.observeMessengerChatContainerContainer();
+
   domInfo.setMessengerChatContainer();
   domInfo.observeMessengerChatContainer();
+
   domInfo.setChat();
 };
 
@@ -879,13 +1084,14 @@ const startUp = () => {
   domInfo.observeAccountControlsAndSettings();
 
   if (window.location.href.startsWith('https://www.facebook.com/messages')) {
-    initMessengerChatContainer(domInfo);
+    initMessengerChat(domInfo);
 
     const waitToHandleChat = () => {
       if (domInfo.getChat() === null) {
+        domInfo.ignoreMessengerChatContainerContainer();
         domInfo.ignoreMessengerChatContainer();
         setTimeout(() => {
-          initMessengerChatContainer(domInfo);
+          initMessengerChat(domInfo);
           waitToHandleChat();
         }, 100);
       } else {
