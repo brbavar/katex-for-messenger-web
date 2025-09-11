@@ -12,7 +12,6 @@ class DomInfo {
   // #editorContainers = [];
   // #editorContainerObservers = [];
   #escapeCharIndices = [];
-  // #escapeCharIndices = new Set();
   #chatBoxToLabel = new Map();
   #labelToBubbleObserver = new Map();
   #labelToChatBoxObserver = new Map();
@@ -37,12 +36,6 @@ class DomInfo {
   }, div[role="grid"].x78zum5.xdt5ytf.x1iyjqo2.x6ikm8r.x10wlt62, div.x78zum5.xdt5ytf.x1iyjqo2.x6ikm8r.x10wlt62`;
   #chatBubbleSelector =
     '.html-div.xexx8yu.x18d9i69.xat24cr.xdj266r.xeuugli.x1vjfegm';
-  // #simpleMessageSelector =
-  //   '.html-div.xexx8yu.x18d9i69.x1gslohp.x12nagc.x1yc453h';
-  // #complexMessageSelector =
-  //   'span.x193iq5w.xeuugli.x13faqbe.x1vvkbs.xlh3980.xvmahel.x1n0sxbx.x1lliihq.x1s928wv.xhkezso.x1gmr53x.x1cpjm7i.x1fgarty.x1943h6x.x4zkp8e.x3x7a5m.x6prxxf.xvq8zen.xo1l8bm.xzsf02u';
-  // #complexMessageSelector =
-  //   'span.x193iq5w.xeuugli.x13faqbe.x1vvkbs.xlh3980.xvmahel.x1n0sxbx.x1lliihq.x1s928wv.xhkezso.x1gmr53x.x1cpjm7i.x1fgarty.x1943h6x.x3x7a5m.x6prxxf.xvq8zen.xo1l8bm.xzsf02u';
   #gridcellContainerSelector =
     'div.x1qjc9v5.x9f619.xdl72j9.x2lwn1j.xeuugli.x1n2onr6.x78zum5.xdt5ytf.x1iyjqo2.xs83m0k.x6ikm8r.x10wlt62.x1ja2u2z > div.x78zum5.xdt5ytf.x1iyjqo2.x6ikm8r.x1odjw0f.xish69e.x16o0dkt > div.x78zum5.xdt5ytf.x1iyjqo2.x2lah0s.xl56j7k.x121v3j4';
   // #moreActionsMenuContainerSelector =
@@ -502,29 +495,10 @@ class DomInfo {
 
   parseContent(bubble) {
     let msgParts = [];
-    // const complexMsg = bubble.querySelector(this.#complexMessageSelector);
-    // if (complexMsg === null) {
-    //   msgParts.push(bubble.querySelector(this.#simpleMessageSelector));
-    // } else {
-    //   for (const div of complexMsg.children) {
-    //     for (const msgPart of div.children) {
-    //       msgParts.push(msgPart);
-    //     }
-    //   }
-    // }
     const wrapTextNodes = (root) => {
-      // console.log(`finding text nodes`);
-      // console.log(`root:`);
-      // console.log(root);
       for (const node of root.childNodes) {
-        // console.log(`node.nodeName = ${node.nodeName}`);
-        // console.log(`typeof node = ${typeof node}`);
-        // console.log(`node.constructor.name = ${node.constructor.name}`);
-        // if (node.nodeName !== 'code') {
         if (node.nodeName !== 'CODE') {
-          // if (typeof node === 'Text') {
           if (node.constructor.name === 'Text') {
-            // msgParts.push(node);
             const span = document.createElement('span');
             span.textContent = node.textContent;
             node.parentNode.insertBefore(span, node);
@@ -532,9 +506,7 @@ class DomInfo {
 
             msgParts.push(span);
           } else {
-            // if (node.childNodes.length > 0) {
             wrapTextNodes(node);
-            // }
           }
         }
       }
@@ -549,19 +521,9 @@ class DomInfo {
       }
 
       if (texBounds !== undefined && texBounds.length) {
-        // console.log(`texBounds.length = ${texBounds.length}`);
-        // console.log(`msgPart.textContent = ${msgPart.textContent}`);
-
         const outerEscapeCharIndices = [];
-        // const outerEscapeCharIndices = new Set();
         for (let i = 0; i < this.#escapeCharIndices.length; i++) {
           for (let j = 0; j < texBounds.length; j++) {
-            // console.log(
-            //   `this.#escapeCharIndices[${i}] = ${this.#escapeCharIndices[i]}`
-            // );
-            // console.log(
-            //   `texBounds[${j}][0] = ${texBounds[j][0]}, texBounds[${j}][1] = ${texBounds[j][1]}`
-            // );
             if (
               this.#escapeCharIndices[i] > texBounds[j][0] &&
               this.#escapeCharIndices[i] < texBounds[j][1]
@@ -569,48 +531,19 @@ class DomInfo {
               break;
             } else {
               if (j === texBounds.length - 1) {
-                // this.#escapeCharIndices.splice(i, 1);
                 if (
                   !outerEscapeCharIndices.includes(this.#escapeCharIndices[i])
                 ) {
                   outerEscapeCharIndices.push(this.#escapeCharIndices[i]);
                 }
-                // outerEscapeCharIndices.add(this.#escapeCharIndices[i]);
               }
             }
           }
         }
-        // console.log(`this.#escapeCharIndices:`);
-        // console.log(this.#escapeCharIndices);
-        this.#escapeCharIndices.length = 0;
-        // this.#escapeCharIndices.clear();
 
-        // for (const i of outerEscapeCharIndices) {
-        //   console.log(
-        //     `i = ${i}, msgPart.textContent[${i}] = ${msgPart.textContent[i]}`
-        //   );
-        //   // msgPart.textContent.splice(i, 1);
-        //   msgPart.textContent = `${msgPart.textContent.substring(
-        //     0,
-        //     i
-        //   )}${msgPart.textContent.substring(i)}`;
-        //   for (let j = 0; j < texBounds.length; j++) {
-        //     for (let k = 0; k < 2; k++) {
-        //       if (texBounds[j][k] > i) {
-        //         texBounds[j][k]--;
-        //       }
-        //     }
-        //   }
-        // }
-        // console.log(`outerEscapeCharIndices:`);
-        // console.log(outerEscapeCharIndices);
+        this.#escapeCharIndices.length = 0;
+
         for (let i = 0; i < outerEscapeCharIndices.length; i++) {
-          // console.log(
-          //   `i = ${i}, msgPart.textContent[${outerEscapeCharIndices[i]}] = ${
-          //     msgPart.textContent[outerEscapeCharIndices[i]]
-          //   }`
-          // );
-          // msgPart.textContent.splice(i, 1);
           msgPart.textContent = `${msgPart.textContent.substring(
             0,
             outerEscapeCharIndices[i]
@@ -623,20 +556,6 @@ class DomInfo {
             }
           }
 
-          // // for (let j = 0; j < outerEscapeCharIndices.length; j++) {
-          // //   if (outerEscapeCharIndices[i] < outerEscapeCharIndices[j]) {
-          // //     outerEscapeCharIndices[j]--;
-          // //   }
-          // // }
-
-          // // Assume the elements of outerEscapeCharIndices are in ascending order
-          // for (let j = i + 1; j < outerEscapeCharIndices.length; j++) {
-          //   // if (outerEscapeCharIndices[i] < outerEscapeCharIndices[j]) {
-          //   outerEscapeCharIndices[j]--;
-          //   // }
-          // }
-
-          // Never mind. Don't assume that.
           for (let j = i + 1; j < outerEscapeCharIndices.length; j++) {
             if (outerEscapeCharIndices[i] < outerEscapeCharIndices[j]) {
               outerEscapeCharIndices[j]--;
@@ -663,21 +582,7 @@ class DomInfo {
           )}`;
         }
 
-        // if (msgPart.parentNode !== null) {
-        // console.log(`msgPart.textContent = ${msgPart.textContent}`);
-        // console.log(`msgPart.innerHTML before = ${msgPart.innerHTML}`);
-        // console.log(
-        //   `msgPart.parentNode.innerHTML before = ${msgPart.parentNode.innerHTML}`
-        // );
-        // console.log(
-        //   `msgPart.parentElement.innerHTML before = ${msgPart.parentElement.innerHTML}`
-        // );
-
         msgPart.innerHTML = msgPart.textContent;
-        // msgPart.parentNode.innerHTML = msgPart.textContent;
-        // msgPart.parentNode.innerHTML = msgPart.parentNode.textContent;
-
-        // console.log(`msgPart.innerHTML after = ${msgPart.innerHTML}`);
 
         msgPart.querySelectorAll('span.renderable').forEach((span) => {
           try {
@@ -704,94 +609,8 @@ class DomInfo {
 
           insertLineBreaks(span);
         });
-        // }
-        // const waitForParent = () => {
-        //   if (msgPart.parentNode === null) {
-        //     console.log(`waiting for parent...`);
-        //     setTimeout(waitForParent, 100);
-        //   } else {
-        //     console.log(`parent ready!`);
-        //     // console.log(`msgPart.innerHTML after = ${msgPart.innerHTML}`);
-        //     console.log(
-        //       `msgPart.parentNode.innerHTML after = ${msgPart.parentNode.innerHTML}`
-        //     );
-
-        //     // msgPart.querySelectorAll('span.renderable').forEach((span) => {
-        //     msgPart.parentNode
-        //       .querySelectorAll('span.renderable')
-        //       .forEach((span) => {
-        //         try {
-        //           const hasDollarDelim = span.textContent[0] === '$';
-        //           const hasSingleDollarDelim =
-        //             hasDollarDelim && span.textContent[1] !== '$';
-        //           const delimLen = hasSingleDollarDelim ? 1 : 2;
-
-        //           katex.render(
-        //             span.textContent.substring(
-        //               delimLen,
-        //               span.textContent.length - delimLen
-        //             ),
-        //             span,
-        //             {
-        //               displayMode:
-        //                 (hasDollarDelim && !hasSingleDollarDelim) ||
-        //                 span.textContent[1] === '[',
-        //             }
-        //           );
-        //         } catch (error) {
-        //           console.error('Caught ' + error);
-        //         }
-
-        //         insertLineBreaks(span);
-        //       });
-        //   }
-        // };
-        // waitForParent();
       } else {
-        // console.log(`this.#escapeCharIndices:`);
-        // console.log(this.#escapeCharIndices);
-        // // // for (let i = 0; i < this.#escapeCharIndices.length; i++) {
-        // // for (let i = 0; i < this.#escapeCharIndices.size; i++) {
-        // //   console.log(
-        // //     `i = ${i}, msgPart.textContent[${this.#escapeCharIndices[i]}] = ${
-        // //       msgPart.textContent[this.#escapeCharIndices[i]]
-        // //     }`
-        // //   );
-        // //   // msgPart.textContent.splice(i, 1);
-        // //   msgPart.textContent = `${msgPart.textContent.substring(
-        // //     0,
-        // //     this.#escapeCharIndices[i]
-        // //   )}${msgPart.textContent.substring(this.#escapeCharIndices[i] + 1)}`;
-
-        // //   for (let j = i + 1; j < this.#escapeCharIndices.length; j++) {
-        // //     if (this.#escapeCharIndices[i] < this.#escapeCharIndices[j]) {
-        // //       this.#escapeCharIndices[j]--;
-        // //     }
-        // //   }
-        // // }
-        // for (const i of this.#escapeCharIndices.keys()) {
-        //   console.log(
-        //     `i = ${i}, msgPart.textContent[${i}] = ${msgPart.textContent[i]}`
-        //   );
-        //   // msgPart.textContent.splice(i, 1);
-        //   msgPart.textContent = `${msgPart.textContent.substring(
-        //     0,
-        //     i
-        //   )}${msgPart.textContent.substring(i + 1)}`;
-
-        //   const newEscapeCharIndices = new Set();
-        //   for (const j of this.#escapeCharIndices.keys()) {
-        //     newEscapeCharIndices.add(j - (i < j ? 1 : 0));
-        //   }
-        //   this.#escapeCharIndices = newEscapeCharIndices;
-        // }
         for (let i = 0; i < this.#escapeCharIndices.length; i++) {
-          // console.log(
-          //   `i = ${i}, msgPart.textContent[${this.#escapeCharIndices[i]}] = ${
-          //     msgPart.textContent[this.#escapeCharIndices[i]]
-          //   }`
-          // );
-          // msgPart.textContent.splice(i, 1);
           msgPart.textContent = `${msgPart.textContent.substring(
             0,
             this.#escapeCharIndices[i]
@@ -803,8 +622,6 @@ class DomInfo {
             }
           }
         }
-
-        // this.#escapeCharIndices.clear();
         this.#escapeCharIndices.length = 0;
       }
     }
@@ -813,27 +630,19 @@ class DomInfo {
   getTexBounds(msg) {
     const txt = msg.textContent;
     const bounds = [];
-    // console.log(`msg:`);
-    // console.log(msg);
-    // console.log(`msg.textContent.length = ${msg.textContent.length}`);
-    // for (let i = 0; i < msg.textContent.length; i++) {
-    //   console.log(`msg.textContent[${i}] = ${msg.textContent[i]}`);
-    // }
 
     const delimAt = (i) => {
       let delim = '';
       if ((txt[i] === '$' || txt[i] === '\\') && i > 0 && txt[i - 1] === '\\') {
         this.#escapeCharIndices.push(i - 1);
-        // this.#escapeCharIndices.add(i - 1);
       } else {
-        if (txt[i] === '$' /*&& (i === 0 || txt[i - 1] !== '\\')*/) {
+        if (txt[i] === '$') {
           delim += '$';
           if (txt[i + 1] === '$') {
             delim += '$';
           }
         }
-        // else {
-        if (txt[i] === '\\' /*&& (i === 0 || txt[i - 1] !== '\\')*/) {
+        if (txt[i] === '\\') {
           if (
             txt[i + 1] === '(' ||
             txt[i + 1] === ')' ||
@@ -843,7 +652,6 @@ class DomInfo {
             delim = `${txt[i]}${txt[i + 1]}`;
           }
         }
-        // }
       }
       return delim;
     };
@@ -874,7 +682,6 @@ class DomInfo {
     while (l < txt.length) {
       let leftDelim = delimAt(l);
       let rightDelim;
-      // console.log(`delimAt(${l}) = ${delimAt(l)}`);
       if (isOpeningDelim(leftDelim)) {
         r = l + 2;
         rightDelim = delimAt(r);
@@ -935,15 +742,11 @@ class DomInfo {
       if (source && 'querySelectorAll' in source) {
         const chatBubbles = source.querySelectorAll(this.#chatBubbleSelector);
         chatBubbles.forEach((bubble) => {
-          console.log(`bubble:`);
-          console.log(bubble);
           const waitForCompleteMessage = (txt) => {
             setTimeout(() => {
               if (bubble.textContent !== txt) {
-                console.log(`waiting for complete message...`);
                 waitForCompleteMessage(bubble.textContent);
               } else {
-                console.log(`message complete!`);
                 this.parseContent(bubble);
 
                 setTimeout(() => {
@@ -952,21 +755,13 @@ class DomInfo {
                     const gridcellContainer = gridcell.parentNode;
                     this.markMostRecentMessage(gridcellContainer);
                   }
-                }, /*4000*/ /*6000*/ 8000);
+                }, 8000);
               }
-            }, /*2000*/ /*3000*/ 4000);
+            }, 4000);
           };
           if (bubble.textContent === '') {
             let lengthOfWait = 0;
             const waitToParseContent = () => {
-              // if (
-              //   bubble.textContent === '' ||
-              //   bubble.querySelector(
-              //     `${this.#simpleMessageSelector}, ${
-              //       this.#complexMessageSelector
-              //     }`
-              //   ) === null
-              // ) {
               if (
                 bubble.textContent === '' ||
                 this.getTexBounds(bubble).length > 0
@@ -1079,7 +874,6 @@ class DomInfo {
     }
 
     if (this.#messengerChatContainerContainer !== null) {
-      // console.log(`unobserving container container`);
       this.#messengerChatContainerContainerObserver.unobserve(
         this.#messengerChatContainerContainer
       );
