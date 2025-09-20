@@ -99,10 +99,6 @@ class DomInfo {
       this.#messengerChatContainerContainerWidth =
         this.#messengerChatContainerContainer.getBoundingClientRect().width;
 
-      // this.#messageGrid.querySelectorAll('span.renderable').forEach((span) => {
-      //   removeLineBreaks(span);
-      //   insertLineBreaks(span);
-      // });
       this.#messageGrid
         .querySelectorAll(
           `${
@@ -619,12 +615,9 @@ class DomInfo {
             console.error('Caught ' + error);
           }
 
-          // insertLineBreaks(span);
           extractDescendants(span);
         });
 
-        // let inlineSpan = document.createElement('span');
-        // wrapInlineContent(msgPart, inlineSpan);
         removeNewlines(msgPart);
 
         msgPart
@@ -931,127 +924,10 @@ const wrapTextNodes = (root, msgParts) => {
   }
 };
 
-// // const wrapInlineContent = (msg, inlineBlock, i = 0) => {
-// //   if (i < msg.childNodes.length) {
-// //     let msgPart = msg.childNodes[i];
-
-// //     if (
-// //       'hasAttribute' in msgPart &&
-// //       msgPart.hasAttribute('class') &&
-// //       msgPart.classList.contains('katex-display')
-// //     ) {
-// //       if (inlineBlock.childNodes.length > 0) {
-// //         const lastInlineNode =
-// //           inlineBlock.childNodes[inlineBlock.childNodes.length - 1];
-// //         // if (lastInlineNode !== undefined) {
-// //         let j;
-// //         for (
-// //           j = lastInlineNode.textContent.length - 1;
-// //           j >= 0 && lastInlineNode.textContent[j] === '\n';
-// //           j--
-// //         ) {}
-// //         if (lastInlineNode.textContent[++j] === '\n') {
-// //           lastInlineNode.textContent = lastInlineNode.textContent.substring(
-// //             0,
-// //             j
-// //           );
-// //         }
-// //         // }
-// //       }
-
-// //       i = inlineBlock.childNodes.length + 1;
-// //       inlineBlock.style.width = `${msg.getBoundingClientRect().width}px`;
-// //       msg.insertBefore(inlineBlock, msgPart);
-
-// //       inlineBlock = document.createElement('span');
-// //     } else {
-// //       msgPart.remove();
-
-// //       inlineBlock.appendChild(msgPart);
-// //     }
-// //     wrapInlineContent(msg, inlineBlock, i);
-// //   } else {
-// //     if (inlineBlock.childNodes.length > 0) {
-// //       const firstInlineNode = inlineBlock.childNodes[0];
-// //       let j;
-// //       for (
-// //         j = 0;
-// //         j < firstInlineNode.textContent.length &&
-// //         firstInlineNode.textContent[j] === '\n';
-// //         j++
-// //       ) {}
-// //       if (firstInlineNode.textContent[j - 1] === '\n') {
-// //         firstInlineNode.textContent = firstInlineNode.textContent.substring(j);
-// //       }
-
-// //       msg.appendChild(inlineBlock);
-// //     }
-// //   }
-// // };
-// const wrapInlineContent = (msg, inlineNodes = [], i = 0) => {
-//   console.log(`msg:`);
-//   console.log(msg);
-//   console.log(`inlineNodes:`);
-//   console.log(inlineNodes);
-//   if (i < msg.childNodes.length) {
-//     let msgPart = msg.childNodes[i];
-
-//     if (
-//       'hasAttribute' in msgPart &&
-//       msgPart.hasAttribute('class') &&
-//       msgPart.classList.contains('katex-display')
-//     ) {
-//       if (inlineNodes.length > 0) {
-//         const lastInlineNode = inlineNodes[inlineNodes.length - 1];
-//         // if (lastInlineNode !== undefined) {
-//         let j;
-//         for (
-//           j = lastInlineNode.textContent.length - 1;
-//           j >= 0 && lastInlineNode.textContent[j] === '\n';
-//           j--
-//         ) {}
-//         if (lastInlineNode.textContent[++j] === '\n') {
-//           lastInlineNode.textContent = lastInlineNode.textContent.substring(
-//             0,
-//             j
-//           );
-//         }
-//         // }
-//       }
-
-//       i = inlineNodes.length + 1;
-
-//       inlineNodes.length = 0;
-//     } else {
-//       inlineNodes.push(msgPart);
-//     }
-//     wrapInlineContent(msg, inlineNodes, i);
-//   } else {
-//     if (inlineNodes.length > 0) {
-//       const firstInlineNode = inlineNodes[0];
-//       let j;
-//       for (
-//         j = 0;
-//         j < firstInlineNode.textContent.length &&
-//         firstInlineNode.textContent[j] === '\n';
-//         j++
-//       ) {}
-//       if (firstInlineNode.textContent[j - 1] === '\n') {
-//         firstInlineNode.textContent = firstInlineNode.textContent.substring(j);
-//       }
-//     }
-//   }
-// };
-const removeNewlines = (msg /*, inlineNodes = [], i = 0*/) => {
-  // console.log(`msg:`);
-  // console.log(msg);
-  // console.log(`inlineNodes:`);
-  // console.log(inlineNodes);
-  // const inlineNodes = [];
+const removeNewlines = (msg) => {
   const inlineNodeIndices = [];
   let i = 0;
   while (i < msg.childNodes.length) {
-    // console.log(`i = ${i}`);
     let msgPart = msg.childNodes[i];
 
     if (
@@ -1059,24 +935,11 @@ const removeNewlines = (msg /*, inlineNodes = [], i = 0*/) => {
       msgPart.hasAttribute('class') &&
       msgPart.classList.contains('katex-display')
     ) {
-      // if (inlineNodes.length > 0) {
       if (inlineNodeIndices.length > 0) {
-        // const lastInlineNode = inlineNodes[inlineNodes.length - 1];
         const lastInlineNodeIndex =
           inlineNodeIndices[inlineNodeIndices.length - 1];
         const lastInlineNode = msg.childNodes[lastInlineNodeIndex];
         let j;
-        // for (
-        //   j = lastInlineNode.textContent.length - 1;
-        //   j >= 0 && lastInlineNode.textContent[j] === '\n';
-        //   j--
-        // ) {}
-        // if (lastInlineNode.textContent[++j] === '\n') {
-        //   lastInlineNode.textContent = lastInlineNode.textContent.substring(
-        //     0,
-        //     j
-        //   );
-        // }
         if (lastInlineNode.nodeValue !== null) {
           for (
             j = lastInlineNode.nodeValue.length - 1;
@@ -1089,37 +952,16 @@ const removeNewlines = (msg /*, inlineNodes = [], i = 0*/) => {
         }
       }
 
-      // i += 2;
-      // inlineNodes.length = 0;
       inlineNodeIndices.length = 0;
     } else {
-      // console.log(`adding to inlineNodes array:`);
-      // console.log(msgPart);
-      // i++;
-      // inlineNodes.push(msgPart);
       inlineNodeIndices.push(i);
     }
     i++;
   }
 
-  // console.log(`inlineNodes:`);
-  // console.log(inlineNodes);
-
-  // if (inlineNodes.length > 0) {
-  //   const firstInlineNode = inlineNodes[0];
   if (inlineNodeIndices.length > 0) {
-    // const firstInlineNode = inlineNodes[0];
     const firstInlineNode = msg.childNodes[inlineNodeIndices[0]];
     let j;
-    // for (
-    //   j = 0;
-    //   j < firstInlineNode.textContent.length &&
-    //   firstInlineNode.textContent[j] === '\n';
-    //   j++
-    // ) {}
-    // if (firstInlineNode.textContent[j - 1] === '\n') {
-    //   firstInlineNode.textContent = firstInlineNode.textContent.substring(j);
-    // }
     if (firstInlineNode.nodeValue !== null) {
       for (
         j = 0;
@@ -1134,90 +976,7 @@ const removeNewlines = (msg /*, inlineNodes = [], i = 0*/) => {
   }
 };
 
-// const insertLineBreaks = (span) => {
-//   const baseSpans = span.querySelectorAll(
-//     'span:where(.katex, .katex-display) span.katex-html > span.base'
-//   );
-//   let collectiveSpanWidth = 0;
-
-//   for (let baseSpan of baseSpans) {
-//     collectiveSpanWidth += baseSpan.getBoundingClientRect().width;
-//   }
-
-//   let partialSumOfSpanWidths = collectiveSpanWidth;
-//   if (baseSpans.length > 0) {
-//     let i = baseSpans.length - 1;
-//     let j = 0;
-//     const insertLineBreak = () => {
-//       if (
-//         collectiveSpanWidth >
-//           baseSpans[0].parentNode.getBoundingClientRect().width &&
-//         i > j
-//       ) {
-//         if (
-//           partialSumOfSpanWidths - baseSpans[i].getBoundingClientRect().width <=
-//             baseSpans[0].parentNode.getBoundingClientRect().width - 10 ||
-//           i - j === 1
-//         ) {
-//           const spacer = document.createElement('div');
-//           spacer.style.margin = '10px 0px';
-//           baseSpans[0].parentNode.insertBefore(spacer, baseSpans[i]);
-
-//           if (
-//             collectiveSpanWidth -
-//               (partialSumOfSpanWidths -
-//                 baseSpans[i].getBoundingClientRect().width) >
-//             baseSpans[0].parentNode.getBoundingClientRect().width - 10
-//           ) {
-//             partialSumOfSpanWidths =
-//               collectiveSpanWidth -
-//               (partialSumOfSpanWidths -
-//                 baseSpans[i].getBoundingClientRect().width);
-//             collectiveSpanWidth = partialSumOfSpanWidths;
-//             j = i;
-//             i = baseSpans.length - 1;
-
-//             insertLineBreak();
-//           }
-//         } else {
-//           partialSumOfSpanWidths -=
-//             baseSpans[i--].getBoundingClientRect().width;
-
-//           insertLineBreak();
-//         }
-//       }
-//     };
-//     insertLineBreak();
-//   }
-// };
-
-// const removeLineBreaks = (span) => {
-//   span.querySelectorAll('div').forEach((div) => {
-//     if (div.style.margin === '10px 0px' && div.attributes.length === 1) {
-//       div.remove();
-//     }
-//   });
-// };
 const makeFit = (span) => {
-  // console.log(`span:`);
-  // console.log(span);
-  // console.log(`parent of span:`);
-  // console.log(span.parentNode);
-  // console.log(`grandparent of span:`);
-  // console.log(span.parentNode.parentNode);
-
-  // if (
-  //   !span.classList.contains('katex-display') &&
-  //   span.parentNode.getBoundingClientRect().width !==
-  //     span.parentNode.parentNode.getBoundingClientRect().width
-  // ) {
-  //   console.log(`setting span.parentNode's width`);
-  //   // span.parentNode.style.width =
-  //   //   span.parentNode.parentNode.getBoundingClientRect().width;
-  //   span.parentElement.style.width =
-  //     span.parentNode.parentNode.getBoundingClientRect().width;
-  // }
-
   const baseSpans = span.querySelectorAll('span.base');
   let collectiveSpanWidth = 0;
 
@@ -1229,15 +988,6 @@ const makeFit = (span) => {
   if (baseSpans.length > 0) {
     let oversizedBaseFound = false;
     for (const baseSpan of baseSpans) {
-      // console.log(`baseSpan:`);
-      // console.log(baseSpan);
-      // console.log(
-      //   `width of base span: ${
-      //     baseSpan.getBoundingClientRect().width
-      //   }\nwidth of span's parent: ${
-      //     span.parentNode.getBoundingClientRect().width
-      //   }`
-      // );
       if (
         baseSpan.getBoundingClientRect().width >
         span.parentNode.getBoundingClientRect().width
@@ -1246,7 +996,7 @@ const makeFit = (span) => {
         break;
       }
     }
-    // console.log(`oversizedBaseFound = ${oversizedBaseFound}`);
+
     if (oversizedBaseFound) {
       span.classList.add('katex-scrollable');
 
@@ -1256,7 +1006,6 @@ const makeFit = (span) => {
       span.style.width = `${span.parentNode.getBoundingClientRect().width}px`;
       span.style.overflowX = 'scroll';
       span.style.overflowY = 'hidden';
-      // span.style.scrollbarWidth = 'none';
       span.style.scrollbarWidth = 'thin';
       span.style.scrollbarColor = 'rgba(226, 225, 225, 0.2) transparent';
     } else {
@@ -1325,15 +1074,6 @@ const extractDescendants = (span) => {
     childOfSpan.remove();
     span.parentNode.insertBefore(childOfSpan, span);
   }
-  // let childOfSpan = span.firstElementChild;
-  // if (childOfSpan === null) {
-  //   childOfSpan = span.firstChild;
-  //   span.removeChild(childOfSpan);
-  //   span.parentNode.insertBefore(childOfSpan, span);
-  // } else {
-  //   childOfSpan.remove();
-  //   span.parentNode.insertBefore(childOfSpan, span);
-  // }
   span.remove();
 };
 
