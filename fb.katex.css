@@ -1,7 +1,7 @@
 #facebook
   .system-fonts--body
   div.html-div
-  span.renderable
+  span
   > span.katex-display
   :where(.mop, .op-limits) {
   font-family: KaTeX_Size2;
@@ -9,13 +9,17 @@
 
 #facebook
   .system-fonts--body
-  div.html-div:has(span.renderable > span:where(.katex, .katex-display))
+  div.html-div:has(span > span:where(.katex, .katex-display))
   span:is(.sizing, .reset-size6, .mtight, .mord),
-#facebook .system-fonts--body div.html-div span.renderable > span.katex,
 #facebook
   .system-fonts--body
   div.html-div
-  span.renderable
+  span:not(.katex-display)
+  > span.katex,
+#facebook
+  .system-fonts--body
+  div.html-div
+  span:not(.katex-display)
   > span:where(.katex, .katex-display)
   :not(.mop, .op-limits, .size3) {
   font-family: KaTeX_Main;
@@ -24,7 +28,7 @@
 #facebook
   .system-fonts--body
   div.html-div
-  span.renderable
+  span:not(.katex-display)
   > span:where(.katex, .katex-display)
   .size3 {
   font-family: KaTeX_Size3;
@@ -33,7 +37,7 @@
 #facebook
   .system-fonts--body
   div.html-div
-  span.renderable
+  span:not(.katex-display)
   > span:where(.katex, .katex-display)
   .size4 {
   font-family: KaTeX_Size4;
@@ -42,7 +46,7 @@
 #facebook
   .system-fonts--body
   div.html-div
-  span.renderable
+  span:not(.katex-display)
   > span:where(.katex, .katex-display)
   span.katex-html
   > span.base
@@ -54,7 +58,7 @@
 #facebook
   .system-fonts--body
   div.html-div
-  span.renderable
+  span:not(.katex-display)
   > span:where(.katex, .katex-display)
   span.katex-html:has(> span.tag)
   > span {
@@ -64,7 +68,7 @@
 #facebook
   .system-fonts--body
   div.html-div
-  span.renderable
+  span:not(.katex-display)
   > span:where(.katex, .katex-display)
   span.katex-html
   > span.base:has(+ span.tag) {
@@ -74,7 +78,7 @@
 #facebook
   .system-fonts--body
   div.html-div
-  span.renderable
+  span:not(.katex-display)
   > span:where(.katex, .katex-display)
   span.katex-html
   > span.base
@@ -82,13 +86,13 @@
   transform: translateY(-55px);
 }
 
-#facebook .system-fonts--body div.html-div span.renderable {
-  display: inline-block;
-}
-
 #facebook
   .system-fonts--body
   div.html-div
-  span.renderable:has(> span.katex-display) {
+  span:not(.katex-display):has(> span:where(.katex, .katex-display)) {
+  display: inline-block;
+}
+
+#facebook .system-fonts--body div.html-div span:has(> span.katex-display) {
   width: 100%;
 }
