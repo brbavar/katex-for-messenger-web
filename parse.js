@@ -88,16 +88,6 @@ const getTexBounds = (msg, escapeCharIndices) => {
   return bounds;
 };
 
-// const shiftTexBounds = (texBounds, outerEscapeCharIndices) => {
-//   for (let j = 0; j < texBounds.length; j++) {
-//     for (let k = 0; k < 2; k++) {
-//       if (texBounds[j][k] > outerEscapeCharIndices[i]) {
-//         texBounds[j][k]--;
-//       }
-//     }
-//   }
-// };
-
 const removeEscapeChars = (msgPart, escapeCharIndices, texBounds = []) => {
   if (texBounds.length > 0) {
     const outerEscapeCharIndices = [];
@@ -143,57 +133,8 @@ const removeEscapeChars = (msgPart, escapeCharIndices, texBounds = []) => {
     }
   }
 
-  // if (texBounds.length === 0) {
   escapeCharIndices.length = 0;
-  // }
 };
-
-// const removeEscapeCharsOutsideBounds = (
-//   msgPart,
-//   escapeCharIndices,
-//   texBounds
-// ) => {
-//   const outerEscapeCharIndices = [];
-//   for (let i = 0; i < escapeCharIndices.length; i++) {
-//     for (let j = 0; j < texBounds.length; j++) {
-//       if (
-//         escapeCharIndices[i] > texBounds[j][0] &&
-//         escapeCharIndices[i] < texBounds[j][1]
-//       ) {
-//         break;
-//       } else {
-//         if (j === texBounds.length - 1) {
-//           if (!outerEscapeCharIndices.includes(escapeCharIndices[i])) {
-//             outerEscapeCharIndices.push(escapeCharIndices[i]);
-//           }
-//         }
-//       }
-//     }
-//   }
-
-//   escapeCharIndices.length = 0;
-
-//   // for (let i = 0; i < outerEscapeCharIndices.length; i++) {
-//   //   msgPart.textContent = `${msgPart.textContent.substring(
-//   //     0,
-//   //     outerEscapeCharIndices[i]
-//   //   )}${msgPart.textContent.substring(outerEscapeCharIndices[i] + 1)}`;
-//   //   for (let j = 0; j < texBounds.length; j++) {
-//   //     for (let k = 0; k < 2; k++) {
-//   //       if (texBounds[j][k] > outerEscapeCharIndices[i]) {
-//   //         texBounds[j][k]--;
-//   //       }
-//   //     }
-//   //   }
-
-//   //   for (let j = i + 1; j < outerEscapeCharIndices.length; j++) {
-//   //     if (outerEscapeCharIndices[i] < outerEscapeCharIndices[j]) {
-//   //       outerEscapeCharIndices[j]--;
-//   //     }
-//   //   }
-//   // }
-//   removeEscapeChars(msgPart, outerEscapeCharIndices, texBounds);
-// };
 
 const parse = (msgPart) => {
   const escapeCharIndices = [];
@@ -204,7 +145,6 @@ const parse = (msgPart) => {
   }
 
   if (texBounds !== undefined && texBounds.length) {
-    // removeEscapeCharsOutsideBounds(msgPart, escapeCharIndices, texBounds);
     removeEscapeChars(msgPart, escapeCharIndices, texBounds);
 
     for (let i = 0; i < texBounds.length; i++) {
@@ -235,18 +175,6 @@ const parse = (msgPart) => {
           hasDollarDelim && span.textContent[1] !== '$';
         const delimLen = hasSingleDollarDelim ? 1 : 2;
 
-        // katex.render(
-        //   span.textContent.substring(
-        //     delimLen,
-        //     span.textContent.length - delimLen
-        //   ),
-        //   span,
-        //   {
-        //     displayMode:
-        //       (hasDollarDelim && !hasSingleDollarDelim) ||
-        //       span.textContent[1] === '[',
-        //   }
-        // );
         render(
           span.textContent.substring(
             delimLen,
