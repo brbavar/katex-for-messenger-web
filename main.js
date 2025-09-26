@@ -1,3 +1,7 @@
+import * as selector from './selector.js';
+import { parseParts } from './parse.js';
+import { makeFit, undoMakeFit } from './aesthetex.js';
+
 class DomInfo {
   #mount = null;
   #accountControlsAndSettings = null;
@@ -11,47 +15,17 @@ class DomInfo {
   #messengerChatContainerContainerWidth = -1;
   // #editorContainers = [];
   // #editorContainerObservers = [];
-  #escapeCharIndices = [];
+  // #escapeCharIndices = [];
   #chatBoxToLabel = new Map();
   #labelToBubbleObserver = new Map();
   #labelToChatBoxObserver = new Map();
-  #mountSelector = 'div[id^="mount"]';
-  #accountControlsAndSettingsSelector =
-    'div[aria-label="Account Controls and Settings"][role="navigation"].x6s0dn4.x78zum5.x1s65kcs.x1n2onr6.x1ja2u2z';
-  #messengerControlSelector = '[aria-label="Messenger"]';
-  #chatSelector =
-    'div[aria-label^="Conversation"][role="main"].x1ja2u2z.x9f619.x78zum5.xdt5ytf.x193iq5w.x1l7klhg.x1iyjqo2.xs83m0k.x2lwn1j.x6prxxf.x85a59c.x1n2onr6.xjbqb8w.xuce83p.x1bft6iq';
-  #messengerChatContainerSelector = `div.x78zum5.xdt5ytf.x1iyjqo2.x1t2pt76.xeuugli.x1n2onr6.x1ja2u2z.x1vhhd5d:has(${
-    this.#chatSelector
-  })`;
-  #messengerChatContainerContainerSelector =
-    '.x9f619.x1n2onr6.x1ja2u2z.x78zum5.xdt5ytf.x193iq5w.xeuugli.xs83m0k.xjhlixk.xgyuaek';
-  #chatBoxContainerSelector = 'div.x1ey2m1c.x78zum5.xixxii4.x1vjfegm';
-  #chatBoxContainerContainerSelector = `${
-    this.#mountSelector
-  } > div > div > div.x9f619.x1n2onr6.x1ja2u2z > div[data-visualcompletion="ignore"]`;
-  #labeledMessageGridSelector = '[aria-label^="Messages in conversation"]';
-  #messageGridSelector = `${
-    this.#labeledMessageGridSelector
-  }, div[role="grid"].x78zum5.xdt5ytf.x1iyjqo2.x6ikm8r.x10wlt62, div.x78zum5.xdt5ytf.x1iyjqo2.x6ikm8r.x10wlt62`;
-  #chatBubbleSelector =
-    '.html-div.xexx8yu.x18d9i69.xat24cr.xdj266r.xeuugli.x1vjfegm';
-  #gridcellContainerSelector =
-    'div.x1qjc9v5.x9f619.xdl72j9.x2lwn1j.xeuugli.x1n2onr6.x78zum5.xdt5ytf.x1iyjqo2.xs83m0k.x6ikm8r.x10wlt62.x1ja2u2z > div.x78zum5.xdt5ytf.x1iyjqo2.x6ikm8r.x1odjw0f.xish69e.x16o0dkt > div.x78zum5.xdt5ytf.x1iyjqo2.x2lah0s.xl56j7k.x121v3j4';
-  // #moreActionsMenuContainerSelector =
-  //   'div.x9f619.x1n2onr6.x1ja2u2z > div.x78zum5.xdt5ytf.x1n2onr6.x1ja2u2z > div.x78zum5.xdt5ytf.x1n2onr6.xat3117.xxzkxad > div:not(.x78zum5.xdt5ytf.x1t2pt76.x1n2onr6.x1ja2u2z.x10cihs4) > div, div.x1ey2m1c.xtijo5x.xixxii4.xamhafn.x1vjfegm > div:not(.xuk3077.x78zum5.xc8icb0) > div';
-  // #moreActionsMenuSelector = 'div[aria-label="More actions"][role="menu"]';
-  // #editorContainerSelector =
-  //   'div[aria-label="Thread composer"].xuk3077.x57kliw.x78zum5.x6prxxf.xz9dl7a.xsag5q8, div:has(> .html-div.xdj266r.x14z9mp.xat24cr.x1lziwak.xexx8yu.xyri2b.x18d9i69.x1c1uobl.xt5xv9l.x6wvzqs.xpqajaz.x78zum5.xdt5ytf.x1c4vz4f.xs83m0k.x13qp9f6), div:has(> div[aria-label="Thread composer"].xuk3077.x57kliw.x78zum5.x6prxxf.xz9dl7a.xsag5q8)';
 
   #accountControlsAndSettingsObserver = new MutationObserver((mutations) => {
     let messengerControlSeen = false;
 
     const respondToControlMutation = (nodes, respond) => {
       for (const node of nodes) {
-        const messengerControl = node.querySelector(
-          this.#messengerControlSelector
-        );
+        const messengerControl = node.querySelector(selector.messengerControl);
         if (messengerControl !== null) {
           this.disconnectObservers();
           respond();
@@ -76,7 +50,7 @@ class DomInfo {
         let convo = null;
         if (
           'querySelector' in node &&
-          (convo = node.querySelector(this.#chatSelector))
+          (convo = node.querySelector(selector.chat))
         ) {
           const loneEntry = this.#labelToBubbleObserver.entries().next().value;
           loneEntry[1].disconnect();
@@ -101,9 +75,7 @@ class DomInfo {
 
       this.#messageGrid
         .querySelectorAll(
-          `${
-            this.#chatBubbleSelector
-          } span:where(:not(.katex-display) > .katex, .katex-display)`
+          `${selector.chatBubble} span:where(:not(.katex-display) > .katex, .katex-display)`
         )
         .forEach((span) => {
           undoMakeFit(span);
@@ -147,7 +119,7 @@ class DomInfo {
                   this.markMostRecentMessage(chatBox);
 
                   const labeledMessageGrid = chatBox.querySelector(
-                    this.#labeledMessageGridSelector
+                    selector.labeledMessageGrid
                   );
                   const messageGridLabel =
                     labeledMessageGrid.getAttribute('aria-label');
@@ -200,7 +172,7 @@ class DomInfo {
   messageGridsLabeled() {
     for (const chatBox of this.#chatBoxContainer.children) {
       const labeledMessageGrid = chatBox.querySelector(
-        this.#labeledMessageGridSelector
+        selector.labeledMessageGrid
       );
       if (labeledMessageGrid === null) {
         return false;
@@ -219,7 +191,7 @@ class DomInfo {
   }
 
   setMount() {
-    this.#mount = document.querySelector(this.#mountSelector);
+    this.#mount = document.querySelector(selector.mount);
   }
 
   preventBlackPage() {
@@ -246,7 +218,7 @@ class DomInfo {
 
   setAccountControlsAndSettings() {
     this.#accountControlsAndSettings = document.querySelector(
-      this.#accountControlsAndSettingsSelector
+      selector.accountControlsAndSettings
     );
   }
 
@@ -263,7 +235,7 @@ class DomInfo {
 
   setChat(chat) {
     if (arguments.length === 0) {
-      this.#chat = document.querySelector(this.#chatSelector);
+      this.#chat = document.querySelector(selector.chat);
     }
     if (arguments.length === 1) {
       this.#chat = chat;
@@ -273,7 +245,7 @@ class DomInfo {
   setMessengerChatContainer() {
     this.#messengerChatContainer =
       this.#messengerChatContainerContainer.querySelector(
-        this.#messengerChatContainerSelector
+        selector.messengerChatContainer
       );
   }
 
@@ -294,7 +266,7 @@ class DomInfo {
 
   setMessengerChatContainerContainer() {
     this.#messengerChatContainerContainer = document.querySelector(
-      this.#messengerChatContainerContainerSelector
+      selector.messengerChatContainerContainer
     );
   }
 
@@ -322,9 +294,7 @@ class DomInfo {
   }
 
   setChatBoxContainer() {
-    this.#chatBoxContainer = document.querySelector(
-      this.#chatBoxContainerSelector
-    );
+    this.#chatBoxContainer = document.querySelector(selector.chatBoxContainer);
   }
 
   observeChatBoxContainer() {
@@ -341,7 +311,7 @@ class DomInfo {
 
   setChatBoxContainerContainer() {
     this.#chatBoxContainerContainer = document.querySelector(
-      this.#chatBoxContainerContainerSelector
+      selector.chatBoxContainerContainer
     );
   }
 
@@ -361,10 +331,10 @@ class DomInfo {
   }
 
   setMessageGrid(pointOfReference = this.#chat) {
-    let grid = pointOfReference.querySelector(this.#labeledMessageGridSelector);
+    let grid = pointOfReference.querySelector(selector.labeledMessageGrid);
     // Conditional statement below may be unnecessary
     if (grid === null) {
-      grid = pointOfReference.querySelector(this.#messageGridSelector);
+      grid = pointOfReference.querySelector(selector.messageGrid);
     }
 
     this.#messageGrid = grid;
@@ -404,7 +374,7 @@ class DomInfo {
 
   markMostRecentMessage(gridcellSource = this.#chat) {
     let gridcellContainer = gridcellSource.querySelector(
-      this.#gridcellContainerSelector
+      selector.gridcellContainer
     );
     if (gridcellContainer === null) {
       gridcellContainer = gridcellSource;
@@ -499,224 +469,224 @@ class DomInfo {
     }
   }
 
-  removeEscapeChars(msgPart) {
-    for (let i = 0; i < this.#escapeCharIndices.length; i++) {
-      msgPart.textContent = `${msgPart.textContent.substring(
-        0,
-        this.#escapeCharIndices[i]
-      )}${msgPart.textContent.substring(this.#escapeCharIndices[i] + 1)}`;
+  // removeEscapeChars(msgPart) {
+  //   for (let i = 0; i < this.#escapeCharIndices.length; i++) {
+  //     msgPart.textContent = `${msgPart.textContent.substring(
+  //       0,
+  //       this.#escapeCharIndices[i]
+  //     )}${msgPart.textContent.substring(this.#escapeCharIndices[i] + 1)}`;
 
-      for (let j = i + 1; j < this.#escapeCharIndices.length; j++) {
-        if (this.#escapeCharIndices[i] < this.#escapeCharIndices[j]) {
-          this.#escapeCharIndices[j]--;
-        }
-      }
-    }
-    this.#escapeCharIndices.length = 0;
-  }
+  //     for (let j = i + 1; j < this.#escapeCharIndices.length; j++) {
+  //       if (this.#escapeCharIndices[i] < this.#escapeCharIndices[j]) {
+  //         this.#escapeCharIndices[j]--;
+  //       }
+  //     }
+  //   }
+  //   this.#escapeCharIndices.length = 0;
+  // }
 
-  removeEscapeCharsOutsideBounds(msgPart, texBounds) {
-    const outerEscapeCharIndices = [];
-    for (let i = 0; i < this.#escapeCharIndices.length; i++) {
-      for (let j = 0; j < texBounds.length; j++) {
-        if (
-          this.#escapeCharIndices[i] > texBounds[j][0] &&
-          this.#escapeCharIndices[i] < texBounds[j][1]
-        ) {
-          break;
-        } else {
-          if (j === texBounds.length - 1) {
-            if (!outerEscapeCharIndices.includes(this.#escapeCharIndices[i])) {
-              outerEscapeCharIndices.push(this.#escapeCharIndices[i]);
-            }
-          }
-        }
-      }
-    }
+  // removeEscapeCharsOutsideBounds(msgPart, texBounds) {
+  //   const outerEscapeCharIndices = [];
+  //   for (let i = 0; i < this.#escapeCharIndices.length; i++) {
+  //     for (let j = 0; j < texBounds.length; j++) {
+  //       if (
+  //         this.#escapeCharIndices[i] > texBounds[j][0] &&
+  //         this.#escapeCharIndices[i] < texBounds[j][1]
+  //       ) {
+  //         break;
+  //       } else {
+  //         if (j === texBounds.length - 1) {
+  //           if (!outerEscapeCharIndices.includes(this.#escapeCharIndices[i])) {
+  //             outerEscapeCharIndices.push(this.#escapeCharIndices[i]);
+  //           }
+  //         }
+  //       }
+  //     }
+  //   }
 
-    this.#escapeCharIndices.length = 0;
+  //   this.#escapeCharIndices.length = 0;
 
-    for (let i = 0; i < outerEscapeCharIndices.length; i++) {
-      msgPart.textContent = `${msgPart.textContent.substring(
-        0,
-        outerEscapeCharIndices[i]
-      )}${msgPart.textContent.substring(outerEscapeCharIndices[i] + 1)}`;
-      for (let j = 0; j < texBounds.length; j++) {
-        for (let k = 0; k < 2; k++) {
-          if (texBounds[j][k] > outerEscapeCharIndices[i]) {
-            texBounds[j][k]--;
-          }
-        }
-      }
+  //   for (let i = 0; i < outerEscapeCharIndices.length; i++) {
+  //     msgPart.textContent = `${msgPart.textContent.substring(
+  //       0,
+  //       outerEscapeCharIndices[i]
+  //     )}${msgPart.textContent.substring(outerEscapeCharIndices[i] + 1)}`;
+  //     for (let j = 0; j < texBounds.length; j++) {
+  //       for (let k = 0; k < 2; k++) {
+  //         if (texBounds[j][k] > outerEscapeCharIndices[i]) {
+  //           texBounds[j][k]--;
+  //         }
+  //       }
+  //     }
 
-      for (let j = i + 1; j < outerEscapeCharIndices.length; j++) {
-        if (outerEscapeCharIndices[i] < outerEscapeCharIndices[j]) {
-          outerEscapeCharIndices[j]--;
-        }
-      }
-    }
-  }
+  //     for (let j = i + 1; j < outerEscapeCharIndices.length; j++) {
+  //       if (outerEscapeCharIndices[i] < outerEscapeCharIndices[j]) {
+  //         outerEscapeCharIndices[j]--;
+  //       }
+  //     }
+  //   }
+  // }
 
-  parseContent(bubble) {
-    const msgParts = [];
-    wrapTextNodes(bubble, msgParts);
+  // parseContent(bubble) {
+  //   const msgParts = [];
+  //   wrapTextNodes(bubble, msgParts);
 
-    for (const msgPart of msgParts) {
-      let texBounds;
+  //   for (const msgPart of msgParts) {
+  //     let texBounds;
 
-      if (msgPart !== null && msgPart.textContent !== '') {
-        texBounds = this.getTexBounds(msgPart);
-      }
+  //     if (msgPart !== null && msgPart.textContent !== '') {
+  //       texBounds = this.getTexBounds(msgPart);
+  //     }
 
-      if (texBounds !== undefined && texBounds.length) {
-        this.removeEscapeCharsOutsideBounds(msgPart, texBounds);
+  //     if (texBounds !== undefined && texBounds.length) {
+  //       this.removeEscapeCharsOutsideBounds(msgPart, texBounds);
 
-        for (let i = 0; i < texBounds.length; i++) {
-          const offset = 32 * i;
-          const delimLen =
-            msgPart.textContent[texBounds[i][0] + offset] === '$' &&
-            msgPart.textContent[texBounds[i][0] + offset + 1] !== '$'
-              ? 1
-              : 2;
+  //       for (let i = 0; i < texBounds.length; i++) {
+  //         const offset = 32 * i;
+  //         const delimLen =
+  //           msgPart.textContent[texBounds[i][0] + offset] === '$' &&
+  //           msgPart.textContent[texBounds[i][0] + offset + 1] !== '$'
+  //             ? 1
+  //             : 2;
 
-          msgPart.textContent = `${msgPart.textContent.substring(
-            0,
-            texBounds[i][0] + offset
-          )}<span class='renderable'>${msgPart.textContent.substring(
-            texBounds[i][0] + offset,
-            texBounds[i][1] + delimLen + offset
-          )}</span>${msgPart.textContent.substring(
-            texBounds[i][1] + delimLen + offset
-          )}`;
-        }
+  //         msgPart.textContent = `${msgPart.textContent.substring(
+  //           0,
+  //           texBounds[i][0] + offset
+  //         )}<span class='renderable'>${msgPart.textContent.substring(
+  //           texBounds[i][0] + offset,
+  //           texBounds[i][1] + delimLen + offset
+  //         )}</span>${msgPart.textContent.substring(
+  //           texBounds[i][1] + delimLen + offset
+  //         )}`;
+  //       }
 
-        msgPart.innerHTML = msgPart.textContent;
+  //       msgPart.innerHTML = msgPart.textContent;
 
-        msgPart.querySelectorAll('span.renderable').forEach((span) => {
-          try {
-            const hasDollarDelim = span.textContent[0] === '$';
-            const hasSingleDollarDelim =
-              hasDollarDelim && span.textContent[1] !== '$';
-            const delimLen = hasSingleDollarDelim ? 1 : 2;
+  //       msgPart.querySelectorAll('span.renderable').forEach((span) => {
+  //         try {
+  //           const hasDollarDelim = span.textContent[0] === '$';
+  //           const hasSingleDollarDelim =
+  //             hasDollarDelim && span.textContent[1] !== '$';
+  //           const delimLen = hasSingleDollarDelim ? 1 : 2;
 
-            katex.render(
-              span.textContent.substring(
-                delimLen,
-                span.textContent.length - delimLen
-              ),
-              span,
-              {
-                displayMode:
-                  (hasDollarDelim && !hasSingleDollarDelim) ||
-                  span.textContent[1] === '[',
-              }
-            );
-          } catch (error) {
-            console.error('Caught ' + error);
-          }
+  //           katex.render(
+  //             span.textContent.substring(
+  //               delimLen,
+  //               span.textContent.length - delimLen
+  //             ),
+  //             span,
+  //             {
+  //               displayMode:
+  //                 (hasDollarDelim && !hasSingleDollarDelim) ||
+  //                 span.textContent[1] === '[',
+  //             }
+  //           );
+  //         } catch (error) {
+  //           console.error('Caught ' + error);
+  //         }
 
-          extractDescendants(span);
-        });
+  //         extractDescendants(span);
+  //       });
 
-        removeNewlines(msgPart);
+  //       removeNewlines(msgPart);
 
-        msgPart
-          .querySelectorAll(
-            'span:where(:not(.katex-display) > .katex, .katex-display)'
-          )
-          .forEach((span) => {
-            makeFit(span);
-          });
-      } else {
-        this.removeEscapeChars(msgPart);
-      }
-    }
-  }
+  //       msgPart
+  //         .querySelectorAll(
+  //           'span:where(:not(.katex-display) > .katex, .katex-display)'
+  //         )
+  //         .forEach((span) => {
+  //           makeFit(span);
+  //         });
+  //     } else {
+  //       this.removeEscapeChars(msgPart);
+  //     }
+  //   }
+  // }
 
-  getTexBounds(msg) {
-    const txt = msg.textContent;
-    const bounds = [];
+  // getTexBounds(msg) {
+  //   const txt = msg.textContent;
+  //   const bounds = [];
 
-    const delimAt = (i) => {
-      let delim = '';
-      if ((txt[i] === '$' || txt[i] === '\\') && i > 0 && txt[i - 1] === '\\') {
-        this.#escapeCharIndices.push(i - 1);
-      } else {
-        if (txt[i] === '$') {
-          delim += '$';
-          if (txt[i + 1] === '$') {
-            delim += '$';
-          }
-        }
-        if (txt[i] === '\\') {
-          if (
-            txt[i + 1] === '(' ||
-            txt[i + 1] === ')' ||
-            txt[i + 1] === '[' ||
-            txt[i + 1] === ']'
-          ) {
-            delim = `${txt[i]}${txt[i + 1]}`;
-          }
-        }
-      }
-      return delim;
-    };
+  //   const delimAt = (i) => {
+  //     let delim = '';
+  //     if ((txt[i] === '$' || txt[i] === '\\') && i > 0 && txt[i - 1] === '\\') {
+  //       this.#escapeCharIndices.push(i - 1);
+  //     } else {
+  //       if (txt[i] === '$') {
+  //         delim += '$';
+  //         if (txt[i + 1] === '$') {
+  //           delim += '$';
+  //         }
+  //       }
+  //       if (txt[i] === '\\') {
+  //         if (
+  //           txt[i + 1] === '(' ||
+  //           txt[i + 1] === ')' ||
+  //           txt[i + 1] === '[' ||
+  //           txt[i + 1] === ']'
+  //         ) {
+  //           delim = `${txt[i]}${txt[i + 1]}`;
+  //         }
+  //       }
+  //     }
+  //     return delim;
+  //   };
 
-    const isOpeningDelim = (delim) => {
-      if (delim.length === 0) {
-        return false;
-      }
-      return delim[0] === '$' || delim[1] === '(' || delim[1] === '[';
-    };
+  //   const isOpeningDelim = (delim) => {
+  //     if (delim.length === 0) {
+  //       return false;
+  //     }
+  //     return delim[0] === '$' || delim[1] === '(' || delim[1] === '[';
+  //   };
 
-    const pairsWith = (delim1, delim2) => {
-      if (delim1[0] === '$') {
-        return delim1 === delim2;
-      } else {
-        if (delim1[1] === '(') {
-          return delim2[1] === ')';
-        }
-        if (delim1[1] === '[') {
-          return delim2[1] === ']';
-        }
-      }
-      return false;
-    };
+  //   const pairsWith = (delim1, delim2) => {
+  //     if (delim1[0] === '$') {
+  //       return delim1 === delim2;
+  //     } else {
+  //       if (delim1[1] === '(') {
+  //         return delim2[1] === ')';
+  //       }
+  //       if (delim1[1] === '[') {
+  //         return delim2[1] === ']';
+  //       }
+  //     }
+  //     return false;
+  //   };
 
-    let l = 0,
-      r = 0;
-    while (l < txt.length) {
-      let leftDelim = delimAt(l);
-      let rightDelim;
-      if (isOpeningDelim(leftDelim)) {
-        r = l + 2;
-        rightDelim = delimAt(r);
+  //   let l = 0,
+  //     r = 0;
+  //   while (l < txt.length) {
+  //     let leftDelim = delimAt(l);
+  //     let rightDelim;
+  //     if (isOpeningDelim(leftDelim)) {
+  //       r = l + 2;
+  //       rightDelim = delimAt(r);
 
-        while (r + 1 < txt.length && !pairsWith(leftDelim, rightDelim)) {
-          if (leftDelim === rightDelim) {
-            l = r;
-            r += 2;
-            leftDelim = delimAt(l);
-            rightDelim = delimAt(r);
-          } else {
-            rightDelim = delimAt(++r);
-          }
-        }
+  //       while (r + 1 < txt.length && !pairsWith(leftDelim, rightDelim)) {
+  //         if (leftDelim === rightDelim) {
+  //           l = r;
+  //           r += 2;
+  //           leftDelim = delimAt(l);
+  //           rightDelim = delimAt(r);
+  //         } else {
+  //           rightDelim = delimAt(++r);
+  //         }
+  //       }
 
-        if (pairsWith(leftDelim, rightDelim)) {
-          bounds.push([l, r]);
-        }
-      }
+  //       if (pairsWith(leftDelim, rightDelim)) {
+  //         bounds.push([l, r]);
+  //       }
+  //     }
 
-      if (bounds.length === 0 || l > bounds[bounds.length - 1][1]) {
-        l++;
-      } else {
-        l = bounds[bounds.length - 1][1] + rightDelim.length;
-      }
-    }
+  //     if (bounds.length === 0 || l > bounds[bounds.length - 1][1]) {
+  //       l++;
+  //     } else {
+  //       l = bounds[bounds.length - 1][1] + rightDelim.length;
+  //     }
+  //   }
 
-    return bounds;
-  }
+  //   return bounds;
+  // }
 
   isNewMessage(bubble) {
     const gridcell = this.findGridcell(bubble);
@@ -746,14 +716,14 @@ class DomInfo {
   handleChatBubbles(bubbleSource) {
     const bubbleHandler = (source) => {
       if (source && 'querySelectorAll' in source) {
-        const chatBubbles = source.querySelectorAll(this.#chatBubbleSelector);
+        const chatBubbles = source.querySelectorAll(selector.chatBubble);
         chatBubbles.forEach((bubble) => {
           const waitForCompleteMessage = (txt) => {
             setTimeout(() => {
               if (bubble.textContent !== txt) {
                 waitForCompleteMessage(bubble.textContent);
               } else {
-                this.parseContent(bubble);
+                parseParts(bubble);
 
                 setTimeout(() => {
                   const gridcell = this.findGridcell(bubble);
@@ -765,34 +735,36 @@ class DomInfo {
               }
             }, 4000);
           };
-          if (bubble.textContent === '') {
-            let lengthOfWait = 0;
-            const waitToParseContent = () => {
-              if (
-                bubble.textContent === '' ||
-                this.getTexBounds(bubble).length > 0
-              ) {
-                setTimeout(() => {
-                  if ((lengthOfWait += 100) < 5000) {
-                    waitToParseContent();
-                  }
-                }, 100);
-              } else {
-                if (this.isNewMessage(bubble)) {
-                  waitForCompleteMessage(bubble.textContent);
-                } else {
-                  this.parseContent(bubble);
-                }
-              }
-            };
-            waitToParseContent();
+          // if (bubble.textContent === '') {
+          //   console.log(`this bubble contained no text at first:`);
+          //   console.log(bubble);
+          //   let lengthOfWait = 0;
+          //   const waitToParseParts = () => {
+          //     if (
+          //       bubble.textContent === '' ||
+          //       this.getTexBounds(bubble).length > 0
+          //     ) {
+          //       setTimeout(() => {
+          //         if ((lengthOfWait += 100) < 5000) {
+          //           waitToParseParts();
+          //         }
+          //       }, 100);
+          //     } else {
+          //       if (this.isNewMessage(bubble)) {
+          //         waitForCompleteMessage(bubble.textContent);
+          //       } else {
+          //         parseParts(bubble);
+          //       }
+          //     }
+          //   };
+          //   waitToParseParts();
+          // } else {
+          if (this.isNewMessage(bubble)) {
+            waitForCompleteMessage(bubble.textContent);
           } else {
-            if (this.isNewMessage(bubble)) {
-              waitForCompleteMessage(bubble.textContent);
-            } else {
-              this.parseContent(bubble);
-            }
+            parseParts(bubble);
           }
+          // }
         });
       }
     };
@@ -812,7 +784,7 @@ class DomInfo {
   setChatBoxToLabel() {
     for (const chatBox of this.#chatBoxContainer.children) {
       const messageGridLabel = chatBox
-        .querySelector(this.#labeledMessageGridSelector)
+        .querySelector(selector.labeledMessageGrid)
         .getAttribute('aria-label');
       this.#chatBoxToLabel.set(chatBox, messageGridLabel);
     }
@@ -826,7 +798,7 @@ class DomInfo {
     mutations.forEach((mutation) => {
       if (mutation.attributeName === 'hidden') {
         const labeledGrid = mutation.target.querySelector(
-          this.#labeledMessageGridSelector
+          selector.labeledMessageGrid
         );
         const messageGridLabel = labeledGrid
           ? labeledGrid.getAttribute('aria-label')
@@ -851,7 +823,7 @@ class DomInfo {
   observeChatBoxes() {
     for (const chatBox of this.#chatBoxContainer.children) {
       const messageGridLabel = chatBox
-        .querySelector(this.#labeledMessageGridSelector)
+        .querySelector(selector.labeledMessageGrid)
         .getAttribute('aria-label');
       if (!this.#labelToChatBoxObserver.has(messageGridLabel)) {
         const observer = new MutationObserver(
@@ -889,7 +861,11 @@ class DomInfo {
 
 const isOfTheClasses = (node, theCs) => {
   for (const c of theCs) {
-    if (node === null || !'classList' in node || !node.classList.contains(c)) {
+    if (
+      node === null ||
+      !('classList' in node) ||
+      !node.classList.contains(c)
+    ) {
       return false;
     }
   }
@@ -907,175 +883,175 @@ const injectCss = (filePath) => {
 
 for (filePath of ['katex/katex.min.css', 'fb.katex.css']) injectCss(filePath);
 
-const wrapTextNodes = (root, msgParts) => {
-  for (const node of root.childNodes) {
-    if (node.nodeName !== 'CODE') {
-      if (node.constructor.name === 'Text') {
-        const span = document.createElement('span');
-        span.textContent = node.textContent;
-        node.parentNode.insertBefore(span, node);
-        node.remove();
+// const wrapTextNodes = (root, msgParts) => {
+//   for (const node of root.childNodes) {
+//     if (node.nodeName !== 'CODE') {
+//       if (node.constructor.name === 'Text') {
+//         const span = document.createElement('span');
+//         span.textContent = node.textContent;
+//         node.parentNode.insertBefore(span, node);
+//         node.remove();
 
-        msgParts.push(span);
-      } else {
-        wrapTextNodes(node, msgParts);
-      }
-    }
-  }
-};
+//         msgParts.push(span);
+//       } else {
+//         wrapTextNodes(node, msgParts);
+//       }
+//     }
+//   }
+// };
 
-const removeNewlines = (msg) => {
-  const inlineNodeIndices = [];
-  let i = 0;
-  while (i < msg.childNodes.length) {
-    let msgPart = msg.childNodes[i];
+// const removeNewlines = (msg) => {
+//   const inlineNodeIndices = [];
+//   let i = 0;
+//   while (i < msg.childNodes.length) {
+//     let msgPart = msg.childNodes[i];
 
-    if (
-      'hasAttribute' in msgPart &&
-      msgPart.hasAttribute('class') &&
-      msgPart.classList.contains('katex-display')
-    ) {
-      if (inlineNodeIndices.length > 0) {
-        const lastInlineNodeIndex =
-          inlineNodeIndices[inlineNodeIndices.length - 1];
-        const lastInlineNode = msg.childNodes[lastInlineNodeIndex];
-        let j;
-        if (lastInlineNode.nodeValue !== null) {
-          for (
-            j = lastInlineNode.nodeValue.length - 1;
-            j >= 0 && lastInlineNode.nodeValue[j] === '\n';
-            j--
-          ) {}
-          if (lastInlineNode.nodeValue[++j] === '\n') {
-            lastInlineNode.nodeValue = lastInlineNode.nodeValue.substring(0, j);
-          }
-        }
-      }
+//     if (
+//       'hasAttribute' in msgPart &&
+//       msgPart.hasAttribute('class') &&
+//       msgPart.classList.contains('katex-display')
+//     ) {
+//       if (inlineNodeIndices.length > 0) {
+//         const lastInlineNodeIndex =
+//           inlineNodeIndices[inlineNodeIndices.length - 1];
+//         const lastInlineNode = msg.childNodes[lastInlineNodeIndex];
+//         let j;
+//         if (lastInlineNode.nodeValue !== null) {
+//           for (
+//             j = lastInlineNode.nodeValue.length - 1;
+//             j >= 0 && lastInlineNode.nodeValue[j] === '\n';
+//             j--
+//           ) {}
+//           if (lastInlineNode.nodeValue[++j] === '\n') {
+//             lastInlineNode.nodeValue = lastInlineNode.nodeValue.substring(0, j);
+//           }
+//         }
+//       }
 
-      inlineNodeIndices.length = 0;
-    } else {
-      inlineNodeIndices.push(i);
-    }
-    i++;
-  }
+//       inlineNodeIndices.length = 0;
+//     } else {
+//       inlineNodeIndices.push(i);
+//     }
+//     i++;
+//   }
 
-  if (inlineNodeIndices.length > 0) {
-    const firstInlineNode = msg.childNodes[inlineNodeIndices[0]];
-    let j;
-    if (firstInlineNode.nodeValue !== null) {
-      for (
-        j = 0;
-        j < firstInlineNode.nodeValue.length &&
-        firstInlineNode.nodeValue[j] === '\n';
-        j++
-      ) {}
-      if (firstInlineNode.nodeValue[j - 1] === '\n') {
-        firstInlineNode.nodeValue = firstInlineNode.nodeValue.substring(j);
-      }
-    }
-  }
-};
+//   if (inlineNodeIndices.length > 0) {
+//     const firstInlineNode = msg.childNodes[inlineNodeIndices[0]];
+//     let j;
+//     if (firstInlineNode.nodeValue !== null) {
+//       for (
+//         j = 0;
+//         j < firstInlineNode.nodeValue.length &&
+//         firstInlineNode.nodeValue[j] === '\n';
+//         j++
+//       ) {}
+//       if (firstInlineNode.nodeValue[j - 1] === '\n') {
+//         firstInlineNode.nodeValue = firstInlineNode.nodeValue.substring(j);
+//       }
+//     }
+//   }
+// };
 
-const makeFit = (span) => {
-  const baseSpans = span.querySelectorAll('span.base');
-  let collectiveSpanWidth = 0;
+// const makeFit = (span) => {
+//   const baseSpans = span.querySelectorAll('span.base');
+//   let collectiveSpanWidth = 0;
 
-  for (let baseSpan of baseSpans) {
-    collectiveSpanWidth += baseSpan.getBoundingClientRect().width;
-  }
+//   for (let baseSpan of baseSpans) {
+//     collectiveSpanWidth += baseSpan.getBoundingClientRect().width;
+//   }
 
-  let partialSumOfSpanWidths = collectiveSpanWidth;
-  if (baseSpans.length > 0) {
-    let oversizedBaseFound = false;
-    for (const baseSpan of baseSpans) {
-      if (
-        baseSpan.getBoundingClientRect().width >
-        span.parentNode.getBoundingClientRect().width
-      ) {
-        oversizedBaseFound = true;
-        break;
-      }
-    }
+//   let partialSumOfSpanWidths = collectiveSpanWidth;
+//   if (baseSpans.length > 0) {
+//     let oversizedBaseFound = false;
+//     for (const baseSpan of baseSpans) {
+//       if (
+//         baseSpan.getBoundingClientRect().width >
+//         span.parentNode.getBoundingClientRect().width
+//       ) {
+//         oversizedBaseFound = true;
+//         break;
+//       }
+//     }
 
-    if (oversizedBaseFound) {
-      span.classList.add('katex-scrollable');
+//     if (oversizedBaseFound) {
+//       span.classList.add('katex-scrollable');
 
-      if (span.getAttribute('class') === 'katex katex-scrollable') {
-        span.style.display = 'inline-block';
-      }
-      span.style.width = `${span.parentNode.getBoundingClientRect().width}px`;
-      span.style.overflowX = 'scroll';
-      span.style.overflowY = 'hidden';
-      span.style.scrollbarWidth = 'thin';
-      span.style.scrollbarColor = 'rgba(226, 225, 225, 0.2) transparent';
-    } else {
-      let i = baseSpans.length - 1;
-      let j = 0;
+//       if (span.getAttribute('class') === 'katex katex-scrollable') {
+//         span.style.display = 'inline-block';
+//       }
+//       span.style.width = `${span.parentNode.getBoundingClientRect().width}px`;
+//       span.style.overflowX = 'scroll';
+//       span.style.overflowY = 'hidden';
+//       span.style.scrollbarWidth = 'thin';
+//       span.style.scrollbarColor = 'rgba(226, 225, 225, 0.2) transparent';
+//     } else {
+//       let i = baseSpans.length - 1;
+//       let j = 0;
 
-      const insertLineBreak = () => {
-        if (
-          collectiveSpanWidth > span.parentNode.getBoundingClientRect().width
-        ) {
-          if (i > j) {
-            if (
-              partialSumOfSpanWidths -
-                baseSpans[i].getBoundingClientRect().width <=
-                span.parentNode.getBoundingClientRect().width - 10 ||
-              i - j === 1
-            ) {
-              const spacer = document.createElement('div');
-              spacer.style.margin = '10px 0px';
-              baseSpans[0].parentNode.insertBefore(spacer, baseSpans[i]);
+//       const insertLineBreak = () => {
+//         if (
+//           collectiveSpanWidth > span.parentNode.getBoundingClientRect().width
+//         ) {
+//           if (i > j) {
+//             if (
+//               partialSumOfSpanWidths -
+//                 baseSpans[i].getBoundingClientRect().width <=
+//                 span.parentNode.getBoundingClientRect().width - 10 ||
+//               i - j === 1
+//             ) {
+//               const spacer = document.createElement('div');
+//               spacer.style.margin = '10px 0px';
+//               baseSpans[0].parentNode.insertBefore(spacer, baseSpans[i]);
 
-              if (
-                collectiveSpanWidth -
-                  (partialSumOfSpanWidths -
-                    baseSpans[i].getBoundingClientRect().width) >
-                span.parentNode.getBoundingClientRect().width - 10
-              ) {
-                partialSumOfSpanWidths =
-                  collectiveSpanWidth -
-                  (partialSumOfSpanWidths -
-                    baseSpans[i].getBoundingClientRect().width);
-                collectiveSpanWidth = partialSumOfSpanWidths;
-                j = i;
-                i = baseSpans.length - 1;
+//               if (
+//                 collectiveSpanWidth -
+//                   (partialSumOfSpanWidths -
+//                     baseSpans[i].getBoundingClientRect().width) >
+//                 span.parentNode.getBoundingClientRect().width - 10
+//               ) {
+//                 partialSumOfSpanWidths =
+//                   collectiveSpanWidth -
+//                   (partialSumOfSpanWidths -
+//                     baseSpans[i].getBoundingClientRect().width);
+//                 collectiveSpanWidth = partialSumOfSpanWidths;
+//                 j = i;
+//                 i = baseSpans.length - 1;
 
-                insertLineBreak();
-              }
-            } else {
-              partialSumOfSpanWidths -=
-                baseSpans[i--].getBoundingClientRect().width;
+//                 insertLineBreak();
+//               }
+//             } else {
+//               partialSumOfSpanWidths -=
+//                 baseSpans[i--].getBoundingClientRect().width;
 
-              insertLineBreak();
-            }
-          }
-        }
-      };
-      insertLineBreak();
-    }
-  }
-};
+//               insertLineBreak();
+//             }
+//           }
+//         }
+//       };
+//       insertLineBreak();
+//     }
+//   }
+// };
 
-const undoMakeFit = (span) => {
-  span.querySelectorAll('div').forEach((div) => {
-    if (div.style.margin === '10px 0px' && div.attributes.length === 1) {
-      div.remove();
-    }
-  });
+// const undoMakeFit = (span) => {
+//   span.querySelectorAll('div').forEach((div) => {
+//     if (div.style.margin === '10px 0px' && div.attributes.length === 1) {
+//       div.remove();
+//     }
+//   });
 
-  span.classList.remove('katex-scrollable');
-  span.removeAttribute('style');
-};
+//   span.classList.remove('katex-scrollable');
+//   span.removeAttribute('style');
+// };
 
-const extractDescendants = (span) => {
-  const childOfSpan = span.firstElementChild;
-  if (childOfSpan !== null) {
-    childOfSpan.remove();
-    span.parentNode.insertBefore(childOfSpan, span);
-  }
-  span.remove();
-};
+// const extractDescendants = (span) => {
+//   const childOfSpan = span.firstElementChild;
+//   if (childOfSpan !== null) {
+//     childOfSpan.remove();
+//     span.parentNode.insertBefore(childOfSpan, span);
+//   }
+//   span.remove();
+// };
 
 const handleChat = (domInfo) => {
   const chat = domInfo.getChat();

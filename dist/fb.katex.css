@@ -1,0 +1,98 @@
+#facebook
+  .system-fonts--body
+  div.html-div
+  span
+  > span.katex-display
+  :where(.mop, .op-limits) {
+  font-family: KaTeX_Size2;
+}
+
+#facebook
+  .system-fonts--body
+  div.html-div:has(span > span:where(.katex, .katex-display))
+  span:is(.sizing, .reset-size6, .mtight, .mord),
+#facebook
+  .system-fonts--body
+  div.html-div
+  span:not(.katex-display)
+  > span.katex,
+#facebook
+  .system-fonts--body
+  div.html-div
+  span:not(.katex-display)
+  > span:where(.katex, .katex-display)
+  :not(.mop, .op-limits, .size3) {
+  font-family: KaTeX_Main;
+}
+
+#facebook
+  .system-fonts--body
+  div.html-div
+  span:not(.katex-display)
+  > span:where(.katex, .katex-display)
+  .size3 {
+  font-family: KaTeX_Size3;
+}
+
+#facebook
+  .system-fonts--body
+  div.html-div
+  span:not(.katex-display)
+  > span:where(.katex, .katex-display)
+  .size4 {
+  font-family: KaTeX_Size4;
+}
+
+#facebook
+  .system-fonts--body
+  div.html-div
+  span:not(.katex-display)
+  > span:where(.katex, .katex-display)
+  span.katex-html
+  > span.base
+  > span.mord
+  > span.msupsub {
+  padding-left: 1.5px;
+}
+
+#facebook
+  .system-fonts--body
+  div.html-div
+  span:not(.katex-display)
+  > span:where(.katex, .katex-display)
+  span.katex-html:has(> span.tag)
+  > span {
+  display: block;
+}
+
+#facebook
+  .system-fonts--body
+  div.html-div
+  span:not(.katex-display)
+  > span:where(.katex, .katex-display)
+  span.katex-html
+  > span.base:has(+ span.tag) {
+  padding-right: 45px;
+}
+
+#facebook
+  .system-fonts--body
+  div.html-div
+  span:not(.katex-display)
+  > span:where(.katex, .katex-display)
+  span.katex-html
+  > span.base
+  + span.tag {
+  transform: translateY(-55px);
+}
+
+#facebook
+  .system-fonts--body
+  div.html-div
+  span:not(.katex-display):has(> span:where(.katex, .katex-display)) {
+  display: inline-block;
+}
+
+#facebook .system-fonts--body div.html-div span:has(> span.katex-display) {
+  width: 100%;
+}
