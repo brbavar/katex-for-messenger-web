@@ -4,6 +4,7 @@ const wrapTextNodes = (root, msgParts) => {
       if (node.constructor.name === 'Text') {
         const span = document.createElement('span');
         span.textContent = node.textContent;
+
         node.parentNode.insertBefore(span, node);
         node.remove();
 
