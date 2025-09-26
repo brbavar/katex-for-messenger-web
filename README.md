@@ -27,7 +27,7 @@ Here are a couple examples of what the extension can do:
 
 ## Limitations
 
-- Once the math is rendered in a message, if that message is subsequently edited (by whoever in the chat sent it), you will have to refresh to view the edited version of the message.
+- If a message is edited in one of your chats while you're using this extension, you'll have to refresh to view the latest version of the message.
 - Typesetting only occurs in chat bubbles.
 - You must place environments between math delimiters to render them.
 - Though KaTeX officially supports the `subarray` environment, this extension can't seem to render it properly.
