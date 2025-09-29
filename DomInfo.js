@@ -1,9 +1,6 @@
 import * as selector from './selector.js';
 import { DomInfoCore } from './DomInfoCore.js';
-import {
-  /* startUp, reset */ setUpMessengerView,
-  setUpChatBoxView,
-} from './run.js';
+import { setUpMessengerView, setUpChatBoxView } from './run.js';
 import { isOfTheClasses } from './util.js';
 import { parseParts } from './parse.js';
 
@@ -34,8 +31,6 @@ class DomInfo extends DomInfoCore {
     };
 
     for (const mutation of mutations) {
-      // respondToControlMutation(mutation.addedNodes, reset);
-      // respondToControlMutation(mutation.removedNodes, startUp);
       respondToControlMutation(mutation.addedNodes, setUpChatBoxView);
       respondToControlMutation(mutation.removedNodes, setUpMessengerView);
       if (messengerControlSeen) {
@@ -228,10 +223,6 @@ class DomInfo extends DomInfoCore {
       this.#accountControlsAndSettings,
       { childList: true }
     );
-
-    // this.getActiveMutationObservers().push(
-    //   this.#accountControlsAndSettingsObserver
-    // );
   }
 
   getChatBoxToLabel() {
