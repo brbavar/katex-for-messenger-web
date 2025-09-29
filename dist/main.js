@@ -2,14 +2,15 @@
 var mount = 'div[id^="mount"]';
 var accountControlsAndSettings = 'div[aria-label="Account Controls and Settings"][role="navigation"].x6s0dn4.x78zum5.x1s65kcs.x1n2onr6.x1ja2u2z';
 var messengerControl = '[aria-label="Messenger"]';
-var chat = 'div[aria-label^="Conversation"][role="main"].x1ja2u2z.x9f619.x78zum5.xdt5ytf.x193iq5w.x1l7klhg.x1iyjqo2.xs83m0k.x2lwn1j.x6prxxf.x85a59c.x1n2onr6.xjbqb8w.xuce83p.x1bft6iq';
-var messengerChatContainer = `div.x78zum5.xdt5ytf.x1iyjqo2.x1t2pt76.xeuugli.x1n2onr6.x1ja2u2z.x1vhhd5d:has(${chat})`;
-var messengerChatContainerContainer = ".x9f619.x1n2onr6.x1ja2u2z.x78zum5.xdt5ytf.x193iq5w.xeuugli.xs83m0k.xjhlixk.xgyuaek";
+var resizableChat = 'div[aria-label^="Conversation"][role="main"].x1ja2u2z.x9f619.x78zum5.xdt5ytf.x193iq5w.x1l7klhg.x1iyjqo2.xs83m0k.x2lwn1j.x6prxxf.x85a59c.x1n2onr6.xjbqb8w.xuce83p.x1bft6iq';
+var resizeObservee = ".x9f619.x1n2onr6.x1ja2u2z.x78zum5.xdt5ytf.x193iq5w.xeuugli.xs83m0k.xjhlixk.xgyuaek";
+var chatContainer = `${resizeObservee} div.x78zum5.xdt5ytf.x1iyjqo2.x1t2pt76.xeuugli.x1n2onr6.x1ja2u2z.x1vhhd5d:has(${resizableChat})`;
 var chatBoxContainer = "div.x1ey2m1c.x78zum5.xixxii4.x1vjfegm";
 var chatBoxContainerContainer = `${mount} > div > div > div.x9f619.x1n2onr6.x1ja2u2z > div[data-visualcompletion="ignore"]`;
 var labeledMessageGrid = '[aria-label^="Messages in conversation"]';
 var messageGrid = `${labeledMessageGrid}, div[role="grid"].x78zum5.xdt5ytf.x1iyjqo2.x6ikm8r.x10wlt62, div.x78zum5.xdt5ytf.x1iyjqo2.x6ikm8r.x10wlt62`;
 var chatBubble = ".html-div.xexx8yu.x18d9i69.xat24cr.xdj266r.xeuugli.x1vjfegm";
+var katex = `${chatBubble} span:where(:not(.katex-display) > .katex, .katex-display)`;
 var gridcellContainer = "div.x1qjc9v5.x9f619.xdl72j9.x2lwn1j.xeuugli.x1n2onr6.x78zum5.xdt5ytf.x1iyjqo2.xs83m0k.x6ikm8r.x10wlt62.x1ja2u2z > div.x78zum5.xdt5ytf.x1iyjqo2.x6ikm8r.x1odjw0f.xish69e.x16o0dkt > div.x78zum5.xdt5ytf.x1iyjqo2.x2lah0s.xl56j7k.x121v3j4";
 
 // node_modules/katex/dist/katex.mjs
@@ -14424,7 +14425,49 @@ var renderToDomTree = function renderToDomTree2(expression, options) {
 // scroll-config.js
 var scrollbarColor = "rgba(226, 225, 225, 0.2) transparent";
 
+// manifest.json
+var manifest_default = {
+  manifest_version: 3,
+  name: "LaTeX for Messenger",
+  version: "4",
+  icons: {
+    "16": "icon16.png",
+    "32": "icon32.png",
+    "48": "icon48.png",
+    "128": "icon128.png"
+  },
+  description: "Render mathematical notation in Messenger on the Facebook website.",
+  content_scripts: [
+    {
+      js: ["main.js"],
+      matches: ["https://www.facebook.com/*"]
+    }
+  ],
+  web_accessible_resources: [
+    {
+      resources: ["fb.katex.css", "katex/katex.min.css", "katex/fonts/*"],
+      matches: ["https://www.facebook.com/*"]
+    }
+  ],
+  browser_specific_settings: {
+    gecko: {
+      id: "@katex-for-messenger-web.ben-bavar"
+    }
+  }
+};
+
 // aesthetex.js
+var injectCss = () => {
+  for (const resource of manifest_default.web_accessible_resources[0].resources) {
+    if (resource.endsWith(".css")) {
+      const css = document.createElement("link");
+      css.rel = "stylesheet";
+      css.href = chrome.runtime.getURL(resource);
+      css.type = "text/css";
+      document.head.appendChild(css);
+    }
+  }
+};
 var removeNewlines = (msg) => {
   const inlineNodeIndices = [];
   let i = 0;
@@ -14722,24 +14765,199 @@ var parseParts = (bubble) => {
   }
 };
 
-// main.js
-var DomInfo = class {
+// DomInfoCore.js
+var DomInfoCore = class {
+  #chat = null;
+  #chatContainer = null;
+  #resizeObservee = null;
+  #messageGrid = null;
+  #chatWidth = -1;
+  #labelToBubbleObserver = /* @__PURE__ */ new Map();
+  #observeeToActiveResizeObserver = /* @__PURE__ */ new Map();
+  #activeMutationObservers = [];
+  #mapsToMutationObservers = [this.#labelToBubbleObserver];
+  #chatWidthObserver = new ResizeObserver(() => {
+    if (this.#resizeObservee.getBoundingClientRect().width !== this.#chatWidth) {
+      this.#chatWidth = this.#resizeObservee.getBoundingClientRect().width;
+      this.#messageGrid.querySelectorAll(katex).forEach((span) => {
+        undoMakeFit(span);
+        makeFit(span);
+      });
+    }
+  });
+  #chatContainerObserver = new MutationObserver((mutations) => {
+    mutations.forEach((mutation) => {
+      mutation.addedNodes.forEach((node) => {
+        let resizableChat2 = null;
+        const waitForResizableChat = () => {
+          if ("querySelector" in node && (resizableChat2 = node.querySelector(resizableChat))) {
+            const loneEntry = this.#labelToBubbleObserver.entries().next().value;
+            loneEntry[1].disconnect();
+            this.#labelToBubbleObserver.delete(loneEntry[0]);
+            this.#chat = resizableChat2;
+            this.setMessageGrid();
+            this.handleChatBubbles();
+            this.observeChatBubbles();
+          } else {
+            setTimeout(waitForResizableChat, 100);
+          }
+        };
+        waitForResizableChat();
+      });
+    });
+  });
+  getChat() {
+    return this.#chat;
+  }
+  setChat(chat) {
+    if (arguments.length === 0) {
+      this.#chat = document.querySelector(resizableChat);
+    }
+    if (arguments.length === 1) {
+      this.#chat = chat;
+    }
+  }
+  getChatContainer() {
+    return this.#chatContainer;
+  }
+  setChatContainer() {
+    this.#chatContainer = document.querySelector(chatContainer);
+  }
+  observeChatContainer() {
+    if (this.#chatContainer !== null) {
+      this.#chatContainerObserver.observe(this.#chatContainer, {
+        childList: true
+      });
+      this.#activeMutationObservers.push(this.#chatContainerObserver);
+    }
+  }
+  ignoreChatContainer() {
+    this.#chatContainerObserver.disconnect();
+    const i = this.#activeMutationObservers.indexOf(
+      this.#chatContainerObserver
+    );
+    if (i >= 0) {
+      this.#activeMutationObservers.splice(i, 1);
+    }
+  }
+  setResizeObservee() {
+    this.#resizeObservee = document.querySelector(resizeObservee);
+  }
+  setChatWidth() {
+    this.#chatWidth = this.#resizeObservee.getBoundingClientRect().width;
+  }
+  observeChatWidth() {
+    if (this.#resizeObservee !== null) {
+      this.#chatWidthObserver.observe(this.#resizeObservee);
+      this.#observeeToActiveResizeObserver.set(
+        this.#resizeObservee,
+        this.#chatWidthObserver
+      );
+    }
+  }
+  ignoreChatWidth() {
+    this.#chatWidthObserver.unobserve(this.#resizeObservee);
+    this.#observeeToActiveResizeObserver.delete(this.#resizeObservee);
+  }
+  getMessageGrid() {
+    return this.#messageGrid;
+  }
+  setMessageGrid(pointOfReference = this.#chat) {
+    if (labeledMessageGrid === void 0) {
+      this.#messageGrid = this.#chat;
+    } else {
+      let grid = pointOfReference.querySelector(labeledMessageGrid);
+      if (grid === null) {
+        grid = pointOfReference.querySelector(messageGrid);
+      }
+      this.#messageGrid = grid;
+    }
+  }
+  getLabelToBubbleObserver() {
+    return this.#labelToBubbleObserver;
+  }
+  getActiveMutationObservers() {
+    return this.#activeMutationObservers;
+  }
+  getMapsToMutationObservers() {
+    return this.#mapsToMutationObservers;
+  }
+  #chatBubbleMutationHandler = (mutations) => {
+    mutations.forEach((mutation) => {
+      mutation.addedNodes.forEach((node) => {
+        this.handleChatBubbles(node);
+      });
+    });
+  };
+  observeChatBubbles() {
+    if (this.#messageGrid !== null) {
+      const observer = new MutationObserver(this.#chatBubbleMutationHandler);
+      observer.observe(this.#messageGrid, {
+        childList: true,
+        subtree: true
+      });
+      const label = this.#messageGrid.getAttribute("aria-label");
+      this.#labelToBubbleObserver.set(label, observer);
+    }
+  }
+  handleChatBubbles(bubbleSource) {
+    const bubbleHandler = (source) => {
+      if (source && "querySelectorAll" in source) {
+        const chatBubbles = source.querySelectorAll(chatBubble);
+        chatBubbles.forEach((bubble) => {
+          if (this.waitForCompleteMessage !== void 0 && this.isNewMessage(bubble)) {
+            this.waitForCompleteMessage(bubble);
+          } else {
+            parseParts(bubble);
+          }
+        });
+      }
+    };
+    if (arguments.length === 0) {
+      bubbleHandler(this.#messageGrid);
+    }
+    if (arguments.length === 1) {
+      bubbleHandler(bubbleSource);
+    }
+  }
+  disconnectObservers() {
+    this.#activeMutationObservers.forEach((observer) => observer.disconnect());
+    this.#activeMutationObservers.length = 0;
+    for (const entry of this.#observeeToActiveResizeObserver.entries()) {
+      if (entry[0] !== null) {
+        entry[1].unobserve(entry[0]);
+      }
+    }
+    this.#observeeToActiveResizeObserver.clear();
+    for (const map of this.#mapsToMutationObservers) {
+      for (const entry of map.entries()) {
+        entry[1].disconnect();
+      }
+    }
+  }
+};
+
+// util.js
+var isOfTheClasses = (node, theCs) => {
+  for (const c of theCs) {
+    if (node === null || !("classList" in node) || !node.classList.contains(c)) {
+      return false;
+    }
+  }
+  return true;
+};
+
+// DomInfo.js
+var DomInfo = class extends DomInfoCore {
   #mount = null;
   #accountControlsAndSettings = null;
-  #chat = null;
-  #messengerChatContainer = null;
-  #messengerChatContainerContainer = null;
   #chatBoxContainer = null;
   #chatBoxContainerContainer = null;
   // #moreActionsMenuContainer = null;
-  #messageGrid = null;
-  #messengerChatContainerContainerWidth = -1;
+  #chatBoxToLabel = /* @__PURE__ */ new Map();
+  #labelToChatBoxObserver = /* @__PURE__ */ new Map();
   // #editorContainers = [];
   // #editorContainerObservers = [];
-  // #escapeCharIndices = [];
-  #chatBoxToLabel = /* @__PURE__ */ new Map();
-  #labelToBubbleObserver = /* @__PURE__ */ new Map();
-  #labelToChatBoxObserver = /* @__PURE__ */ new Map();
   #accountControlsAndSettingsObserver = new MutationObserver((mutations) => {
     let messengerControlSeen = false;
     const respondToControlMutation = (nodes, respond) => {
@@ -14747,45 +14965,18 @@ var DomInfo = class {
         const messengerControl2 = node.querySelector(messengerControl);
         if (messengerControl2 !== null) {
           this.disconnectObservers();
-          respond();
+          respond(this);
           messengerControlSeen = true;
           break;
         }
       }
     };
     for (const mutation of mutations) {
-      respondToControlMutation(mutation.addedNodes, reset);
-      respondToControlMutation(mutation.removedNodes, startUp);
+      respondToControlMutation(mutation.addedNodes, setUpChatBoxView);
+      respondToControlMutation(mutation.removedNodes, setUpMessengerView);
       if (messengerControlSeen) {
         break;
       }
-    }
-  });
-  #messengerChatContainerObserver = new MutationObserver((mutations) => {
-    mutations.forEach((mutation) => {
-      mutation.addedNodes.forEach((node) => {
-        let convo = null;
-        if ("querySelector" in node && (convo = node.querySelector(chat))) {
-          const loneEntry = this.#labelToBubbleObserver.entries().next().value;
-          loneEntry[1].disconnect();
-          this.#labelToBubbleObserver.delete(loneEntry[0]);
-          this.#chat = convo;
-          this.setMessageGrid();
-          this.handleChatBubbles();
-          this.observeChatBubbles();
-        }
-      });
-    });
-  });
-  #messengerChatContainerContainerObserver = new ResizeObserver(() => {
-    if (this.#messengerChatContainerContainer.getBoundingClientRect().width !== this.#messengerChatContainerContainerWidth) {
-      this.#messengerChatContainerContainerWidth = this.#messengerChatContainerContainer.getBoundingClientRect().width;
-      this.#messageGrid.querySelectorAll(
-        `${chatBubble} span:where(:not(.katex-display) > .katex, .katex-display)`
-      ).forEach((span) => {
-        undoMakeFit(span);
-        makeFit(span);
-      });
     }
   });
   #chatBoxContainerObserver = new MutationObserver((mutations) => {
@@ -14824,8 +15015,8 @@ var DomInfo = class {
                   if (this.#labelToChatBoxObserver.has(messageGridLabel)) {
                     this.#labelToChatBoxObserver.get(messageGridLabel).disconnect();
                   }
-                  if (this.#labelToBubbleObserver.has(messageGridLabel)) {
-                    this.#labelToBubbleObserver.get(messageGridLabel).disconnect();
+                  if (this.getLabelToBubbleObserver().has(messageGridLabel)) {
+                    this.getLabelToBubbleObserver().get(messageGridLabel).disconnect();
                   }
                   const visibilityObserver = new MutationObserver(
                     this.#chatBoxVisibilityMutationHandler
@@ -14855,6 +15046,36 @@ var DomInfo = class {
   //     mutation.addedNodes.forEach((node) => {});
   //   });
   // });
+  // #editorContainerMutationHandler = (mutations) => {
+  //   mutations.forEach((mutation) => {
+  //     // console.log(`attribute of editor container mutated`);
+  //     // if (
+  //     //   mutation.attributeName === 'aria-label' &&
+  //     //   !mutation.target.hasAttribute('aria-label')
+  //     // ) {
+  //     //   console.log(`aria-label removed`);
+  //     // }
+  //     mutation.addedNodes.forEach((node) => {
+  //       console.log(`node added to editor container's child list`);
+  //       console.log(node);
+  //       const textbox = node.querySelector(
+  //         'div[role="textbox"][contenteditable="true"].xzsf02u.x1a2a7pz.x1n2onr6.x14wi4xw'
+  //       );
+  //     });
+  //   });
+  // };
+  // observeEditorContainers() {
+  //   const editorContainers = document.querySelectorAll(
+  //     this.#editorContainerSelector
+  //   );
+  //   console.log(`${editorContainers.length} editor containers found`);
+  //   for (const container of editorContainers) {
+  //     const observer = new MutationObserver(
+  //       this.#editorContainerMutationHandler
+  //     );
+  //     observer.observe(container, { childList: true });
+  //   }
+  // }
   messageGridsLabeled() {
     for (const chatBox of this.#chatBoxContainer.children) {
       const labeledMessageGrid2 = chatBox.querySelector(
@@ -14889,10 +15110,16 @@ var DomInfo = class {
         attributes: true,
         attributeFilter: ["style"]
       });
+      this.getActiveMutationObservers().push(pageDisplayObserver);
       setTimeout(() => {
         pageDisplayObserver.disconnect();
+        const i = this.getActiveMutationObservers().indexOf(pageDisplayObserver);
+        this.getActiveMutationObservers().splice(i, 1);
       }, 5e3);
     }
+  }
+  getAccountControlsAndSettings() {
+    return this.#accountControlsAndSettings;
   }
   setAccountControlsAndSettings() {
     this.#accountControlsAndSettings = document.querySelector(
@@ -14905,54 +15132,48 @@ var DomInfo = class {
       { childList: true }
     );
   }
-  getChat() {
-    return this.#chat;
+  getChatBoxToLabel() {
+    return this.#chatBoxToLabel;
   }
-  setChat(chat2) {
-    if (arguments.length === 0) {
-      this.#chat = document.querySelector(chat);
-    }
-    if (arguments.length === 1) {
-      this.#chat = chat2;
+  setChatBoxToLabel() {
+    for (const chatBox of this.#chatBoxContainer.children) {
+      const messageGridLabel = chatBox.querySelector(labeledMessageGrid).getAttribute("aria-label");
+      this.#chatBoxToLabel.set(chatBox, messageGridLabel);
     }
   }
-  setMessengerChatContainer() {
-    this.#messengerChatContainer = this.#messengerChatContainerContainer.querySelector(
-      messengerChatContainer
-    );
-  }
-  observeMessengerChatContainer() {
-    if (this.#messengerChatContainer !== null) {
-      this.#messengerChatContainerObserver.observe(
-        this.#messengerChatContainer,
-        {
-          childList: true
+  #chatBoxVisibilityMutationHandler = (mutations) => {
+    mutations.forEach((mutation) => {
+      if (mutation.attributeName === "hidden") {
+        const labeledGrid = mutation.target.querySelector(
+          labeledMessageGrid
+        );
+        const messageGridLabel = labeledGrid ? labeledGrid.getAttribute("aria-label") : null;
+        if (mutation.target.hasAttribute("hidden")) {
+          const bubbleObserver = this.getLabelToBubbleObserver().get(messageGridLabel);
+          if (bubbleObserver !== void 0) {
+            bubbleObserver.disconnect();
+          }
+        } else {
+          this.setMessageGrid(mutation.target);
+          this.#chatBoxToLabel.set(mutation.target, messageGridLabel);
+          this.handleChatBubbles();
+          this.observeChatBubbles();
         }
-      );
+      }
+    });
+  };
+  observeChatBoxes() {
+    for (const chatBox of this.#chatBoxContainer.children) {
+      const messageGridLabel = chatBox.querySelector(labeledMessageGrid).getAttribute("aria-label");
+      if (!this.#labelToChatBoxObserver.has(messageGridLabel)) {
+        const observer = new MutationObserver(
+          this.#chatBoxVisibilityMutationHandler
+        );
+        observer.observe(chatBox.firstChild.firstChild, { attributes: true });
+        this.#labelToChatBoxObserver.set(messageGridLabel, observer);
+      }
     }
-  }
-  ignoreMessengerChatContainer() {
-    this.#messengerChatContainerObserver.disconnect();
-  }
-  setMessengerChatContainerContainer() {
-    this.#messengerChatContainerContainer = document.querySelector(
-      messengerChatContainerContainer
-    );
-  }
-  observeMessengerChatContainerContainer() {
-    if (this.#messengerChatContainerContainer !== null) {
-      this.#messengerChatContainerContainerObserver.observe(
-        this.#messengerChatContainerContainer
-      );
-    }
-  }
-  ignoreMessengerChatContainerContainer() {
-    this.#messengerChatContainerContainerObserver.unobserve(
-      this.#messengerChatContainerContainer
-    );
-  }
-  setMessengerChatContainerContainerWidth() {
-    this.#messengerChatContainerContainerWidth = this.#messengerChatContainerContainer.getBoundingClientRect().width;
+    this.getMapsToMutationObservers().push(this.#labelToChatBoxObserver);
   }
   getChatBoxContainer() {
     return this.#chatBoxContainer;
@@ -14965,6 +15186,7 @@ var DomInfo = class {
       this.#chatBoxContainerObserver.observe(this.#chatBoxContainer, {
         childList: true
       });
+      this.getActiveMutationObservers().push(this.#chatBoxContainerObserver);
     }
   }
   getChatBoxContainerContainer() {
@@ -14983,49 +15205,12 @@ var DomInfo = class {
           childList: true
         }
       );
+      this.getActiveMutationObservers().push(
+        this.#chatBoxContainerContainerObserver
+      );
     }
   }
-  getMessageGrid() {
-    return this.#messageGrid;
-  }
-  setMessageGrid(pointOfReference = this.#chat) {
-    let grid = pointOfReference.querySelector(labeledMessageGrid);
-    if (grid === null) {
-      grid = pointOfReference.querySelector(messageGrid);
-    }
-    this.#messageGrid = grid;
-  }
-  // #editorContainerMutationHandler = (mutations) => {
-  //   mutations.forEach((mutation) => {
-  //     // console.log(`attribute of editor container mutated`);
-  //     // if (
-  //     //   mutation.attributeName === 'aria-label' &&
-  //     //   !mutation.target.hasAttribute('aria-label')
-  //     // ) {
-  //     //   console.log(`aria-label removed`);
-  //     // }
-  //     mutation.addedNodes.forEach((node) => {
-  //       console.log(`node added to editor container's child list`);
-  //       console.log(node);
-  //       const textbox = node.querySelector(
-  //         'div[role="textbox"][contenteditable="true"].xzsf02u.x1a2a7pz.x1n2onr6.x14wi4xw'
-  //       );
-  //     });
-  //   });
-  // };
-  // observeEditorContainers() {
-  //   const editorContainers = document.querySelectorAll(
-  //     this.#editorContainerSelector
-  //   );
-  //   console.log(`${editorContainers.length} editor containers found`);
-  //   for (const container of editorContainers) {
-  //     const observer = new MutationObserver(
-  //       this.#editorContainerMutationHandler
-  //     );
-  //     observer.observe(container, { childList: true });
-  //   }
-  // }
-  markMostRecentMessage(gridcellSource = this.#chat) {
+  markMostRecentMessage(gridcellSource = this.getChat()) {
     let gridcellContainer2 = gridcellSource.querySelector(
       gridcellContainer
     );
@@ -15082,24 +15267,6 @@ var DomInfo = class {
     }
     return ancestor;
   }
-  #chatBubbleMutationHandler = (mutations) => {
-    mutations.forEach((mutation) => {
-      mutation.addedNodes.forEach((node) => {
-        this.handleChatBubbles(node);
-      });
-    });
-  };
-  observeChatBubbles() {
-    if (this.#messageGrid !== null) {
-      const observer = new MutationObserver(this.#chatBubbleMutationHandler);
-      observer.observe(this.#messageGrid, {
-        childList: true,
-        subtree: true
-      });
-      const label = this.#messageGrid.getAttribute("aria-label");
-      this.#labelToBubbleObserver.set(label, observer);
-    }
-  }
   isNewMessage(bubble) {
     const gridcell = this.findGridcell(bubble);
     if (gridcell === null) {
@@ -15120,135 +15287,38 @@ var DomInfo = class {
     const finalOldMessagePos = gridcells.indexOf(finalOldMessage);
     return gridcellPos > finalOldMessagePos;
   }
-  handleChatBubbles(bubbleSource) {
-    const bubbleHandler = (source) => {
-      if (source && "querySelectorAll" in source) {
-        const chatBubbles = source.querySelectorAll(chatBubble);
-        chatBubbles.forEach((bubble) => {
-          const waitForCompleteMessage = (txt) => {
-            setTimeout(() => {
-              if (bubble.textContent !== txt) {
-                waitForCompleteMessage(bubble.textContent);
-              } else {
-                parseParts(bubble);
-                setTimeout(() => {
-                  const gridcell = this.findGridcell(bubble);
-                  if (gridcell !== null) {
-                    const gridcellContainer2 = gridcell.parentNode;
-                    this.markMostRecentMessage(gridcellContainer2);
-                  }
-                }, 8e3);
-              }
-            }, 4e3);
-          };
-          if (this.isNewMessage(bubble)) {
-            waitForCompleteMessage(bubble.textContent);
-          } else {
-            parseParts(bubble);
+  waitForCompleteMessage(bubble) {
+    const txt = bubble.textContent;
+    setTimeout(() => {
+      if (bubble.textContent !== txt) {
+        this.waitForCompleteMessage(bubble);
+      } else {
+        parseParts(bubble);
+        setTimeout(() => {
+          const gridcell = this.findGridcell(bubble);
+          if (gridcell !== null) {
+            const gridcellContainer2 = gridcell.parentNode;
+            this.markMostRecentMessage(gridcellContainer2);
           }
-        });
+        }, 8e3);
       }
-    };
-    if (arguments.length === 0) {
-      bubbleHandler(this.#messageGrid);
-    }
-    if (arguments.length === 1) {
-      bubbleHandler(bubbleSource);
-    }
-  }
-  getChatBoxToLabel() {
-    return this.#chatBoxToLabel;
-  }
-  setChatBoxToLabel() {
-    for (const chatBox of this.#chatBoxContainer.children) {
-      const messageGridLabel = chatBox.querySelector(labeledMessageGrid).getAttribute("aria-label");
-      this.#chatBoxToLabel.set(chatBox, messageGridLabel);
-    }
-  }
-  getLabelToBubbleObserver() {
-    return this.#labelToBubbleObserver;
-  }
-  #chatBoxVisibilityMutationHandler = (mutations) => {
-    mutations.forEach((mutation) => {
-      if (mutation.attributeName === "hidden") {
-        const labeledGrid = mutation.target.querySelector(
-          labeledMessageGrid
-        );
-        const messageGridLabel = labeledGrid ? labeledGrid.getAttribute("aria-label") : null;
-        if (mutation.target.hasAttribute("hidden")) {
-          const bubbleObserver = this.#labelToBubbleObserver.get(messageGridLabel);
-          if (bubbleObserver !== void 0) {
-            bubbleObserver.disconnect();
-          }
-        } else {
-          this.setMessageGrid(mutation.target);
-          this.#chatBoxToLabel.set(mutation.target, messageGridLabel);
-          this.handleChatBubbles();
-          this.observeChatBubbles();
-        }
-      }
-    });
-  };
-  observeChatBoxes() {
-    for (const chatBox of this.#chatBoxContainer.children) {
-      const messageGridLabel = chatBox.querySelector(labeledMessageGrid).getAttribute("aria-label");
-      if (!this.#labelToChatBoxObserver.has(messageGridLabel)) {
-        const observer = new MutationObserver(
-          this.#chatBoxVisibilityMutationHandler
-        );
-        observer.observe(chatBox.firstChild.firstChild, { attributes: true });
-        this.#labelToChatBoxObserver.set(messageGridLabel, observer);
-      }
-    }
-  }
-  disconnectObservers() {
-    [
-      this.#accountControlsAndSettingsObserver,
-      this.#chatBoxContainerObserver,
-      this.#chatBoxContainerContainerObserver,
-      this.#messengerChatContainerObserver
-    ].forEach((observer) => observer.disconnect());
-    for (const entry of this.#labelToChatBoxObserver.entries()) {
-      entry[1].disconnect();
-    }
-    for (const entry of this.#labelToBubbleObserver.entries()) {
-      entry[1].disconnect();
-    }
-    if (this.#messengerChatContainerContainer !== null) {
-      this.#messengerChatContainerContainerObserver.unobserve(
-        this.#messengerChatContainerContainer
-      );
-    }
+    }, 4e3);
   }
 };
-var isOfTheClasses = (node, theCs) => {
-  for (const c of theCs) {
-    if (node === null || !("classList" in node) || !node.classList.contains(c)) {
-      return false;
-    }
-  }
-  return true;
-};
-var injectCss = (filePath2) => {
-  const css = document.createElement("link");
-  css.rel = "stylesheet";
-  css.href = chrome.runtime.getURL(filePath2);
-  css.type = "text/css";
-  document.head.appendChild(css);
-};
-for (filePath of ["katex/katex.min.css", "fb.katex.css"]) injectCss(filePath);
+
+// run.js
 var handleChat = (domInfo) => {
-  const chat2 = domInfo.getChat();
+  const chat = domInfo.getChat();
   if (domInfo.getChat() !== null && "querySelector" in domInfo.getChat()) {
     const waitToHandleMessages = () => {
       if (domInfo.getMessageGrid() === null) {
         setTimeout(() => {
-          domInfo.setChat(chat2);
+          domInfo.setChat(chat);
           domInfo.setMessageGrid();
           waitToHandleMessages();
         }, 100);
       } else {
-        const label = domInfo.getChatBoxToLabel().get(chat2);
+        const label = domInfo.getChatBoxToLabel().get(chat);
         if (label === null || !domInfo.getLabelToBubbleObserver().has(label)) {
           domInfo.handleChatBubbles();
           domInfo.observeChatBubbles();
@@ -15275,9 +15345,9 @@ var handleChatBoxContainer = (domInfo) => {
           domInfo.setChatBoxToLabel();
           domInfo.observeChatBoxes();
           const chatBoxes = domInfo.getChatBoxContainer().children;
-          for (const chat2 of chatBoxes) {
-            domInfo.markMostRecentMessage(chat2);
-            domInfo.setChat(chat2);
+          for (const chat of chatBoxes) {
+            domInfo.markMostRecentMessage(chat);
+            domInfo.setChat(chat);
             handleChat(domInfo);
           }
         }
@@ -15288,15 +15358,8 @@ var handleChatBoxContainer = (domInfo) => {
   waitToHandleChatBoxes();
   domInfo.observeChatBoxContainer();
 };
-var initMessengerChat = (domInfo) => {
-  domInfo.setMessengerChatContainerContainer();
-  domInfo.setMessengerChatContainerContainerWidth();
-  domInfo.observeMessengerChatContainerContainer();
-  domInfo.setMessengerChatContainer();
-  domInfo.observeMessengerChatContainer();
-  domInfo.setChat();
-};
-var startUp = () => {
+var oneTimeInit = () => {
+  injectCss();
   const domInfo = new DomInfo();
   domInfo.setMount();
   const waitForMount = () => {
@@ -15311,30 +15374,55 @@ var startUp = () => {
   };
   waitForMount();
   domInfo.setAccountControlsAndSettings();
-  domInfo.observeAccountControlsAndSettings();
-  if (window.location.href.startsWith("https://www.facebook.com/messages")) {
-    initMessengerChat(domInfo);
-    const waitToHandleChat = () => {
-      if (domInfo.getChat() === null) {
-        domInfo.ignoreMessengerChatContainerContainer();
-        domInfo.ignoreMessengerChatContainer();
-        setTimeout(() => {
-          initMessengerChat(domInfo);
-          waitToHandleChat();
-        }, 100);
-      } else {
-        domInfo.markMostRecentMessage();
-        handleChat(domInfo);
-      }
-    };
+  const waitForAccountControlsAndSettings = () => {
+    if (domInfo.getAccountControlsAndSettings() === null) {
+      setTimeout(() => {
+        domInfo.setAccountControlsAndSettings();
+        waitForAccountControlsAndSettings();
+      }, 100);
+    } else {
+      domInfo.observeAccountControlsAndSettings();
+    }
+  };
+  waitForAccountControlsAndSettings();
+  return domInfo;
+};
+var initMessengerChat = (domInfo) => {
+  domInfo.setResizeObservee();
+  domInfo.setChatWidth();
+  domInfo.observeChatWidth();
+  domInfo.setChatContainer();
+  domInfo.observeChatContainer();
+  domInfo.setChat();
+};
+var setUpMessengerView = (domInfo) => {
+  initMessengerChat(domInfo);
+  const waitToHandleChat = () => {
     if (domInfo.getChat() === null) {
-      waitToHandleChat();
+      domInfo.ignoreChatWidth();
+      domInfo.ignoreChatContainer();
+      setTimeout(() => {
+        initMessengerChat(domInfo);
+        waitToHandleChat();
+      }, 100);
     } else {
       domInfo.markMostRecentMessage();
-      domInfo.setMessageGrid();
-      domInfo.handleChatBubbles();
-      domInfo.observeChatBubbles();
+      handleChat(domInfo);
     }
+  };
+  if (domInfo.getChat() === null) {
+    waitToHandleChat();
+  } else {
+    domInfo.markMostRecentMessage();
+    domInfo.setMessageGrid();
+    domInfo.handleChatBubbles();
+    domInfo.observeChatBubbles();
+  }
+};
+var startUp = () => {
+  const domInfo = oneTimeInit();
+  if (window.location.href.startsWith("https://www.facebook.com/messages")) {
+    setUpMessengerView(domInfo);
   } else {
     domInfo.setChatBoxContainerContainer();
     let lengthOfWait = 0;
@@ -15368,13 +15456,9 @@ var startUp = () => {
     waitToHandleChatBoxContainer();
   }
 };
-window.onload = startUp;
-var reset = () => {
-  const domInfo = new DomInfo();
+var setUpChatBoxView = (domInfo) => {
   domInfo.setChatBoxContainerContainer();
   domInfo.observeChatBoxContainerContainer();
-  domInfo.setAccountControlsAndSettings();
-  domInfo.observeAccountControlsAndSettings();
   domInfo.setChatBoxContainer();
   const waitForGridsToBeLabeled = () => {
     if (!domInfo.messageGridsLabeled()) {
@@ -15383,8 +15467,8 @@ var reset = () => {
       domInfo.setChatBoxToLabel();
       domInfo.observeChatBoxes();
       const chatBoxes = domInfo.getChatBoxContainer().children;
-      for (const chat2 of chatBoxes) {
-        domInfo.setChat(chat2);
+      for (const chat of chatBoxes) {
+        domInfo.setChat(chat);
         domInfo.setMessageGrid();
         const waitToHandleMessages = () => {
           if (domInfo.getMessageGrid() === null) {
@@ -15393,7 +15477,7 @@ var reset = () => {
               waitToHandleMessages();
             }, 100);
           } else {
-            domInfo.markMostRecentMessage(chat2);
+            domInfo.markMostRecentMessage(chat);
             domInfo.handleChatBubbles();
             domInfo.observeChatBubbles();
           }
@@ -15405,3 +15489,6 @@ var reset = () => {
   };
   waitForGridsToBeLabeled();
 };
+
+// main.js
+window.onload = startUp;
