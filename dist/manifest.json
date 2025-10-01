@@ -21,6 +21,11 @@
       "matches": ["https://www.facebook.com/*"]
     }
   ],
+  "options_ui": {
+    "page": "options.html",
+    "open_in_tab": false
+  },
+  "permissions": ["storage"],
   "browser_specific_settings": {
     "gecko": {
       "id": "@katex-for-messenger-web.ben-bavar"

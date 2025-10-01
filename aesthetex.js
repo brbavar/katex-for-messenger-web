@@ -66,13 +66,49 @@ const removeNewlines = (msg) => {
   }
 };
 
-const makeFit = (span) => {
+const makeFit = async (span) => {
   const baseSpans = span.querySelectorAll('span.base');
   let collectiveSpanWidth = 0;
+  let baseSpanWidth = 0;
 
+  // console.log(`${baseSpans.length} base spans found:`);
   for (let baseSpan of baseSpans) {
-    collectiveSpanWidth += baseSpan.getBoundingClientRect().width;
+    // console.log(baseSpan);
+    // console.log(
+    //   `baseSpan.getBoundingClientRect().width = ${
+    //     baseSpan.getBoundingClientRect().width
+    //   }, baseSpan.style.width = ${baseSpan.style.width}, baseSpan.width = ${
+    //     baseSpan.width
+    //   }`
+    // );
+    if ((baseSpanWidth = baseSpan.getBoundingClientRect().width) <= 0) {
+      // const baseSpanClone = baseSpan.cloneNode();
+      // // document.body.append([baseSpanClone]);
+      // document.body.appendChild(baseSpanClone);
+      // baseSpanWidth = baseSpanClone.getBoundingClientRect().width;
+      // baseSpanClone.remove();
+      // const zeroWidthState = baseSpan.style.visibility;
+
+      baseSpan.style.visibility = 'hidden';
+      baseSpanWidth = baseSpan.getBoundingClientRect().width;
+      // console.log(
+      //   `zeroWidthState = ${zeroWidthState}, baseSpan.style.display = ${baseSpan.style.display}, baseSpanWidth = ${baseSpanWidth}`
+      // );
+      // console.log(`baseSpanWidth = ${baseSpanWidth}`);
+      baseSpan.style.visibility = '';
+
+      // baseSpan.style.visibility = zeroWidthState;
+    }
+
+    // // collectiveSpanWidth += baseSpan.getBoundingClientRect().width;
+    // collectiveSpanWidth +=
+    //   baseSpan.getBoundingClientRect().width > 0
+    //     ? baseSpan.getBoundingClientRect().width
+    //     : baseSpan.style.width;
+    collectiveSpanWidth += baseSpanWidth;
   }
+
+  // console.log(`collectiveSpanWidth = ${collectiveSpanWidth}`);
 
   let partialSumOfSpanWidths = collectiveSpanWidth;
   if (baseSpans.length > 0) {
@@ -87,63 +123,129 @@ const makeFit = (span) => {
       }
     }
 
-    if (oversizedBaseFound) {
-      span.classList.add('katex-scrollable');
+    // // const getStoredItems = () => {
+    // //   let storedItems = null;
+    // //   chrome.storage.sync.get(
+    // //     { longFormulaFormat: 'Add scroll bar' },
+    // //     (items) => {
+    // //       // longFormulaFormat = items.longFormulaFormat;
+    // //       // console.log(`longFormulaFormat = ${longFormulaFormat}`);
+    // //       storedItems = items;
+    // //       console.log(`storedItems inside = ${storedItems}`);
+    // //     }
+    // //   );
+    // //   return storedItems;
+    // // };
 
-      if (span.getAttribute('class') === 'katex katex-scrollable') {
-        span.style.display = 'inline-block';
-      }
-      span.style.width = `${span.parentNode.getBoundingClientRect().width}px`;
-      span.style.overflowX = 'scroll';
-      span.style.overflowY = 'hidden';
-      span.style.scrollbarWidth = 'thin';
-      span.style.scrollbarColor = scrollbarColor;
-    } else {
-      let i = baseSpans.length - 1;
-      let j = 0;
+    // const getStoredItems = async () => {
+    //   storedItems = await chrome.storage.sync.get({
+    //     longFormulaFormat: 'Add scroll bar',
+    //   });
+    // };
+    // // const storedItems = getStoredItems();
+    // let storedItems = null;
+    // getStoredItems(storedItems);
+    // let longFormulaFormat = '';
+    // // console.log(`storedItems outside = ${storedItems}`);
+    // if (storedItems !== null) {
+    //   longFormulaFormat = storedItems.longFormulaFormat;
+    //   console.log(`longFormulaFormat = ${longFormulaFormat}`);
+    // }
 
-      const insertLineBreak = () => {
-        if (
-          collectiveSpanWidth > span.parentNode.getBoundingClientRect().width
-        ) {
-          if (i > j) {
-            if (
-              partialSumOfSpanWidths -
-                baseSpans[i].getBoundingClientRect().width <=
-                span.parentNode.getBoundingClientRect().width - 10 ||
-              i - j === 1
-            ) {
-              const spacer = document.createElement('div');
-              spacer.style.margin = '10px 0px';
-              baseSpans[0].parentNode.insertBefore(spacer, baseSpans[i]);
+    // const storage =
+    //   browser.storage !== undefined ? browser.storage : chrome.storage;
+    const storage =
+      globalThis.browser?.storage.sync || globalThis.chrome?.storage.sync;
 
+    // const storedItems = await chrome.storage.sync.get({
+    //   longFormulaFormat: 'Add scroll bar',
+    // });
+    const storedItems = await storage.get({
+      longFormulaFormat: 'Add scroll bar',
+    });
+
+    // console.log(`inside makeFit`);
+
+    // console.log(
+    //   `collectiveSpanWidth = ${collectiveSpanWidth}, span.parentNode.getBoundingClientRect().width = ${
+    //     span.parentNode.getBoundingClientRect().width
+    //   }`
+    // );
+    if (collectiveSpanWidth > span.parentNode.getBoundingClientRect().width) {
+      // console.log(
+      //   `collectiveSpanWidth > span.parentNode.getBoundingClientRect().width`
+      // );
+      // console.log(
+      //   `storedItems.longFormulaFormat = ${storedItems.longFormulaFormat}, oversizedBaseFound = ${oversizedBaseFound}`
+      // );
+      if (
+        storedItems.longFormulaFormat === 'line-breaks' &&
+        !oversizedBaseFound
+      ) {
+        // console.log(`inserting line breaks`);
+        let i = baseSpans.length - 1;
+        let j = 0;
+
+        const insertLineBreak = () => {
+          if (
+            collectiveSpanWidth > span.parentNode.getBoundingClientRect().width
+          ) {
+            if (i > j) {
               if (
-                collectiveSpanWidth -
-                  (partialSumOfSpanWidths -
-                    baseSpans[i].getBoundingClientRect().width) >
-                span.parentNode.getBoundingClientRect().width - 10
+                partialSumOfSpanWidths -
+                  baseSpans[i].getBoundingClientRect().width <=
+                  span.parentNode.getBoundingClientRect().width - 10 ||
+                i - j === 1
               ) {
-                partialSumOfSpanWidths =
+                const spacer = document.createElement('div');
+                spacer.style.margin = '10px 0px';
+                baseSpans[0].parentNode.insertBefore(spacer, baseSpans[i]);
+
+                if (
                   collectiveSpanWidth -
-                  (partialSumOfSpanWidths -
-                    baseSpans[i].getBoundingClientRect().width);
-                collectiveSpanWidth = partialSumOfSpanWidths;
-                j = i;
-                i = baseSpans.length - 1;
+                    (partialSumOfSpanWidths -
+                      baseSpans[i].getBoundingClientRect().width) >
+                  span.parentNode.getBoundingClientRect().width - 10
+                ) {
+                  partialSumOfSpanWidths =
+                    collectiveSpanWidth -
+                    (partialSumOfSpanWidths -
+                      baseSpans[i].getBoundingClientRect().width);
+                  collectiveSpanWidth = partialSumOfSpanWidths;
+                  j = i;
+                  i = baseSpans.length - 1;
+
+                  insertLineBreak();
+                }
+              } else {
+                partialSumOfSpanWidths -=
+                  baseSpans[i--].getBoundingClientRect().width;
 
                 insertLineBreak();
               }
-            } else {
-              partialSumOfSpanWidths -=
-                baseSpans[i--].getBoundingClientRect().width;
-
-              insertLineBreak();
             }
           }
+        };
+        insertLineBreak();
+      } else {
+        // console.log(`making scrollable`);
+        span.classList.add('katex-scrollable');
+
+        if (span.getAttribute('class') === 'katex katex-scrollable') {
+          span.style.display = 'inline-block';
         }
-      };
-      insertLineBreak();
+        span.style.width = `${span.parentNode.getBoundingClientRect().width}px`;
+        span.style.overflowX = 'scroll';
+        span.style.overflowY = 'hidden';
+        span.style.scrollbarWidth = 'thin';
+        span.style.scrollbarColor = scrollbarColor;
+      }
     }
+    // else {
+    //   console.log(
+    //     `collectiveSpanWidth <= span.parentNode.getBoundingClientRect().width`
+    //   );
+    // }
   }
 };
 

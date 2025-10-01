@@ -179,14 +179,17 @@ const startUp = () => {
 };
 
 const setUpChatBoxView = (domInfo) => {
+  console.log(`setting up chat box view`);
   domInfo.setChatBoxContainerContainer();
   domInfo.observeChatBoxContainerContainer();
 
   domInfo.setChatBoxContainer();
   const waitForGridsToBeLabeled = () => {
     if (!domInfo.messageGridsLabeled()) {
+      console.log(`waiting for grids to be labeled...`);
       setTimeout(waitForGridsToBeLabeled, 100);
     } else {
+      console.log(`grids are labeled`);
       domInfo.setChatBoxToLabel();
       domInfo.observeChatBoxes();
 

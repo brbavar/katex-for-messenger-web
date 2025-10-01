@@ -26,7 +26,7 @@ const chatBubble =
 
 const katex = `${chatBubble} span:where(:not(.katex-display) > .katex, .katex-display)`;
 
-const gridcellContainer =
+const gridChunkContainer =
   'div.x1qjc9v5.x9f619.xdl72j9.x2lwn1j.xeuugli.x1n2onr6.x78zum5.xdt5ytf.x1iyjqo2.xs83m0k.x6ikm8r.x10wlt62.x1ja2u2z > div.x78zum5.xdt5ytf.x1iyjqo2.x6ikm8r.x1odjw0f.xish69e.x16o0dkt > div.x78zum5.xdt5ytf.x1iyjqo2.x2lah0s.xl56j7k.x121v3j4';
 
 // const moreActionsMenuContainer =
@@ -50,5 +50,5 @@ export {
   messageGrid,
   chatBubble,
   katex,
-  gridcellContainer,
+  gridChunkContainer,
 };

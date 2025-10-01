@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "build": "esbuild main.js --bundle --outdir=dist --format=esm && cp -r manifest.json *.png *.css katex dist"
+    "build": "esbuild main.js --bundle --outdir=dist --format=esm && cp -r manifest.json *.png *.css katex *.html options.js dist"
   },
   "targets": {
     "manifest": {

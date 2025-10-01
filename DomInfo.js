@@ -1,8 +1,8 @@
 import * as selector from './selector.js';
 import { DomInfoCore } from './DomInfoCore.js';
 import { setUpMessengerView, setUpChatBoxView } from './run.js';
-import { isOfTheClasses } from './util.js';
-import { parseParts } from './parse.js';
+// import { isOfTheClasses } from './util.js';
+import { parseParts, findGridChunk } from './parse.js';
 
 class DomInfo extends DomInfoCore {
   #mount = null;
@@ -247,24 +247,52 @@ class DomInfo extends DomInfoCore {
         const messageGridLabel = labeledGrid
           ? labeledGrid.getAttribute('aria-label')
           : null;
+        const bubbleObserver =
+          this.getLabelToBubbleObserver().get(messageGridLabel);
 
         if (mutation.target.hasAttribute('hidden')) {
-          const bubbleObserver =
-            this.getLabelToBubbleObserver().get(messageGridLabel);
-          if (bubbleObserver !== undefined) {
+          console.log(`${messageGridLabel} hidden`);
+          // const bubbleObserver =
+          //   this.getLabelToBubbleObserver().get(messageGridLabel);
+          if (this.getLabelToBubbleObserver().has(messageGridLabel)) {
+            // if (bubbleObserver !== undefined) {
+            console.log(
+              `disconnecting bubble observer from ${messageGridLabel}`
+            );
             bubbleObserver.disconnect();
           }
         } else {
+          console.log(`${messageGridLabel} shown`);
           this.setMessageGrid(mutation.target);
           this.#chatBoxToLabel.set(mutation.target, messageGridLabel);
           this.handleChatBubbles();
-          this.observeChatBubbles();
+          // const bubbleObserver =
+          //   this.getLabelToBubbleObserver().get(messageGridLabel);
+          console.log(`connecting bubble observer to ${messageGridLabel}`);
+          if (
+            this.getLabelToBubbleObserver().has(messageGridLabel) &&
+            this.getMessageGrid() !== null
+          ) {
+            // if (bubbleObserver !== undefined) {
+            console.log(
+              `${messageGridLabel} already mapped to bubble observer`
+            );
+            bubbleObserver.observe(this.getMessageGrid(), {
+              childList: true,
+              subtree: true,
+            });
+          } else {
+            this.observeChatBubbles();
+          }
         }
       }
     });
   };
 
   observeChatBoxes() {
+    console.log(
+      `observing all ${this.#chatBoxContainer.children.length} chat boxes`
+    );
     for (const chatBox of this.#chatBoxContainer.children) {
       const messageGridLabel = chatBox
         .querySelector(selector.labeledMessageGrid)
@@ -274,7 +302,13 @@ class DomInfo extends DomInfoCore {
           this.#chatBoxVisibilityMutationHandler
         );
         observer.observe(chatBox.firstChild.firstChild, { attributes: true });
+        console.log(`mapping chat box labeled ${messageGridLabel} to observer`);
         this.#labelToChatBoxObserver.set(messageGridLabel, observer);
+      } else {
+        console.log(`already mapped ${messageGridLabel} to observer`);
+        this.#labelToChatBoxObserver
+          .get(messageGridLabel)
+          .observe(chatBox.firstChild.firstChild, { attributes: true });
       }
     }
     this.getMapsToMutationObservers().push(this.#labelToChatBoxObserver);
@@ -323,25 +357,25 @@ class DomInfo extends DomInfoCore {
     }
   }
 
-  markMostRecentMessage(gridcellSource = this.getChat()) {
-    let gridcellContainer = gridcellSource.querySelector(
-      selector.gridcellContainer
+  markMostRecentMessage(gridChunkSource = this.getChat()) {
+    let gridChunkContainer = gridChunkSource.querySelector(
+      selector.gridChunkContainer
     );
-    if (gridcellContainer === null) {
-      gridcellContainer = gridcellSource;
+    if (gridChunkContainer === null) {
+      gridChunkContainer = gridChunkSource;
     }
 
     const waitForMessagesToAppear = () => {
-      if (gridcellContainer.children.length < 2) {
+      if (gridChunkContainer.children.length < 2) {
         setTimeout(waitForMessagesToAppear, 100);
       } else {
-        const waitForBareGridcell = () => {
+        const waitForBareGridChunk = () => {
           const mostRecentMessage =
-            gridcellContainer.children[gridcellContainer.children.length - 1];
+            gridChunkContainer.children[gridChunkContainer.children.length - 1];
           if (mostRecentMessage.hasAttribute('role')) {
-            setTimeout(waitForBareGridcell, 100);
+            setTimeout(waitForBareGridChunk, 100);
           } else {
-            const finalOldMessage = gridcellContainer.querySelector(
+            const finalOldMessage = gridChunkContainer.querySelector(
               '.old-messages-end-here'
             );
             if (finalOldMessage !== null) {
@@ -350,77 +384,35 @@ class DomInfo extends DomInfoCore {
             mostRecentMessage.classList.add('old-messages-end-here');
           }
         };
-        waitForBareGridcell();
+        waitForBareGridChunk();
       }
     };
     waitForMessagesToAppear();
   }
 
-  findGridcell(descendant) {
-    if (
-      !descendant.hasAttribute('class') &&
-      isOfTheClasses(descendant.parentNode, [
-        'x78zum5',
-        'xdt5ytf',
-        'x1iyjqo2',
-        'x2lah0s',
-        'xl56j7k',
-        'x121v3j4',
-      ])
-    ) {
-      return descendant;
-    }
-
-    let ancestor = descendant.parentNode;
-
-    while (
-      ancestor !== null &&
-      (ancestor.hasAttribute('class') ||
-        !isOfTheClasses(ancestor.parentNode, [
-          'x78zum5',
-          'xdt5ytf',
-          'x1iyjqo2',
-          'x2lah0s',
-          'xl56j7k',
-          'x121v3j4',
-        ]))
-    ) {
-      ancestor = ancestor.parentNode;
-
-      if (
-        ancestor !== null &&
-        ancestor.constructor.name === 'HTMLBodyElement'
-      ) {
-        return null;
-      }
-    }
-
-    return ancestor;
-  }
-
   isNewMessage(bubble) {
-    const gridcell = this.findGridcell(bubble);
-    if (gridcell === null) {
+    const gridChunk = findGridChunk(bubble);
+    if (gridChunk === null) {
       return false;
     }
 
-    let gridcellContainer = gridcell.parentNode;
-    const gridcells = Array.from(gridcellContainer.children);
-    const gridcellPos = gridcells.indexOf(gridcell);
+    let gridChunkContainer = gridChunk.parentNode;
+    const gridChunks = Array.from(gridChunkContainer.children);
+    const gridChunkPos = gridChunks.indexOf(gridChunk);
 
-    let finalOldMessage = gridcellContainer.querySelector(
+    let finalOldMessage = gridChunkContainer.querySelector(
       '.old-messages-end-here'
     );
     if (finalOldMessage === null) {
-      this.markMostRecentMessage(gridcellContainer);
-      finalOldMessage = gridcellContainer.querySelector(
+      this.markMostRecentMessage(gridChunkContainer);
+      finalOldMessage = gridChunkContainer.querySelector(
         '.old-messages-end-here'
       );
     }
 
-    const finalOldMessagePos = gridcells.indexOf(finalOldMessage);
+    const finalOldMessagePos = gridChunks.indexOf(finalOldMessage);
 
-    return gridcellPos > finalOldMessagePos;
+    return gridChunkPos > finalOldMessagePos;
   }
 
   waitForCompleteMessage(bubble) {
@@ -432,10 +424,10 @@ class DomInfo extends DomInfoCore {
         parseParts(bubble);
 
         setTimeout(() => {
-          const gridcell = this.findGridcell(bubble);
-          if (gridcell !== null) {
-            const gridcellContainer = gridcell.parentNode;
-            this.markMostRecentMessage(gridcellContainer);
+          const gridChunk = findGridChunk(bubble);
+          if (gridChunk !== null) {
+            const gridChunkContainer = gridChunk.parentNode;
+            this.markMostRecentMessage(gridChunkContainer);
           }
         }, 8000);
       }

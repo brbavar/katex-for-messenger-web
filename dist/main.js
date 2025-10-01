@@ -11,7 +11,7 @@ var labeledMessageGrid = '[aria-label^="Messages in conversation"]';
 var messageGrid = `${labeledMessageGrid}, div[role="grid"].x78zum5.xdt5ytf.x1iyjqo2.x6ikm8r.x10wlt62, div.x78zum5.xdt5ytf.x1iyjqo2.x6ikm8r.x10wlt62`;
 var chatBubble = ".html-div.xexx8yu.x18d9i69.xat24cr.xdj266r.xeuugli.x1vjfegm";
 var katex = `${chatBubble} span:where(:not(.katex-display) > .katex, .katex-display)`;
-var gridcellContainer = "div.x1qjc9v5.x9f619.xdl72j9.x2lwn1j.xeuugli.x1n2onr6.x78zum5.xdt5ytf.x1iyjqo2.xs83m0k.x6ikm8r.x10wlt62.x1ja2u2z > div.x78zum5.xdt5ytf.x1iyjqo2.x6ikm8r.x1odjw0f.xish69e.x16o0dkt > div.x78zum5.xdt5ytf.x1iyjqo2.x2lah0s.xl56j7k.x121v3j4";
+var gridChunkContainer = "div.x1qjc9v5.x9f619.xdl72j9.x2lwn1j.xeuugli.x1n2onr6.x78zum5.xdt5ytf.x1iyjqo2.xs83m0k.x6ikm8r.x10wlt62.x1ja2u2z > div.x78zum5.xdt5ytf.x1iyjqo2.x6ikm8r.x1odjw0f.xish69e.x16o0dkt > div.x78zum5.xdt5ytf.x1iyjqo2.x2lah0s.xl56j7k.x121v3j4";
 
 // node_modules/katex/dist/katex.mjs
 var SourceLocation = class _SourceLocation {
@@ -14449,6 +14449,11 @@ var manifest_default = {
       matches: ["https://www.facebook.com/*"]
     }
   ],
+  options_ui: {
+    page: "options.html",
+    open_in_tab: false
+  },
+  permissions: ["storage"],
   browser_specific_settings: {
     gecko: {
       id: "@katex-for-messenger-web.ben-bavar"
@@ -14504,11 +14509,17 @@ var removeNewlines = (msg) => {
     }
   }
 };
-var makeFit = (span) => {
+var makeFit = async (span) => {
   const baseSpans = span.querySelectorAll("span.base");
   let collectiveSpanWidth = 0;
+  let baseSpanWidth = 0;
   for (let baseSpan of baseSpans) {
-    collectiveSpanWidth += baseSpan.getBoundingClientRect().width;
+    if ((baseSpanWidth = baseSpan.getBoundingClientRect().width) <= 0) {
+      baseSpan.style.visibility = "hidden";
+      baseSpanWidth = baseSpan.getBoundingClientRect().width;
+      baseSpan.style.visibility = "";
+    }
+    collectiveSpanWidth += baseSpanWidth;
   }
   let partialSumOfSpanWidths = collectiveSpanWidth;
   if (baseSpans.length > 0) {
@@ -14519,41 +14530,47 @@ var makeFit = (span) => {
         break;
       }
     }
-    if (oversizedBaseFound) {
-      span.classList.add("katex-scrollable");
-      if (span.getAttribute("class") === "katex katex-scrollable") {
-        span.style.display = "inline-block";
-      }
-      span.style.width = `${span.parentNode.getBoundingClientRect().width}px`;
-      span.style.overflowX = "scroll";
-      span.style.overflowY = "hidden";
-      span.style.scrollbarWidth = "thin";
-      span.style.scrollbarColor = scrollbarColor;
-    } else {
-      let i = baseSpans.length - 1;
-      let j = 0;
-      const insertLineBreak = () => {
-        if (collectiveSpanWidth > span.parentNode.getBoundingClientRect().width) {
-          if (i > j) {
-            if (partialSumOfSpanWidths - baseSpans[i].getBoundingClientRect().width <= span.parentNode.getBoundingClientRect().width - 10 || i - j === 1) {
-              const spacer = document.createElement("div");
-              spacer.style.margin = "10px 0px";
-              baseSpans[0].parentNode.insertBefore(spacer, baseSpans[i]);
-              if (collectiveSpanWidth - (partialSumOfSpanWidths - baseSpans[i].getBoundingClientRect().width) > span.parentNode.getBoundingClientRect().width - 10) {
-                partialSumOfSpanWidths = collectiveSpanWidth - (partialSumOfSpanWidths - baseSpans[i].getBoundingClientRect().width);
-                collectiveSpanWidth = partialSumOfSpanWidths;
-                j = i;
-                i = baseSpans.length - 1;
+    const storage = globalThis.browser?.storage.sync || globalThis.chrome?.storage.sync;
+    const storedItems = await storage.get({
+      longFormulaFormat: "Add scroll bar"
+    });
+    if (collectiveSpanWidth > span.parentNode.getBoundingClientRect().width) {
+      if (storedItems.longFormulaFormat === "line-breaks" && !oversizedBaseFound) {
+        let i = baseSpans.length - 1;
+        let j = 0;
+        const insertLineBreak = () => {
+          if (collectiveSpanWidth > span.parentNode.getBoundingClientRect().width) {
+            if (i > j) {
+              if (partialSumOfSpanWidths - baseSpans[i].getBoundingClientRect().width <= span.parentNode.getBoundingClientRect().width - 10 || i - j === 1) {
+                const spacer = document.createElement("div");
+                spacer.style.margin = "10px 0px";
+                baseSpans[0].parentNode.insertBefore(spacer, baseSpans[i]);
+                if (collectiveSpanWidth - (partialSumOfSpanWidths - baseSpans[i].getBoundingClientRect().width) > span.parentNode.getBoundingClientRect().width - 10) {
+                  partialSumOfSpanWidths = collectiveSpanWidth - (partialSumOfSpanWidths - baseSpans[i].getBoundingClientRect().width);
+                  collectiveSpanWidth = partialSumOfSpanWidths;
+                  j = i;
+                  i = baseSpans.length - 1;
+                  insertLineBreak();
+                }
+              } else {
+                partialSumOfSpanWidths -= baseSpans[i--].getBoundingClientRect().width;
                 insertLineBreak();
               }
-            } else {
-              partialSumOfSpanWidths -= baseSpans[i--].getBoundingClientRect().width;
-              insertLineBreak();
             }
           }
+        };
+        insertLineBreak();
+      } else {
+        span.classList.add("katex-scrollable");
+        if (span.getAttribute("class") === "katex katex-scrollable") {
+          span.style.display = "inline-block";
         }
-      };
-      insertLineBreak();
+        span.style.width = `${span.parentNode.getBoundingClientRect().width}px`;
+        span.style.overflowX = "scroll";
+        span.style.overflowY = "hidden";
+        span.style.scrollbarWidth = "thin";
+        span.style.scrollbarColor = scrollbarColor;
+      }
     }
   }
 };
@@ -14571,7 +14588,8 @@ var undoMakeFit = (span) => {
 var wrapTextNodes = (root, msgParts) => {
   for (const node of root.childNodes) {
     if (node.nodeName !== "CODE") {
-      if (node.constructor.name === "Text") {
+      const texBounds = getTexBounds(node);
+      if (node.constructor.name === "Text" && texBounds.length > 0) {
         const span = document.createElement("span");
         span.textContent = node.textContent;
         node.parentNode.insertBefore(span, node);
@@ -14594,6 +14612,16 @@ var extractDescendants = (span) => {
   span.remove();
 };
 
+// util.js
+var isOfTheClasses = (node, theCs) => {
+  for (const c of theCs) {
+    if (node === null || !("classList" in node) || !node.classList.contains(c)) {
+      return false;
+    }
+  }
+  return true;
+};
+
 // parse.js
 var isOpeningDelim = (delim) => {
   if (delim.length === 0) {
@@ -14614,7 +14642,7 @@ var pairsWith = (delim1, delim2) => {
   }
   return false;
 };
-var getTexBounds = (msg, escapeCharIndices) => {
+var getTexBounds = (msg, escapeCharIndices = []) => {
   const txt = msg.textContent;
   const bounds = [];
   const delimAt = (i) => {
@@ -14757,11 +14785,49 @@ var parse = (msgPart) => {
     removeEscapeChars(msgPart, escapeCharIndices);
   }
 };
+var findGridChunk = (descendant) => {
+  if (!descendant.hasAttribute("class") && isOfTheClasses(descendant.parentNode, [
+    "x78zum5",
+    "xdt5ytf",
+    "x1iyjqo2",
+    "x2lah0s",
+    "xl56j7k",
+    "x121v3j4"
+  ])) {
+    return descendant;
+  }
+  let ancestor = descendant.parentNode;
+  while (ancestor !== null && (ancestor.hasAttribute("class") || !isOfTheClasses(ancestor.parentNode, [
+    "x78zum5",
+    "xdt5ytf",
+    "x1iyjqo2",
+    "x2lah0s",
+    "xl56j7k",
+    "x121v3j4"
+  ]))) {
+    ancestor = ancestor.parentNode;
+    if (ancestor !== null && ancestor.constructor.name === "HTMLBodyElement") {
+      return null;
+    }
+  }
+  return ancestor;
+};
 var parseParts = (bubble) => {
   const msgParts = [];
-  wrapTextNodes(bubble, msgParts);
+  if (bubble.querySelectorAll(".katex").length === 0) {
+    wrapTextNodes(bubble, msgParts);
+  } else {
+    bubble.querySelectorAll(
+      "span:where(:not(.katex-display) > .katex, .katex-display)"
+    ).forEach((span) => {
+      makeFit(span);
+    });
+  }
   for (const msgPart of msgParts) {
     parse(msgPart);
+  }
+  if (bubble.textContent === "") {
+    findGridChunk(bubble).style.display = "none";
   }
 };
 
@@ -14935,16 +15001,6 @@ var DomInfoCore = class {
       }
     }
   }
-};
-
-// util.js
-var isOfTheClasses = (node, theCs) => {
-  for (const c of theCs) {
-    if (node === null || !("classList" in node) || !node.classList.contains(c)) {
-      return false;
-    }
-  }
-  return true;
 };
 
 // DomInfo.js
@@ -15148,21 +15204,40 @@ var DomInfo = class extends DomInfoCore {
           labeledMessageGrid
         );
         const messageGridLabel = labeledGrid ? labeledGrid.getAttribute("aria-label") : null;
+        const bubbleObserver = this.getLabelToBubbleObserver().get(messageGridLabel);
         if (mutation.target.hasAttribute("hidden")) {
-          const bubbleObserver = this.getLabelToBubbleObserver().get(messageGridLabel);
-          if (bubbleObserver !== void 0) {
+          console.log(`${messageGridLabel} hidden`);
+          if (this.getLabelToBubbleObserver().has(messageGridLabel)) {
+            console.log(
+              `disconnecting bubble observer from ${messageGridLabel}`
+            );
             bubbleObserver.disconnect();
           }
         } else {
+          console.log(`${messageGridLabel} shown`);
           this.setMessageGrid(mutation.target);
           this.#chatBoxToLabel.set(mutation.target, messageGridLabel);
           this.handleChatBubbles();
-          this.observeChatBubbles();
+          console.log(`connecting bubble observer to ${messageGridLabel}`);
+          if (this.getLabelToBubbleObserver().has(messageGridLabel) && this.getMessageGrid() !== null) {
+            console.log(
+              `${messageGridLabel} already mapped to bubble observer`
+            );
+            bubbleObserver.observe(this.getMessageGrid(), {
+              childList: true,
+              subtree: true
+            });
+          } else {
+            this.observeChatBubbles();
+          }
         }
       }
     });
   };
   observeChatBoxes() {
+    console.log(
+      `observing all ${this.#chatBoxContainer.children.length} chat boxes`
+    );
     for (const chatBox of this.#chatBoxContainer.children) {
       const messageGridLabel = chatBox.querySelector(labeledMessageGrid).getAttribute("aria-label");
       if (!this.#labelToChatBoxObserver.has(messageGridLabel)) {
@@ -15170,7 +15245,11 @@ var DomInfo = class extends DomInfoCore {
           this.#chatBoxVisibilityMutationHandler
         );
         observer.observe(chatBox.firstChild.firstChild, { attributes: true });
+        console.log(`mapping chat box labeled ${messageGridLabel} to observer`);
         this.#labelToChatBoxObserver.set(messageGridLabel, observer);
+      } else {
+        console.log(`already mapped ${messageGridLabel} to observer`);
+        this.#labelToChatBoxObserver.get(messageGridLabel).observe(chatBox.firstChild.firstChild, { attributes: true });
       }
     }
     this.getMapsToMutationObservers().push(this.#labelToChatBoxObserver);
@@ -15210,23 +15289,23 @@ var DomInfo = class extends DomInfoCore {
       );
     }
   }
-  markMostRecentMessage(gridcellSource = this.getChat()) {
-    let gridcellContainer2 = gridcellSource.querySelector(
-      gridcellContainer
+  markMostRecentMessage(gridChunkSource = this.getChat()) {
+    let gridChunkContainer2 = gridChunkSource.querySelector(
+      gridChunkContainer
     );
-    if (gridcellContainer2 === null) {
-      gridcellContainer2 = gridcellSource;
+    if (gridChunkContainer2 === null) {
+      gridChunkContainer2 = gridChunkSource;
     }
     const waitForMessagesToAppear = () => {
-      if (gridcellContainer2.children.length < 2) {
+      if (gridChunkContainer2.children.length < 2) {
         setTimeout(waitForMessagesToAppear, 100);
       } else {
-        const waitForBareGridcell = () => {
-          const mostRecentMessage = gridcellContainer2.children[gridcellContainer2.children.length - 1];
+        const waitForBareGridChunk = () => {
+          const mostRecentMessage = gridChunkContainer2.children[gridChunkContainer2.children.length - 1];
           if (mostRecentMessage.hasAttribute("role")) {
-            setTimeout(waitForBareGridcell, 100);
+            setTimeout(waitForBareGridChunk, 100);
           } else {
-            const finalOldMessage = gridcellContainer2.querySelector(
+            const finalOldMessage = gridChunkContainer2.querySelector(
               ".old-messages-end-here"
             );
             if (finalOldMessage !== null) {
@@ -15235,57 +15314,30 @@ var DomInfo = class extends DomInfoCore {
             mostRecentMessage.classList.add("old-messages-end-here");
           }
         };
-        waitForBareGridcell();
+        waitForBareGridChunk();
       }
     };
     waitForMessagesToAppear();
   }
-  findGridcell(descendant) {
-    if (!descendant.hasAttribute("class") && isOfTheClasses(descendant.parentNode, [
-      "x78zum5",
-      "xdt5ytf",
-      "x1iyjqo2",
-      "x2lah0s",
-      "xl56j7k",
-      "x121v3j4"
-    ])) {
-      return descendant;
-    }
-    let ancestor = descendant.parentNode;
-    while (ancestor !== null && (ancestor.hasAttribute("class") || !isOfTheClasses(ancestor.parentNode, [
-      "x78zum5",
-      "xdt5ytf",
-      "x1iyjqo2",
-      "x2lah0s",
-      "xl56j7k",
-      "x121v3j4"
-    ]))) {
-      ancestor = ancestor.parentNode;
-      if (ancestor !== null && ancestor.constructor.name === "HTMLBodyElement") {
-        return null;
-      }
-    }
-    return ancestor;
-  }
   isNewMessage(bubble) {
-    const gridcell = this.findGridcell(bubble);
-    if (gridcell === null) {
+    const gridChunk = findGridChunk(bubble);
+    if (gridChunk === null) {
       return false;
     }
-    let gridcellContainer2 = gridcell.parentNode;
-    const gridcells = Array.from(gridcellContainer2.children);
-    const gridcellPos = gridcells.indexOf(gridcell);
-    let finalOldMessage = gridcellContainer2.querySelector(
+    let gridChunkContainer2 = gridChunk.parentNode;
+    const gridChunks = Array.from(gridChunkContainer2.children);
+    const gridChunkPos = gridChunks.indexOf(gridChunk);
+    let finalOldMessage = gridChunkContainer2.querySelector(
       ".old-messages-end-here"
     );
     if (finalOldMessage === null) {
-      this.markMostRecentMessage(gridcellContainer2);
-      finalOldMessage = gridcellContainer2.querySelector(
+      this.markMostRecentMessage(gridChunkContainer2);
+      finalOldMessage = gridChunkContainer2.querySelector(
         ".old-messages-end-here"
       );
     }
-    const finalOldMessagePos = gridcells.indexOf(finalOldMessage);
-    return gridcellPos > finalOldMessagePos;
+    const finalOldMessagePos = gridChunks.indexOf(finalOldMessage);
+    return gridChunkPos > finalOldMessagePos;
   }
   waitForCompleteMessage(bubble) {
     const txt = bubble.textContent;
@@ -15295,10 +15347,10 @@ var DomInfo = class extends DomInfoCore {
       } else {
         parseParts(bubble);
         setTimeout(() => {
-          const gridcell = this.findGridcell(bubble);
-          if (gridcell !== null) {
-            const gridcellContainer2 = gridcell.parentNode;
-            this.markMostRecentMessage(gridcellContainer2);
+          const gridChunk = findGridChunk(bubble);
+          if (gridChunk !== null) {
+            const gridChunkContainer2 = gridChunk.parentNode;
+            this.markMostRecentMessage(gridChunkContainer2);
           }
         }, 8e3);
       }
@@ -15457,13 +15509,16 @@ var startUp = () => {
   }
 };
 var setUpChatBoxView = (domInfo) => {
+  console.log(`setting up chat box view`);
   domInfo.setChatBoxContainerContainer();
   domInfo.observeChatBoxContainerContainer();
   domInfo.setChatBoxContainer();
   const waitForGridsToBeLabeled = () => {
     if (!domInfo.messageGridsLabeled()) {
+      console.log(`waiting for grids to be labeled...`);
       setTimeout(waitForGridsToBeLabeled, 100);
     } else {
+      console.log(`grids are labeled`);
       domInfo.setChatBoxToLabel();
       domInfo.observeChatBoxes();
       const chatBoxes = domInfo.getChatBoxContainer().children;

@@ -21,7 +21,7 @@
   div.html-div
   span:not(.katex-display)
   > span:where(.katex, .katex-display)
-  :not(.mop, .op-limits, .size3) {
+  :not(.mop, .op-limits/*, .size3*/) {
   font-family: KaTeX_Main;
 }
 
