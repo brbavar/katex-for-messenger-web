@@ -30,4 +30,4 @@ Here are a couple examples of what the extension can do:
 - If a message is edited in one of your chats while you're using this extension, you'll have to refresh to view the latest version of the message.
 - Typesetting only occurs in chat bubbles.
 - You must place environments between math delimiters to render them.
-- Though KaTeX officially supports the `subarray` environment, this extension can't seem to render it properly. You'll have to use `substack` instead, which I have confirmed works perfectly.
+- Though KaTeX officially supports the `subarray` environment, this extension can't seem to render it properly. You'll have to use the `\substack` command instead, which I have confirmed works perfectly and produces the same results `subarray` is supposed to.
