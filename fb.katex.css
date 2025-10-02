@@ -21,7 +21,7 @@
   div.html-div
   span:not(.katex-display)
   > span:where(.katex, .katex-display)
-  :not(.mop, .op-limits/*, .size3*/) {
+  :not(.mop, .op-limits) {
   font-family: KaTeX_Main;
 }
 
@@ -95,4 +95,17 @@
 
 #facebook .system-fonts--body div.html-div span:has(> span.katex-display) {
   width: 100%;
+}
+
+/* .latex-parse-error::before {
+  content: 'LaTeX for Messenger failed to render your LaTeX, so your message\nhad no visible content. Try again. (Check console for any parsing errors.)';
+  color: gray;
+} */
+
+.empty-bubble-message {
+  background-color: var(--mwp-message-row-background);
+  color: var(--placeholder-text);
+  font-size: 0.75rem;
+  text-align: center;
+  padding: 20px 0;
 }

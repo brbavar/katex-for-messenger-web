@@ -1,6 +1,59 @@
 import { DomInfo } from './DomInfo.js';
 import { injectCss } from './aesthetex.js';
 
+const startUp = () => {
+  const domInfo = oneTimeInit();
+
+  if (window.location.href.startsWith('https://www.facebook.com/messages')) {
+    setUpMessengerView(domInfo);
+  } else {
+    domInfo.setChatBoxContainerContainer();
+
+    let lengthOfWait = 0;
+    const waitToObserveChatBoxContainerContainer = () => {
+      if (domInfo.getChatBoxContainerContainer() === null) {
+        setTimeout(() => {
+          if ((lengthOfWait += 100) < 5000) {
+            domInfo.setChatBoxContainerContainer();
+            waitToObserveChatBoxContainerContainer();
+          }
+        }, 100);
+      } else {
+        domInfo.observeChatBoxContainerContainer();
+      }
+    };
+    waitToObserveChatBoxContainerContainer();
+
+    domInfo.setChatBoxContainer();
+
+    lengthOfWait = 0;
+    const waitToHandleChatBoxContainer = () => {
+      if (domInfo.getChatBoxContainer() === null) {
+        setTimeout(() => {
+          if ((lengthOfWait += 100) < 5000) {
+            domInfo.setChatBoxContainer();
+            waitToHandleChatBoxContainer();
+          }
+        }, 100);
+      } else {
+        handleChatBoxContainer(domInfo);
+      }
+    };
+    waitToHandleChatBoxContainer();
+  }
+};
+
+const initMessengerChat = (domInfo) => {
+  domInfo.setResizeObservee();
+  domInfo.setChatWidth();
+  domInfo.observeChatWidth();
+
+  domInfo.setChatContainer();
+  domInfo.observeChatContainer();
+
+  domInfo.setChat();
+};
+
 const handleChat = (domInfo) => {
   const chat = domInfo.getChat();
   if (domInfo.getChat() !== null && 'querySelector' in domInfo.getChat()) {
@@ -90,17 +143,6 @@ const oneTimeInit = () => {
   return domInfo;
 };
 
-const initMessengerChat = (domInfo) => {
-  domInfo.setResizeObservee();
-  domInfo.setChatWidth();
-  domInfo.observeChatWidth();
-
-  domInfo.setChatContainer();
-  domInfo.observeChatContainer();
-
-  domInfo.setChat();
-};
-
 const setUpMessengerView = (domInfo) => {
   initMessengerChat(domInfo);
 
@@ -136,60 +178,15 @@ const setUpMessengerView = (domInfo) => {
   }
 };
 
-const startUp = () => {
-  const domInfo = oneTimeInit();
-
-  if (window.location.href.startsWith('https://www.facebook.com/messages')) {
-    setUpMessengerView(domInfo);
-  } else {
-    domInfo.setChatBoxContainerContainer();
-
-    let lengthOfWait = 0;
-    const waitToObserveChatBoxContainerContainer = () => {
-      if (domInfo.getChatBoxContainerContainer() === null) {
-        setTimeout(() => {
-          if ((lengthOfWait += 100) < 5000) {
-            domInfo.setChatBoxContainerContainer();
-            waitToObserveChatBoxContainerContainer();
-          }
-        }, 100);
-      } else {
-        domInfo.observeChatBoxContainerContainer();
-      }
-    };
-    waitToObserveChatBoxContainerContainer();
-
-    domInfo.setChatBoxContainer();
-
-    lengthOfWait = 0;
-    const waitToHandleChatBoxContainer = () => {
-      if (domInfo.getChatBoxContainer() === null) {
-        setTimeout(() => {
-          if ((lengthOfWait += 100) < 5000) {
-            domInfo.setChatBoxContainer();
-            waitToHandleChatBoxContainer();
-          }
-        }, 100);
-      } else {
-        handleChatBoxContainer(domInfo);
-      }
-    };
-    waitToHandleChatBoxContainer();
-  }
-};
-
 const setUpChatBoxView = (domInfo) => {
-  console.log(`setting up chat box view`);
   domInfo.setChatBoxContainerContainer();
   domInfo.observeChatBoxContainerContainer();
 
   domInfo.setChatBoxContainer();
   const waitForGridsToBeLabeled = () => {
     if (!domInfo.messageGridsLabeled()) {
-      console.log(`waiting for grids to be labeled...`);
       setTimeout(waitForGridsToBeLabeled, 100);
     } else {
-      console.log(`grids are labeled`);
       domInfo.setChatBoxToLabel();
       domInfo.observeChatBoxes();
 

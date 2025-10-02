@@ -1,7 +1,6 @@
 import * as selector from './selector.js';
 import { DomInfoCore } from './DomInfoCore.js';
 import { setUpMessengerView, setUpChatBoxView } from './run.js';
-// import { isOfTheClasses } from './util.js';
 import { parseParts, findGridChunk } from './parse.js';
 
 class DomInfo extends DomInfoCore {
@@ -251,32 +250,17 @@ class DomInfo extends DomInfoCore {
           this.getLabelToBubbleObserver().get(messageGridLabel);
 
         if (mutation.target.hasAttribute('hidden')) {
-          console.log(`${messageGridLabel} hidden`);
-          // const bubbleObserver =
-          //   this.getLabelToBubbleObserver().get(messageGridLabel);
           if (this.getLabelToBubbleObserver().has(messageGridLabel)) {
-            // if (bubbleObserver !== undefined) {
-            console.log(
-              `disconnecting bubble observer from ${messageGridLabel}`
-            );
             bubbleObserver.disconnect();
           }
         } else {
-          console.log(`${messageGridLabel} shown`);
           this.setMessageGrid(mutation.target);
           this.#chatBoxToLabel.set(mutation.target, messageGridLabel);
           this.handleChatBubbles();
-          // const bubbleObserver =
-          //   this.getLabelToBubbleObserver().get(messageGridLabel);
-          console.log(`connecting bubble observer to ${messageGridLabel}`);
           if (
             this.getLabelToBubbleObserver().has(messageGridLabel) &&
             this.getMessageGrid() !== null
           ) {
-            // if (bubbleObserver !== undefined) {
-            console.log(
-              `${messageGridLabel} already mapped to bubble observer`
-            );
             bubbleObserver.observe(this.getMessageGrid(), {
               childList: true,
               subtree: true,
@@ -290,9 +274,6 @@ class DomInfo extends DomInfoCore {
   };
 
   observeChatBoxes() {
-    console.log(
-      `observing all ${this.#chatBoxContainer.children.length} chat boxes`
-    );
     for (const chatBox of this.#chatBoxContainer.children) {
       const messageGridLabel = chatBox
         .querySelector(selector.labeledMessageGrid)
@@ -302,10 +283,8 @@ class DomInfo extends DomInfoCore {
           this.#chatBoxVisibilityMutationHandler
         );
         observer.observe(chatBox.firstChild.firstChild, { attributes: true });
-        console.log(`mapping chat box labeled ${messageGridLabel} to observer`);
         this.#labelToChatBoxObserver.set(messageGridLabel, observer);
       } else {
-        console.log(`already mapped ${messageGridLabel} to observer`);
         this.#labelToChatBoxObserver
           .get(messageGridLabel)
           .observe(chatBox.firstChild.firstChild, { attributes: true });

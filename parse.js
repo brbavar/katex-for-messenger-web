@@ -2,8 +2,7 @@ import { render } from 'katex';
 import { removeNewlines, makeFit } from './aesthetex.js';
 import { wrapTextNodes } from './parse-prep.js';
 import { extractDescendants } from './dom-cleanup.js';
-// import { DomInfo } from './DomInfo.js';
-import { isOfTheClasses } from './util.js';
+import { emptyBubbleMessage, isGridChunk } from './config.js';
 
 const isOpeningDelim = (delim) => {
   if (delim.length === 0) {
@@ -198,72 +197,37 @@ const parse = (msgPart) => {
 
     removeNewlines(msgPart);
 
-    // console.log(`about to make spans from this msgPart fit:`);
-    // console.log(msgPart);
-    // setTimeout(() => {
     msgPart
       .querySelectorAll(
         'span:where(:not(.katex-display) > .katex, .katex-display)'
       )
       .forEach((span) => {
-        // console.log(`making this span fit:`);
-        // console.log(span);
         makeFit(span);
       });
-    // }, 0);
   } else {
     removeEscapeChars(msgPart, escapeCharIndices);
   }
 };
 
-// const findGridcell = (descendant) => {
-//   let ancestor = descendant;
-
-//   while (
-//     ancestor !== null &&
-//     (!ancestor.hasAttribute('role') ||
-//       ancestor.getAttribute('role') !== 'gridcell' ||
-//       !isOfTheClasses(ancestor, ['x78zum5', 'xdt5ytf', 'x1n2onr6']))
-//   ) {
-//     ancestor = ancestor.parentNode;
-
-//     if (ancestor !== null && ancestor.constructor.name === 'HTMLBodyElement') {
-//       return null;
-//     }
-//   }
-
-//   return ancestor;
-// };
-
 const findGridChunk = (descendant) => {
-  if (
-    !descendant.hasAttribute('class') &&
-    isOfTheClasses(descendant.parentNode, [
-      'x78zum5',
-      'xdt5ytf',
-      'x1iyjqo2',
-      'x2lah0s',
-      'xl56j7k',
-      'x121v3j4',
-    ])
-  ) {
-    return descendant;
-  }
+  // if (
+  //   !descendant.hasAttribute('class') &&
+  //   isOfTheClasses(descendant.parentNode, [
+  //     'x78zum5',
+  //     'xdt5ytf',
+  //     'x1iyjqo2',
+  //     'x2lah0s',
+  //     'xl56j7k',
+  //     'x121v3j4',
+  //   ])
+  // ) {
+  //   return descendant;
+  // }
 
-  let ancestor = descendant.parentNode;
+  // let ancestor = descendant.parentNode;
+  let ancestor = descendant;
 
-  while (
-    ancestor !== null &&
-    (ancestor.hasAttribute('class') ||
-      !isOfTheClasses(ancestor.parentNode, [
-        'x78zum5',
-        'xdt5ytf',
-        'x1iyjqo2',
-        'x2lah0s',
-        'xl56j7k',
-        'x121v3j4',
-      ]))
-  ) {
+  while (ancestor !== null && !isGridChunk(ancestor)) {
     ancestor = ancestor.parentNode;
 
     if (ancestor !== null && ancestor.constructor.name === 'HTMLBodyElement') {
@@ -277,38 +241,38 @@ const findGridChunk = (descendant) => {
 const parseParts = (bubble) => {
   const msgParts = [];
   if (bubble.querySelectorAll('.katex').length === 0) {
-    // console.log(`about to parse this bubble:`);
-    // console.log(bubble);
     wrapTextNodes(bubble, msgParts);
   } else {
-    // console.log(
-    //   `would have parsed this bubble if there weren't already katex elements in it:`
-    // );
-    // console.log(bubble);
     bubble
       .querySelectorAll(
         'span:where(:not(.katex-display) > .katex, .katex-display)'
       )
       .forEach((span) => {
-        // console.log(`making this span fit:`);
-        // console.log(span);
         makeFit(span);
       });
   }
   for (const msgPart of msgParts) {
     parse(msgPart);
-    // // setTimeout(() => {
-    // if (msgPart.querySelectorAll('.katex').length === 0) {
-    //   // // const domInfo = new DomInfo();
-    //   // // // domInfo.findGridcell(msgPart).remove();
-    //   // // domInfo.findGridcell(msgPart).style.display = 'none';
-    //   // findGridcell(msgPart).style.display = 'none';
-    //   findGridChunk(msgPart).style.display = 'none';
-    // }
-    // // }, 1000);
   }
-  if (bubble.textContent === '') {
-    findGridChunk(bubble).style.display = 'none';
+  // if (bubble.textContent === '') {
+  if (/^\s*$/.test(bubble.textContent)) {
+    console.log(`this bubble is empty:`);
+    console.log(bubble);
+    // findGridChunk(bubble).style.display = 'none';
+    const gridChunk = findGridChunk(bubble);
+    for (const node of gridChunk.childNodes) {
+      node.remove();
+    }
+    // // gridChunk.style =
+    // //   'display: flex; justify-content: center; align-items: center; text-align: center; color: gray; margin-bottom: 20px;';
+    // // gridChunk.innerHTML =
+    // //   '<div style="max-width: 430px;">LaTeX for Messenger failed to render your LaTeX, so your message<br>had no visible content. Try again. (Check console for any parsing errors.)</div>';
+    gridChunk.classList.add('empty-bubble-message');
+    // gridChunk.style =
+    //   'background-color: var(--mwp-message-row-background); color: var(--placeholder-text); font-size: .75rem; text-align: center; padding: 20px 0;';
+    // gridChunk.textContent =
+    //   'LaTeX for Messenger failed to render your LaTeX, so your message had no visible content. Try again. (Check console for any parsing errors.)';
+    gridChunk.innerHTML = emptyBubbleMessage;
   }
 };
 

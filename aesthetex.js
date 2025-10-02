@@ -1,4 +1,4 @@
-import { scrollbarColor } from './scroll-config.js';
+import { scrollbarColor } from './config.js';
 import manifest from './manifest.json';
 
 const injectCss = () => {
@@ -69,48 +69,11 @@ const removeNewlines = (msg) => {
 const makeFit = async (span) => {
   const baseSpans = span.querySelectorAll('span.base');
   let collectiveSpanWidth = 0;
-  let baseSpanWidth = 0;
-
-  // console.log(`${baseSpans.length} base spans found:`);
   for (let baseSpan of baseSpans) {
-    // console.log(baseSpan);
-    // console.log(
-    //   `baseSpan.getBoundingClientRect().width = ${
-    //     baseSpan.getBoundingClientRect().width
-    //   }, baseSpan.style.width = ${baseSpan.style.width}, baseSpan.width = ${
-    //     baseSpan.width
-    //   }`
-    // );
-    if ((baseSpanWidth = baseSpan.getBoundingClientRect().width) <= 0) {
-      // const baseSpanClone = baseSpan.cloneNode();
-      // // document.body.append([baseSpanClone]);
-      // document.body.appendChild(baseSpanClone);
-      // baseSpanWidth = baseSpanClone.getBoundingClientRect().width;
-      // baseSpanClone.remove();
-      // const zeroWidthState = baseSpan.style.visibility;
-
-      baseSpan.style.visibility = 'hidden';
-      baseSpanWidth = baseSpan.getBoundingClientRect().width;
-      // console.log(
-      //   `zeroWidthState = ${zeroWidthState}, baseSpan.style.display = ${baseSpan.style.display}, baseSpanWidth = ${baseSpanWidth}`
-      // );
-      // console.log(`baseSpanWidth = ${baseSpanWidth}`);
-      baseSpan.style.visibility = '';
-
-      // baseSpan.style.visibility = zeroWidthState;
-    }
-
-    // // collectiveSpanWidth += baseSpan.getBoundingClientRect().width;
-    // collectiveSpanWidth +=
-    //   baseSpan.getBoundingClientRect().width > 0
-    //     ? baseSpan.getBoundingClientRect().width
-    //     : baseSpan.style.width;
-    collectiveSpanWidth += baseSpanWidth;
+    collectiveSpanWidth += baseSpan.getBoundingClientRect().width;
   }
-
-  // console.log(`collectiveSpanWidth = ${collectiveSpanWidth}`);
-
   let partialSumOfSpanWidths = collectiveSpanWidth;
+
   if (baseSpans.length > 0) {
     let oversizedBaseFound = false;
     for (const baseSpan of baseSpans) {
@@ -123,66 +86,24 @@ const makeFit = async (span) => {
       }
     }
 
-    // // const getStoredItems = () => {
-    // //   let storedItems = null;
-    // //   chrome.storage.sync.get(
-    // //     { longFormulaFormat: 'Add scroll bar' },
-    // //     (items) => {
-    // //       // longFormulaFormat = items.longFormulaFormat;
-    // //       // console.log(`longFormulaFormat = ${longFormulaFormat}`);
-    // //       storedItems = items;
-    // //       console.log(`storedItems inside = ${storedItems}`);
-    // //     }
-    // //   );
-    // //   return storedItems;
-    // // };
-
-    // const getStoredItems = async () => {
-    //   storedItems = await chrome.storage.sync.get({
-    //     longFormulaFormat: 'Add scroll bar',
-    //   });
-    // };
-    // // const storedItems = getStoredItems();
-    // let storedItems = null;
-    // getStoredItems(storedItems);
-    // let longFormulaFormat = '';
-    // // console.log(`storedItems outside = ${storedItems}`);
-    // if (storedItems !== null) {
-    //   longFormulaFormat = storedItems.longFormulaFormat;
-    //   console.log(`longFormulaFormat = ${longFormulaFormat}`);
-    // }
-
-    // const storage =
-    //   browser.storage !== undefined ? browser.storage : chrome.storage;
     const storage =
       globalThis.browser?.storage.sync || globalThis.chrome?.storage.sync;
-
-    // const storedItems = await chrome.storage.sync.get({
-    //   longFormulaFormat: 'Add scroll bar',
-    // });
-    const storedItems = await storage.get({
-      longFormulaFormat: 'Add scroll bar',
-    });
-
-    // console.log(`inside makeFit`);
-
-    // console.log(
-    //   `collectiveSpanWidth = ${collectiveSpanWidth}, span.parentNode.getBoundingClientRect().width = ${
-    //     span.parentNode.getBoundingClientRect().width
-    //   }`
-    // );
+    let storedItems = null;
+    if (storage !== undefined && storage !== null) {
+      try {
+        storedItems = await storage.get({
+          longFormulaFormat: 'Add scroll bar',
+        });
+      } catch (error) {
+        console.error('Caught ' + error);
+      }
+    }
     if (collectiveSpanWidth > span.parentNode.getBoundingClientRect().width) {
-      // console.log(
-      //   `collectiveSpanWidth > span.parentNode.getBoundingClientRect().width`
-      // );
-      // console.log(
-      //   `storedItems.longFormulaFormat = ${storedItems.longFormulaFormat}, oversizedBaseFound = ${oversizedBaseFound}`
-      // );
       if (
+        storedItems !== null &&
         storedItems.longFormulaFormat === 'line-breaks' &&
         !oversizedBaseFound
       ) {
-        // console.log(`inserting line breaks`);
         let i = baseSpans.length - 1;
         let j = 0;
 
@@ -228,7 +149,6 @@ const makeFit = async (span) => {
         };
         insertLineBreak();
       } else {
-        // console.log(`making scrollable`);
         span.classList.add('katex-scrollable');
 
         if (span.getAttribute('class') === 'katex katex-scrollable') {
@@ -241,11 +161,6 @@ const makeFit = async (span) => {
         span.style.scrollbarColor = scrollbarColor;
       }
     }
-    // else {
-    //   console.log(
-    //     `collectiveSpanWidth <= span.parentNode.getBoundingClientRect().width`
-    //   );
-    // }
   }
 };
 
