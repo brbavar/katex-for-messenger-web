@@ -97,11 +97,6 @@
   width: 100%;
 }
 
-/* .latex-parse-error::before {
-  content: 'LaTeX for Messenger failed to render your LaTeX, so your message\nhad no visible content. Try again. (Check console for any parsing errors.)';
-  color: gray;
-} */
-
 .empty-bubble-message {
   background-color: var(--mwp-message-row-background);
   color: var(--placeholder-text);

@@ -1,7 +1,8 @@
 import * as selector from './selector.js';
 import { DomInfoCore } from './DomInfoCore.js';
 import { setUpMessengerView, setUpChatBoxView } from './run.js';
-import { parseParts, findGridChunk } from './parse.js';
+import { parseParts } from './parse.js';
+import { findGridChunk } from './dom-cleanup.js';
 
 class DomInfo extends DomInfoCore {
   #mount = null;

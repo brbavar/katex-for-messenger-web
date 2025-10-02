@@ -14633,6 +14633,26 @@ var extractDescendants = (span) => {
   }
   span.remove();
 };
+var findGridChunk = (descendant) => {
+  let ancestor = descendant;
+  while (ancestor !== null && !isGridChunk(ancestor)) {
+    ancestor = ancestor.parentNode;
+    if (ancestor !== null && ancestor.constructor.name === "HTMLBodyElement") {
+      return null;
+    }
+  }
+  return ancestor;
+};
+var removeIfEmpty = (bubble) => {
+  if (/^\s*$/.test(bubble.textContent)) {
+    const gridChunk = findGridChunk(bubble);
+    for (const node of gridChunk.childNodes) {
+      node.remove();
+    }
+    gridChunk.classList.add("empty-bubble-message");
+    gridChunk.innerHTML = emptyBubbleMessage;
+  }
+};
 
 // parse.js
 var isOpeningDelim = (delim) => {
@@ -14797,16 +14817,6 @@ var parse = (msgPart) => {
     removeEscapeChars(msgPart, escapeCharIndices);
   }
 };
-var findGridChunk = (descendant) => {
-  let ancestor = descendant;
-  while (ancestor !== null && !isGridChunk(ancestor)) {
-    ancestor = ancestor.parentNode;
-    if (ancestor !== null && ancestor.constructor.name === "HTMLBodyElement") {
-      return null;
-    }
-  }
-  return ancestor;
-};
 var parseParts = (bubble) => {
   const msgParts = [];
   if (bubble.querySelectorAll(".katex").length === 0) {
@@ -14821,16 +14831,7 @@ var parseParts = (bubble) => {
   for (const msgPart of msgParts) {
     parse(msgPart);
   }
-  if (/^\s*$/.test(bubble.textContent)) {
-    console.log(`this bubble is empty:`);
-    console.log(bubble);
-    const gridChunk = findGridChunk(bubble);
-    for (const node of gridChunk.childNodes) {
-      node.remove();
-    }
-    gridChunk.classList.add("empty-bubble-message");
-    gridChunk.innerHTML = emptyBubbleMessage;
-  }
+  removeIfEmpty(bubble);
 };
 
 // DomInfoCore.js

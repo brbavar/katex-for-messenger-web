@@ -1,8 +1,7 @@
 import { render } from 'katex';
 import { removeNewlines, makeFit } from './aesthetex.js';
 import { wrapTextNodes } from './parse-prep.js';
-import { extractDescendants } from './dom-cleanup.js';
-import { emptyBubbleMessage, isGridChunk } from './config.js';
+import { extractDescendants, removeIfEmpty } from './dom-cleanup.js';
 
 const isOpeningDelim = (delim) => {
   if (delim.length === 0) {
@@ -209,35 +208,6 @@ const parse = (msgPart) => {
   }
 };
 
-const findGridChunk = (descendant) => {
-  // if (
-  //   !descendant.hasAttribute('class') &&
-  //   isOfTheClasses(descendant.parentNode, [
-  //     'x78zum5',
-  //     'xdt5ytf',
-  //     'x1iyjqo2',
-  //     'x2lah0s',
-  //     'xl56j7k',
-  //     'x121v3j4',
-  //   ])
-  // ) {
-  //   return descendant;
-  // }
-
-  // let ancestor = descendant.parentNode;
-  let ancestor = descendant;
-
-  while (ancestor !== null && !isGridChunk(ancestor)) {
-    ancestor = ancestor.parentNode;
-
-    if (ancestor !== null && ancestor.constructor.name === 'HTMLBodyElement') {
-      return null;
-    }
-  }
-
-  return ancestor;
-};
-
 const parseParts = (bubble) => {
   const msgParts = [];
   if (bubble.querySelectorAll('.katex').length === 0) {
@@ -254,26 +224,7 @@ const parseParts = (bubble) => {
   for (const msgPart of msgParts) {
     parse(msgPart);
   }
-  // if (bubble.textContent === '') {
-  if (/^\s*$/.test(bubble.textContent)) {
-    console.log(`this bubble is empty:`);
-    console.log(bubble);
-    // findGridChunk(bubble).style.display = 'none';
-    const gridChunk = findGridChunk(bubble);
-    for (const node of gridChunk.childNodes) {
-      node.remove();
-    }
-    // // gridChunk.style =
-    // //   'display: flex; justify-content: center; align-items: center; text-align: center; color: gray; margin-bottom: 20px;';
-    // // gridChunk.innerHTML =
-    // //   '<div style="max-width: 430px;">LaTeX for Messenger failed to render your LaTeX, so your message<br>had no visible content. Try again. (Check console for any parsing errors.)</div>';
-    gridChunk.classList.add('empty-bubble-message');
-    // gridChunk.style =
-    //   'background-color: var(--mwp-message-row-background); color: var(--placeholder-text); font-size: .75rem; text-align: center; padding: 20px 0;';
-    // gridChunk.textContent =
-    //   'LaTeX for Messenger failed to render your LaTeX, so your message had no visible content. Try again. (Check console for any parsing errors.)';
-    gridChunk.innerHTML = emptyBubbleMessage;
-  }
+  removeIfEmpty(bubble);
 };
 
-export { parseParts, getTexBounds, findGridChunk };
+export { parseParts, getTexBounds };
