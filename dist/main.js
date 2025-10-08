@@ -14665,7 +14665,13 @@ var removeIfEmpty = (bubble) => {
 // convenience.js
 var preventDefault = (e) => e.preventDefault();
 var makeCopyable = (katexSpan) => {
+  const customMenu = document.getElementById("custom-context-menu");
+  const menuList = customMenu.childNodes[0];
+  const copyOption = menuList.childNodes[0];
+  const interactionBlocker = document.getElementById("interaction-blocker");
   const copy = async () => {
+    console.log(`copying span:`);
+    console.log(katexSpan);
     const annotation = katexSpan.querySelector("annotation");
     if (annotation !== void 0 && annotation !== null) {
       const tex = `\\${katexSpan.classList.contains("katex-display") ? "[" : "("}${annotation.textContent}\\${katexSpan.classList.contains("katex-display") ? "]" : ")"}`;
@@ -14676,16 +14682,8 @@ var makeCopyable = (katexSpan) => {
       }
     }
   };
-  const interactionBlocker = document.createElement("div");
-  document.body.appendChild(interactionBlocker);
-  const customMenu = document.createElement("div");
-  const menuList = document.createElement("ul");
-  const copyOption = document.createElement("li");
-  copyOption.textContent = "Copy LaTeX";
-  copyOption.addEventListener("click", copy);
-  document.body.appendChild(customMenu);
-  customMenu.appendChild(menuList);
-  menuList.appendChild(copyOption);
+  console.log(`copy (outside showCustomMenu):`);
+  console.log(copy);
   const showCustomMenu = (rightClick) => {
     rightClick.preventDefault();
     document.body.addEventListener("touchmove", preventDefault, {
@@ -14695,21 +14693,26 @@ var makeCopyable = (katexSpan) => {
       passive: false
     });
     document.body.addEventListener("click", hideCustomMenu);
-    interactionBlocker.id = "interaction-blocker";
-    customMenu.id = "custom-context-menu";
+    interactionBlocker.style.display = "block";
+    console.log(`copyOption:`);
+    console.log(copyOption);
+    console.log(`copy (inside showCustomMenu):`);
+    console.log(copy);
     customMenu.style.left = `${rightClick.clientX + 90.36 < document.documentElement.clientWidth ? rightClick.clientX : document.documentElement.clientWidth - 90.36}px`;
     customMenu.style.top = `${rightClick.clientY}px`;
+    customMenu.style.display = "block";
+    copyOption.addEventListener("click", copy);
   };
   katexSpan.addEventListener("contextmenu", showCustomMenu);
   const hideCustomMenu = () => {
     customMenu.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 100 });
     customMenu.style.opacity = 0;
     setTimeout(() => {
+      copyOption.removeEventListener("click", copy);
       customMenu.removeAttribute("style");
-      customMenu.removeAttribute("id");
       document.body.removeEventListener("touchmove", preventDefault);
       document.body.removeEventListener("wheel", preventDefault);
-      interactionBlocker.removeAttribute("id");
+      interactionBlocker.removeAttribute("style");
       document.body.removeEventListener("click", hideCustomMenu);
     }, 100);
   };
@@ -15415,6 +15418,17 @@ var DomInfo = class extends DomInfoCore {
 
 // run.js
 var startUp = () => {
+  const interactionBlocker = document.createElement("div");
+  interactionBlocker.id = "interaction-blocker";
+  document.body.appendChild(interactionBlocker);
+  const customMenu = document.createElement("div");
+  customMenu.id = "custom-context-menu";
+  const menuList = document.createElement("ul");
+  const copyOption = document.createElement("li");
+  copyOption.textContent = "Copy LaTeX";
+  document.body.appendChild(customMenu);
+  customMenu.appendChild(menuList);
+  menuList.appendChild(copyOption);
   const domInfo = oneTimeInit();
   if (window.location.href.startsWith("https://www.facebook.com/messages")) {
     setUpMessengerView(domInfo);

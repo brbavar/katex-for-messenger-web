@@ -105,6 +105,7 @@
 }
 
 #interaction-blocker {
+  display: none;
   position: fixed;
   top: 0;
   left: 0;
@@ -114,7 +115,8 @@
 }
 
 #custom-context-menu {
-  display: block;
+  /* display: block; */
+  display: none;
   position: fixed;
   background-color: rgb(0, 0, 0);
   color: white;
@@ -122,6 +124,10 @@
   box-shadow: 1px 1px 6px rgba(255, 255, 255, 0.2);
   isolation: isolate;
 }
+
+/*#custom-context-menu.show {
+  display: block;
+}*/
 
 #custom-context-menu ul {
   list-style: none;
@@ -138,3 +144,19 @@
 #custom-context-menu li:hover {
   background-color: #0866ea;
 }
+
+/* #custom-context-menu.show ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+#custom-context-menu.show li {
+  border-radius: 7%;
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+#custom-context-menu.show li:hover {
+  background-color: #0866ea;
+} */

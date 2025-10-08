@@ -2,6 +2,21 @@ import { DomInfo } from './DomInfo.js';
 import { injectCss } from './aesthetex.js';
 
 const startUp = () => {
+  const interactionBlocker = document.createElement('div');
+  interactionBlocker.id = 'interaction-blocker';
+
+  document.body.appendChild(interactionBlocker);
+
+  const customMenu = document.createElement('div');
+  customMenu.id = 'custom-context-menu';
+  const menuList = document.createElement('ul');
+  const copyOption = document.createElement('li');
+  copyOption.textContent = 'Copy LaTeX';
+
+  document.body.appendChild(customMenu);
+  customMenu.appendChild(menuList);
+  menuList.appendChild(copyOption);
+
   const domInfo = oneTimeInit();
 
   if (window.location.href.startsWith('https://www.facebook.com/messages')) {
