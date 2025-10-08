@@ -213,7 +213,21 @@ const setUpChatBoxView = (domInfo) => {
       domInfo.observeChatBoxContainer();
     }
   };
-  waitForGridsToBeLabeled();
+  // waitForGridsToBeLabeled();
+  let lengthOfWait = 0;
+  const waitForChatBoxContainer = () => {
+    if (domInfo.getChatBoxContainer() === null) {
+      setTimeout(() => {
+        if ((lengthOfWait += 100) < 5000) {
+          domInfo.setChatBoxContainer();
+          waitForChatBoxContainer();
+        }
+      }, 100);
+    } else {
+      waitForGridsToBeLabeled();
+    }
+  };
+  waitForChatBoxContainer();
 };
 
 export { startUp, setUpMessengerView, setUpChatBoxView };

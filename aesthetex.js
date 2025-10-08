@@ -3,7 +3,7 @@ import manifest from './manifest.json';
 
 const injectCss = () => {
   const waitForRuntime = () => {
-    const runtime = globalThis.browser?.runtime || globalThis.chrome?.storage;
+    const runtime = globalThis.browser?.runtime || globalThis.chrome?.runtime;
     // if (chrome.runtime === undefined) {
     if (runtime === undefined) {
       setTimeout(waitForRuntime, 100);
@@ -77,6 +77,9 @@ const removeNewlines = (msg) => {
 };
 
 const makeFit = async (span) => {
+  const spanGrandparentWidth =
+    span.parentNode.parentNode.getBoundingClientRect().width;
+
   const baseSpans = span.querySelectorAll('span.base');
   let collectiveSpanWidth = 0;
   for (let baseSpan of baseSpans) {
@@ -87,10 +90,7 @@ const makeFit = async (span) => {
   if (baseSpans.length > 0) {
     let oversizedBaseFound = false;
     for (const baseSpan of baseSpans) {
-      if (
-        baseSpan.getBoundingClientRect().width >
-        span.parentNode.getBoundingClientRect().width
-      ) {
+      if (baseSpan.getBoundingClientRect().width > spanGrandparentWidth) {
         oversizedBaseFound = true;
         break;
       }
@@ -112,24 +112,26 @@ const makeFit = async (span) => {
         console.error('Caught ' + error);
       }
     }
-    if (collectiveSpanWidth > span.parentNode.getBoundingClientRect().width) {
+    console.log(`collectiveSpanWidth = ${collectiveSpanWidth}`);
+    console.log(`spanGrandparentWidth = ${spanGrandparentWidth}`);
+    if (collectiveSpanWidth > spanGrandparentWidth) {
+      console.log(`span does not fit initially`);
       if (
         storedItems !== null &&
         storedItems.longFormulaFormat === 'line-breaks' &&
         !oversizedBaseFound
       ) {
+        console.log(`inserting line breaks`);
         let i = baseSpans.length - 1;
         let j = 0;
 
         const insertLineBreak = () => {
-          if (
-            collectiveSpanWidth > span.parentNode.getBoundingClientRect().width
-          ) {
+          if (collectiveSpanWidth > spanGrandparentWidth) {
             if (i > j) {
               if (
                 partialSumOfSpanWidths -
                   baseSpans[i].getBoundingClientRect().width <=
-                  span.parentNode.getBoundingClientRect().width - 10 ||
+                  spanGrandparentWidth - 10 ||
                 i - j === 1
               ) {
                 const spacer = document.createElement('div');
@@ -140,7 +142,7 @@ const makeFit = async (span) => {
                   collectiveSpanWidth -
                     (partialSumOfSpanWidths -
                       baseSpans[i].getBoundingClientRect().width) >
-                  span.parentNode.getBoundingClientRect().width - 10
+                  spanGrandparentWidth - 10
                 ) {
                   partialSumOfSpanWidths =
                     collectiveSpanWidth -
@@ -163,12 +165,13 @@ const makeFit = async (span) => {
         };
         insertLineBreak();
       } else {
+        console.log(`making scrollable`);
         span.classList.add('katex-scrollable');
 
         if (span.getAttribute('class') === 'katex katex-scrollable') {
           span.style.display = 'inline-block';
         }
-        span.style.width = `${span.parentNode.getBoundingClientRect().width}px`;
+        span.style.width = `${spanGrandparentWidth}px`;
         span.style.overflowX = 'scroll';
         span.style.overflowY = 'hidden';
         span.style.scrollbarWidth = 'thin';

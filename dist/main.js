@@ -14485,7 +14485,7 @@ var manifest_default = {
 // aesthetex.js
 var injectCss = () => {
   const waitForRuntime = () => {
-    const runtime = globalThis.browser?.runtime || globalThis.chrome?.storage;
+    const runtime = globalThis.browser?.runtime || globalThis.chrome?.runtime;
     if (runtime === void 0) {
       setTimeout(waitForRuntime, 100);
     } else {
@@ -14539,6 +14539,7 @@ var removeNewlines = (msg) => {
   }
 };
 var makeFit = async (span) => {
+  const spanGrandparentWidth = span.parentNode.parentNode.getBoundingClientRect().width;
   const baseSpans = span.querySelectorAll("span.base");
   let collectiveSpanWidth = 0;
   for (let baseSpan of baseSpans) {
@@ -14548,7 +14549,7 @@ var makeFit = async (span) => {
   if (baseSpans.length > 0) {
     let oversizedBaseFound = false;
     for (const baseSpan of baseSpans) {
-      if (baseSpan.getBoundingClientRect().width > span.parentNode.getBoundingClientRect().width) {
+      if (baseSpan.getBoundingClientRect().width > spanGrandparentWidth) {
         oversizedBaseFound = true;
         break;
       }
@@ -14564,18 +14565,22 @@ var makeFit = async (span) => {
         console.error("Caught " + error);
       }
     }
-    if (collectiveSpanWidth > span.parentNode.getBoundingClientRect().width) {
+    console.log(`collectiveSpanWidth = ${collectiveSpanWidth}`);
+    console.log(`spanGrandparentWidth = ${spanGrandparentWidth}`);
+    if (collectiveSpanWidth > spanGrandparentWidth) {
+      console.log(`span does not fit initially`);
       if (storedItems !== null && storedItems.longFormulaFormat === "line-breaks" && !oversizedBaseFound) {
+        console.log(`inserting line breaks`);
         let i = baseSpans.length - 1;
         let j = 0;
         const insertLineBreak = () => {
-          if (collectiveSpanWidth > span.parentNode.getBoundingClientRect().width) {
+          if (collectiveSpanWidth > spanGrandparentWidth) {
             if (i > j) {
-              if (partialSumOfSpanWidths - baseSpans[i].getBoundingClientRect().width <= span.parentNode.getBoundingClientRect().width - 10 || i - j === 1) {
+              if (partialSumOfSpanWidths - baseSpans[i].getBoundingClientRect().width <= spanGrandparentWidth - 10 || i - j === 1) {
                 const spacer = document.createElement("div");
                 spacer.style.margin = "10px 0px";
                 baseSpans[0].parentNode.insertBefore(spacer, baseSpans[i]);
-                if (collectiveSpanWidth - (partialSumOfSpanWidths - baseSpans[i].getBoundingClientRect().width) > span.parentNode.getBoundingClientRect().width - 10) {
+                if (collectiveSpanWidth - (partialSumOfSpanWidths - baseSpans[i].getBoundingClientRect().width) > spanGrandparentWidth - 10) {
                   partialSumOfSpanWidths = collectiveSpanWidth - (partialSumOfSpanWidths - baseSpans[i].getBoundingClientRect().width);
                   collectiveSpanWidth = partialSumOfSpanWidths;
                   j = i;
@@ -14591,11 +14596,12 @@ var makeFit = async (span) => {
         };
         insertLineBreak();
       } else {
+        console.log(`making scrollable`);
         span.classList.add("katex-scrollable");
         if (span.getAttribute("class") === "katex katex-scrollable") {
           span.style.display = "inline-block";
         }
-        span.style.width = `${span.parentNode.getBoundingClientRect().width}px`;
+        span.style.width = `${spanGrandparentWidth}px`;
         span.style.overflowX = "scroll";
         span.style.overflowY = "hidden";
         span.style.scrollbarWidth = "thin";
@@ -14869,6 +14875,8 @@ var parse = (mapEntry) => {
     msgPart.querySelectorAll(
       "span:where(:not(.katex-display) > .katex, .katex-display)"
     ).forEach((span) => {
+      console.log(`making the following span fit:`);
+      console.log(span);
       makeFit(span);
       makeCopyable(span);
     });
@@ -14884,6 +14892,8 @@ var parseParts = (bubble) => {
     bubble.querySelectorAll(
       "span:where(:not(.katex-display) > .katex, .katex-display)"
     ).forEach((span) => {
+      console.log(`making the following span fit:`);
+      console.log(span);
       makeFit(span);
     });
   }
@@ -15593,7 +15603,17 @@ var setUpChatBoxView = (domInfo) => {
       domInfo.observeChatBoxContainer();
     }
   };
-  waitForGridsToBeLabeled();
+  const waitForChatBoxContainer = () => {
+    if (domInfo.getChatBoxContainer() === null) {
+      setTimeout(() => {
+        domInfo.setChatBoxContainer();
+        waitForChatBoxContainer();
+      }, 100);
+    } else {
+      waitForGridsToBeLabeled();
+    }
+  };
+  waitForChatBoxContainer();
 };
 
 // main.js
