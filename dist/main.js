@@ -14620,6 +14620,9 @@ var wrapTextNodes = (root, msgPartToTexBounds) => {
   for (const node of root.childNodes) {
     if (node.nodeName !== "CODE") {
       const texBounds = getTexBounds(node);
+      console.log(`node:`);
+      console.log(node);
+      console.log(`texBounds.length = ${texBounds.length}`);
       if (node.constructor.name === "Text" && texBounds.length > 0) {
         const span = document.createElement("span");
         span.textContent = node.textContent;
@@ -14870,8 +14873,6 @@ var parse = (mapEntry) => {
     msgPart.querySelectorAll(
       "span:where(:not(.katex-display) > .katex, .katex-display)"
     ).forEach((span) => {
-      console.log(`making the following span fit:`);
-      console.log(span);
       makeFit(span);
       makeCopyable(span);
     });
@@ -14887,8 +14888,6 @@ var parseParts = (bubble) => {
     bubble.querySelectorAll(
       "span:where(:not(.katex-display) > .katex, .katex-display)"
     ).forEach((span) => {
-      console.log(`making the following span fit:`);
-      console.log(span);
       makeFit(span);
     });
   }
