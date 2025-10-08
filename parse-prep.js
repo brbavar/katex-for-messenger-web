@@ -4,6 +4,9 @@ const wrapTextNodes = (root, msgPartToTexBounds) => {
   for (const node of root.childNodes) {
     if (node.nodeName !== 'CODE') {
       const texBounds = getTexBounds(node);
+      console.log(`node:`);
+      console.log(node);
+      console.log(`texBounds.length = ${texBounds.length}`);
       if (node.constructor.name === 'Text' && texBounds.length > 0) {
         const span = document.createElement('span');
         span.textContent = node.textContent;
