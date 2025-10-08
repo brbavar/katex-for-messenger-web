@@ -14670,8 +14670,6 @@ var makeCopyable = (katexSpan) => {
   const copyOption = menuList.childNodes[0];
   const interactionBlocker = document.getElementById("interaction-blocker");
   const copy = async () => {
-    console.log(`copying span:`);
-    console.log(katexSpan);
     const annotation = katexSpan.querySelector("annotation");
     if (annotation !== void 0 && annotation !== null) {
       const tex = `\\${katexSpan.classList.contains("katex-display") ? "[" : "("}${annotation.textContent}\\${katexSpan.classList.contains("katex-display") ? "]" : ")"}`;
@@ -14682,8 +14680,6 @@ var makeCopyable = (katexSpan) => {
       }
     }
   };
-  console.log(`copy (outside showCustomMenu):`);
-  console.log(copy);
   const showCustomMenu = (rightClick) => {
     rightClick.preventDefault();
     document.body.addEventListener("touchmove", preventDefault, {
@@ -14693,13 +14689,9 @@ var makeCopyable = (katexSpan) => {
       passive: false
     });
     document.body.addEventListener("click", hideCustomMenu);
-    interactionBlocker.style.display = "block";
-    console.log(`copyOption:`);
-    console.log(copyOption);
-    console.log(`copy (inside showCustomMenu):`);
-    console.log(copy);
-    customMenu.style.left = `${rightClick.clientX + 90.36 < document.documentElement.clientWidth ? rightClick.clientX : document.documentElement.clientWidth - 90.36}px`;
+    customMenu.style.left = `${rightClick.clientX + 98.36 < document.documentElement.clientWidth ? rightClick.clientX : document.documentElement.clientWidth - 98.36}px`;
     customMenu.style.top = `${rightClick.clientY}px`;
+    interactionBlocker.style.display = "block";
     customMenu.style.display = "block";
     copyOption.addEventListener("click", copy);
   };
@@ -14708,11 +14700,11 @@ var makeCopyable = (katexSpan) => {
     customMenu.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 100 });
     customMenu.style.opacity = 0;
     setTimeout(() => {
-      copyOption.removeEventListener("click", copy);
       customMenu.removeAttribute("style");
+      interactionBlocker.removeAttribute("style");
       document.body.removeEventListener("touchmove", preventDefault);
       document.body.removeEventListener("wheel", preventDefault);
-      interactionBlocker.removeAttribute("style");
+      copyOption.removeEventListener("click", copy);
       document.body.removeEventListener("click", hideCustomMenu);
     }, 100);
   };
@@ -15418,17 +15410,6 @@ var DomInfo = class extends DomInfoCore {
 
 // run.js
 var startUp = () => {
-  const interactionBlocker = document.createElement("div");
-  interactionBlocker.id = "interaction-blocker";
-  document.body.appendChild(interactionBlocker);
-  const customMenu = document.createElement("div");
-  customMenu.id = "custom-context-menu";
-  const menuList = document.createElement("ul");
-  const copyOption = document.createElement("li");
-  copyOption.textContent = "Copy LaTeX";
-  document.body.appendChild(customMenu);
-  customMenu.appendChild(menuList);
-  menuList.appendChild(copyOption);
   const domInfo = oneTimeInit();
   if (window.location.href.startsWith("https://www.facebook.com/messages")) {
     setUpMessengerView(domInfo);
@@ -15526,6 +15507,17 @@ var handleChatBoxContainer = (domInfo) => {
 };
 var oneTimeInit = () => {
   injectCss();
+  const interactionBlocker = document.createElement("div");
+  interactionBlocker.id = "interaction-blocker";
+  document.body.appendChild(interactionBlocker);
+  const customMenu = document.createElement("div");
+  customMenu.id = "custom-context-menu";
+  const menuList = document.createElement("ul");
+  const copyOption = document.createElement("li");
+  copyOption.textContent = "Copy LaTeX";
+  document.body.appendChild(customMenu);
+  customMenu.appendChild(menuList);
+  menuList.appendChild(copyOption);
   const domInfo = new DomInfo();
   domInfo.setMount();
   const waitForMount = () => {
