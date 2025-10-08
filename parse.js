@@ -199,8 +199,6 @@ const parse = (mapEntry) => {
         'span:where(:not(.katex-display) > .katex, .katex-display)'
       )
       .forEach((span) => {
-        console.log(`making the following span fit:`);
-        console.log(span);
         makeFit(span);
         makeCopyable(span);
       });
@@ -219,8 +217,6 @@ const parseParts = (bubble) => {
         'span:where(:not(.katex-display) > .katex, .katex-display)'
       )
       .forEach((span) => {
-        console.log(`making the following span fit:`);
-        console.log(span);
         makeFit(span);
         // makeCopyable(span);   May need this here
       });
