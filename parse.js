@@ -2,6 +2,7 @@ import { render } from 'katex';
 import { removeNewlines, makeFit } from './aesthetex.js';
 import { wrapTextNodes } from './parse-prep.js';
 import { extractDescendants, removeIfEmpty } from './dom-cleanup.js';
+import { makeCopyable } from './convenience.js';
 
 const isOpeningDelim = (delim) => {
   if (delim.length === 0) {
@@ -136,13 +137,16 @@ const removeEscapeChars = (msgPart, escapeCharIndices, texBounds = []) => {
   escapeCharIndices.length = 0;
 };
 
-const parse = (msgPart) => {
+// const parse = (msgPart) => {
+const parse = (mapEntry) => {
   const escapeCharIndices = [];
-  let texBounds;
+  // let texBounds;
 
-  if (msgPart !== null && msgPart.textContent !== '') {
-    texBounds = getTexBounds(msgPart, escapeCharIndices);
-  }
+  // if (msgPart !== null && msgPart.textContent !== '') {
+  //   texBounds = getTexBounds(msgPart, escapeCharIndices);
+  // }
+  const msgPart = mapEntry[0];
+  const texBounds = mapEntry[1];
 
   if (texBounds !== undefined && texBounds.length) {
     removeEscapeChars(msgPart, escapeCharIndices, texBounds);
@@ -202,6 +206,22 @@ const parse = (msgPart) => {
       )
       .forEach((span) => {
         makeFit(span);
+        console.log(`span:`);
+        console.log(span);
+        // const waitForAnnotation = () => {
+        // // if (span.querySelector('.katex-html').childNodes.length > 0) {
+        // const annotation = span.querySelector('annotation');
+        // if (annotation === null || /^\s*$/.test(annotation.textContent)) {
+        //   console.log(`waiting for annotation...`);
+        //   setTimeout(waitForAnnotation, 100);
+        // } else {
+        //   console.log(
+        //     `annotation filled in! see here: ${annotation.textContent}`
+        //   );
+        makeCopyable(span);
+        // }
+        // };
+        // waitForAnnotation();
       });
   } else {
     removeEscapeChars(msgPart, escapeCharIndices);
@@ -209,9 +229,11 @@ const parse = (msgPart) => {
 };
 
 const parseParts = (bubble) => {
-  const msgParts = [];
+  // const msgParts = [];
+  const msgPartToTexBounds = new Map();
   if (bubble.querySelectorAll('.katex').length === 0) {
-    wrapTextNodes(bubble, msgParts);
+    // wrapTextNodes(bubble, msgParts);
+    wrapTextNodes(bubble, msgPartToTexBounds);
   } else {
     bubble
       .querySelectorAll(
@@ -219,12 +241,22 @@ const parseParts = (bubble) => {
       )
       .forEach((span) => {
         makeFit(span);
+        // makeCopyable(span);   May need this here
       });
   }
-  for (const msgPart of msgParts) {
-    parse(msgPart);
+  // for (const msgPart of msgParts) {
+  //   parse(msgPart);
+  // }
+  let texBoundsFound = false;
+  for (const entry of msgPartToTexBounds) {
+    parse(entry);
+    if (!texBoundsFound && entry[1].length > 0) {
+      texBoundsFound = true;
+    }
   }
-  removeIfEmpty(bubble);
+  if (texBoundsFound) {
+    removeIfEmpty(bubble);
+  }
 };
 
 export { parseParts, getTexBounds };

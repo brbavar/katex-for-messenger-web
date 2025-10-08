@@ -2,16 +2,26 @@ import { scrollbarColor } from './config.js';
 import manifest from './manifest.json';
 
 const injectCss = () => {
-  for (const resource of manifest.web_accessible_resources[0].resources) {
-    if (resource.endsWith('.css')) {
-      const css = document.createElement('link');
-      css.rel = 'stylesheet';
-      // Should not use chrome.runtime API in Safari (and should use cautiously in Firefox)
-      css.href = chrome.runtime.getURL(resource);
-      css.type = 'text/css';
-      document.head.appendChild(css);
+  const waitForRuntime = () => {
+    const runtime = globalThis.browser?.runtime || globalThis.chrome?.storage;
+    // if (chrome.runtime === undefined) {
+    if (runtime === undefined) {
+      setTimeout(waitForRuntime, 100);
+    } else {
+      for (const resource of manifest.web_accessible_resources[0].resources) {
+        if (resource.endsWith('.css')) {
+          const css = document.createElement('link');
+          css.rel = 'stylesheet';
+          // // Should not use chrome.runtime API in Safari (and should use cautiously in Firefox)
+          // css.href = chrome.runtime.getURL(resource);
+          css.href = runtime.getURL(resource);
+          css.type = 'text/css';
+          document.head.appendChild(css);
+        }
+      }
     }
-  }
+  };
+  waitForRuntime();
 };
 
 const removeNewlines = (msg) => {
@@ -86,12 +96,16 @@ const makeFit = async (span) => {
       }
     }
 
-    const storage =
-      globalThis.browser?.storage.sync || globalThis.chrome?.storage.sync;
+    const storage = globalThis.browser?.storage || globalThis.chrome?.storage;
     let storedItems = null;
-    if (storage !== undefined && storage !== null) {
+    if (
+      storage !== undefined &&
+      storage !== null &&
+      storage.sync !== undefined &&
+      storage.sync !== null
+    ) {
       try {
-        storedItems = await storage.get({
+        storedItems = await storage.sync.get({
           longFormulaFormat: 'Add scroll bar',
         });
       } catch (error) {

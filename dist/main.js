@@ -9,7 +9,10 @@ var chatBoxContainer = "div.x1ey2m1c.x78zum5.xixxii4.x1vjfegm";
 var chatBoxContainerContainer = `${mount} > div > div > div.x9f619.x1n2onr6.x1ja2u2z > div[data-visualcompletion="ignore"]`;
 var labeledMessageGrid = '[aria-label^="Messages in conversation"]';
 var messageGrid = `${labeledMessageGrid}, div[role="grid"].x78zum5.xdt5ytf.x1iyjqo2.x6ikm8r.x10wlt62, div.x78zum5.xdt5ytf.x1iyjqo2.x6ikm8r.x10wlt62`;
-var chatBubble = ".html-div.xexx8yu.x18d9i69.xat24cr.xdj266r.xeuugli.x1vjfegm";
+var chatBubble = (
+  // '.html-div.xdj266r.x14z9mp.xat24cr.x1lziwak.x14ctfv.x13sv91t.x6ikm8r.x10wlt62.xerhiuh.x1pn3fxy.x10zy8in.xm9bcq3.x1n2onr6.x1vjfegm.x1k4qllp.x1mzt3pk.x13faqbe.x11jlvup.xpmdkuv.xrmkrer.x12z03op.x9wyiwl.x13fuv20.x18b5jzi.x1q0q8m5.x1t7ytsu.x12lizq0.x1nrdd72.x1ybe9c6.xx487zo.xaymx6s.xofb2d2';
+  ".html-div.xdj266r.x14z9mp.xat24cr.x1lziwak.x14ctfv.x13sv91t.x6ikm8r.x10wlt62.xerhiuh.x1pn3fxy.x10zy8in.xm9bcq3.x1n2onr6.x1vjfegm.x1k4qllp.x1mzt3pk.x13faqbe.x13fuv20.x18b5jzi.x1q0q8m5.x1t7ytsu.xaymx6s.xofb2d2"
+);
 var katex = `${chatBubble} span:where(:not(.katex-display) > .katex, .katex-display)`;
 var gridChunkContainer = "div.x1qjc9v5.x9f619.xdl72j9.x2lwn1j.xeuugli.x1n2onr6.x78zum5.xdt5ytf.x1iyjqo2.xs83m0k.x6ikm8r.x10wlt62.x1ja2u2z > div.x78zum5.xdt5ytf.x1iyjqo2.x6ikm8r.x1odjw0f.xish69e.x16o0dkt > div.x78zum5.xdt5ytf.x1iyjqo2.x2lah0s.xl56j7k.x121v3j4";
 
@@ -14484,15 +14487,22 @@ var manifest_default = {
 
 // aesthetex.js
 var injectCss = () => {
-  for (const resource of manifest_default.web_accessible_resources[0].resources) {
-    if (resource.endsWith(".css")) {
-      const css = document.createElement("link");
-      css.rel = "stylesheet";
-      css.href = chrome.runtime.getURL(resource);
-      css.type = "text/css";
-      document.head.appendChild(css);
+  const waitForRuntime = () => {
+    if (chrome.runtime === void 0) {
+      setTimeout(waitForRuntime, 100);
+    } else {
+      for (const resource of manifest_default.web_accessible_resources[0].resources) {
+        if (resource.endsWith(".css")) {
+          const css = document.createElement("link");
+          css.rel = "stylesheet";
+          css.href = chrome.runtime.getURL(resource);
+          css.type = "text/css";
+          document.head.appendChild(css);
+        }
+      }
     }
-  }
+  };
+  waitForRuntime();
 };
 var removeNewlines = (msg) => {
   const inlineNodeIndices = [];
@@ -14545,11 +14555,11 @@ var makeFit = async (span) => {
         break;
       }
     }
-    const storage = globalThis.browser?.storage.sync || globalThis.chrome?.storage.sync;
+    const storage = globalThis.browser?.storage || globalThis.chrome?.storage;
     let storedItems = null;
-    if (storage !== void 0 && storage !== null) {
+    if (storage !== void 0 && storage !== null && storage.sync !== void 0 && storage.sync !== null) {
       try {
-        storedItems = await storage.get({
+        storedItems = await storage.sync.get({
           longFormulaFormat: "Add scroll bar"
         });
       } catch (error) {
@@ -14607,7 +14617,7 @@ var undoMakeFit = (span) => {
 };
 
 // parse-prep.js
-var wrapTextNodes = (root, msgParts) => {
+var wrapTextNodes = (root, msgPartToTexBounds) => {
   for (const node of root.childNodes) {
     if (node.nodeName !== "CODE") {
       const texBounds = getTexBounds(node);
@@ -14616,9 +14626,9 @@ var wrapTextNodes = (root, msgParts) => {
         span.textContent = node.textContent;
         node.parentNode.insertBefore(span, node);
         node.remove();
-        msgParts.push(span);
+        msgPartToTexBounds.set(span, texBounds);
       } else {
-        wrapTextNodes(node, msgParts);
+        wrapTextNodes(node, msgPartToTexBounds);
       }
     }
   }
@@ -14644,14 +14654,94 @@ var findGridChunk = (descendant) => {
   return ancestor;
 };
 var removeIfEmpty = (bubble) => {
-  if (/^\s*$/.test(bubble.textContent)) {
-    const gridChunk = findGridChunk(bubble);
-    for (const node of gridChunk.childNodes) {
-      node.remove();
-    }
-    gridChunk.classList.add("empty-bubble-message");
-    gridChunk.innerHTML = emptyBubbleMessage;
+  console.log(bubble);
+  console.log(
+    `bubble.querySelector('img, [aria-label$="sticker"], [role="img"]') = ${bubble.querySelector(
+      'img, [aria-label$="sticker"], [role="img"]'
+    )}`
+  );
+  if (/^\s*$/.test(bubble.textContent) && bubble.querySelector('img, [aria-label$="sticker"], [role="img"]') === null) {
+    const bubbleClone = bubble.cloneNode();
+    bubbleClone.classList.add("empty-bubble-message");
+    bubbleClone.textContent = emptyBubbleMessage;
+    bubble.parentNode.insertBefore(bubbleClone, bubble);
+    bubble.remove();
   }
+};
+
+// convenience.js
+var preventDefault = (e) => e.preventDefault();
+var makeCopyable = (katexSpan) => {
+  const copy = async () => {
+    console.log(`copying LaTeX`);
+    const annotation = katexSpan.querySelector("annotation");
+    console.log(`annotation:`);
+    console.log(annotation);
+    if (annotation !== void 0 && annotation !== null) {
+      console.log(`katexSpan:`);
+      console.log(katexSpan);
+      console.log(
+        `katexSpan.classList.contains('katex-display') === ${katexSpan.classList.contains(
+          "katex-display"
+        )}`
+      );
+      console.log(`annotation.textContent = ${annotation.textContent}`);
+      let tex = "\\" + (katexSpan.classList.contains("katex-display") ? "[" : "(");
+      tex += annotation.textContent + "\\";
+      tex += katexSpan.classList.contains("katex-display") ? "]" : ")";
+      console.log(`tex = ${tex}`);
+      try {
+        await navigator.clipboard.writeText(tex);
+        console.log(
+          `clipboard now contains this text: ${await navigator.clipboard.readText()}`
+        );
+      } catch (error) {
+        console.error("Caught " + error);
+      }
+    }
+  };
+  const interactionBlocker = document.createElement("div");
+  document.body.appendChild(interactionBlocker);
+  const customMenu = document.createElement("div");
+  const menuList = document.createElement("ul");
+  const copyOption = document.createElement("li");
+  copyOption.textContent = "Copy LaTeX";
+  copyOption.addEventListener("click", copy);
+  document.body.appendChild(customMenu);
+  customMenu.appendChild(menuList);
+  menuList.appendChild(copyOption);
+  const showCustomMenu = (rightClick) => {
+    rightClick.preventDefault();
+    console.log(`default prevented`);
+    document.body.addEventListener("touchmove", preventDefault, {
+      passive: false
+    });
+    document.body.addEventListener("wheel", preventDefault, {
+      passive: false
+    });
+    document.body.addEventListener("click", hideCustomMenu);
+    interactionBlocker.id = "interaction-blocker";
+    customMenu.id = "custom-context-menu";
+    customMenu.style.left = `${rightClick.clientX + 90.36 < document.documentElement.clientWidth ? rightClick.clientX : document.documentElement.clientWidth - 90.36}px`;
+    customMenu.style.top = `${rightClick.clientY}px`;
+    console.log(`customMenu:`);
+    console.log(customMenu);
+    console.log(`customMenu.parentNode:`);
+    console.log(customMenu.parentNode);
+  };
+  katexSpan.addEventListener("contextmenu", showCustomMenu);
+  const hideCustomMenu = () => {
+    customMenu.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 100 });
+    customMenu.style.opacity = 0;
+    setTimeout(() => {
+      customMenu.removeAttribute("style");
+      customMenu.removeAttribute("id");
+      document.body.removeEventListener("touchmove", preventDefault);
+      document.body.removeEventListener("wheel", preventDefault);
+      interactionBlocker.removeAttribute("id");
+      document.body.removeEventListener("click", hideCustomMenu);
+    }, 100);
+  };
 };
 
 // parse.js
@@ -14765,12 +14855,10 @@ var removeEscapeChars = (msgPart, escapeCharIndices, texBounds = []) => {
   }
   escapeCharIndices.length = 0;
 };
-var parse = (msgPart) => {
+var parse = (mapEntry) => {
   const escapeCharIndices = [];
-  let texBounds;
-  if (msgPart !== null && msgPart.textContent !== "") {
-    texBounds = getTexBounds(msgPart, escapeCharIndices);
-  }
+  const msgPart = mapEntry[0];
+  const texBounds = mapEntry[1];
   if (texBounds !== void 0 && texBounds.length) {
     removeEscapeChars(msgPart, escapeCharIndices, texBounds);
     for (let i = 0; i < texBounds.length; i++) {
@@ -14812,15 +14900,18 @@ var parse = (msgPart) => {
       "span:where(:not(.katex-display) > .katex, .katex-display)"
     ).forEach((span) => {
       makeFit(span);
+      console.log(`span:`);
+      console.log(span);
+      makeCopyable(span);
     });
   } else {
     removeEscapeChars(msgPart, escapeCharIndices);
   }
 };
 var parseParts = (bubble) => {
-  const msgParts = [];
+  const msgPartToTexBounds = /* @__PURE__ */ new Map();
   if (bubble.querySelectorAll(".katex").length === 0) {
-    wrapTextNodes(bubble, msgParts);
+    wrapTextNodes(bubble, msgPartToTexBounds);
   } else {
     bubble.querySelectorAll(
       "span:where(:not(.katex-display) > .katex, .katex-display)"
@@ -14828,10 +14919,16 @@ var parseParts = (bubble) => {
       makeFit(span);
     });
   }
-  for (const msgPart of msgParts) {
-    parse(msgPart);
+  let texBoundsFound = false;
+  for (const entry of msgPartToTexBounds) {
+    parse(entry);
+    if (!texBoundsFound && entry[1].length > 0) {
+      texBoundsFound = true;
+    }
   }
-  removeIfEmpty(bubble);
+  if (texBoundsFound) {
+    removeIfEmpty(bubble);
+  }
 };
 
 // DomInfoCore.js
