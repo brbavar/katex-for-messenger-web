@@ -3,7 +3,7 @@ import { isOfTheClasses } from './util.js';
 const scrollbarColor = 'rgba(226, 225, 225, 0.2) transparent';
 
 const emptyBubbleMessage =
-  'LaTeX for Messenger failed to render your LaTeX, so your message had no visible content. Try again. (Check console for any parsing errors.)';
+  'LaTeX for Messenger failed to render the LaTeX, so the message had no visible content. Try again, sender. (Check console for any parsing errors.)';
 
 const isGridChunk = (el) => {
   return (

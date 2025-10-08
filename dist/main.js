@@ -9,10 +9,7 @@ var chatBoxContainer = "div.x1ey2m1c.x78zum5.xixxii4.x1vjfegm";
 var chatBoxContainerContainer = `${mount} > div > div > div.x9f619.x1n2onr6.x1ja2u2z > div[data-visualcompletion="ignore"]`;
 var labeledMessageGrid = '[aria-label^="Messages in conversation"]';
 var messageGrid = `${labeledMessageGrid}, div[role="grid"].x78zum5.xdt5ytf.x1iyjqo2.x6ikm8r.x10wlt62, div.x78zum5.xdt5ytf.x1iyjqo2.x6ikm8r.x10wlt62`;
-var chatBubble = (
-  // '.html-div.xdj266r.x14z9mp.xat24cr.x1lziwak.x14ctfv.x13sv91t.x6ikm8r.x10wlt62.xerhiuh.x1pn3fxy.x10zy8in.xm9bcq3.x1n2onr6.x1vjfegm.x1k4qllp.x1mzt3pk.x13faqbe.x11jlvup.xpmdkuv.xrmkrer.x12z03op.x9wyiwl.x13fuv20.x18b5jzi.x1q0q8m5.x1t7ytsu.x12lizq0.x1nrdd72.x1ybe9c6.xx487zo.xaymx6s.xofb2d2';
-  ".html-div.xdj266r.x14z9mp.xat24cr.x1lziwak.x14ctfv.x13sv91t.x6ikm8r.x10wlt62.xerhiuh.x1pn3fxy.x10zy8in.xm9bcq3.x1n2onr6.x1vjfegm.x1k4qllp.x1mzt3pk.x13faqbe.x13fuv20.x18b5jzi.x1q0q8m5.x1t7ytsu.xaymx6s.xofb2d2"
-);
+var chatBubble = ".html-div.xdj266r.x14z9mp.xat24cr.x1lziwak.x14ctfv.x13sv91t.x6ikm8r.x10wlt62.xerhiuh.x1pn3fxy.x10zy8in.xm9bcq3.x1n2onr6.x1vjfegm.x1k4qllp.x1mzt3pk.x13faqbe.x13fuv20.x18b5jzi.x1q0q8m5.x1t7ytsu.xaymx6s.xofb2d2";
 var katex = `${chatBubble} span:where(:not(.katex-display) > .katex, .katex-display)`;
 var gridChunkContainer = "div.x1qjc9v5.x9f619.xdl72j9.x2lwn1j.xeuugli.x1n2onr6.x78zum5.xdt5ytf.x1iyjqo2.xs83m0k.x6ikm8r.x10wlt62.x1ja2u2z > div.x78zum5.xdt5ytf.x1iyjqo2.x6ikm8r.x1odjw0f.xish69e.x16o0dkt > div.x78zum5.xdt5ytf.x1iyjqo2.x2lah0s.xl56j7k.x121v3j4";
 
@@ -14437,7 +14434,7 @@ var isOfTheClasses = (node, theCs) => {
 
 // config.js
 var scrollbarColor = "rgba(226, 225, 225, 0.2) transparent";
-var emptyBubbleMessage = "LaTeX for Messenger failed to render your LaTeX, so your message had no visible content. Try again. (Check console for any parsing errors.)";
+var emptyBubbleMessage = "LaTeX for Messenger failed to render the LaTeX, so the message had no visible content. Try again, sender. (Check console for any parsing errors.)";
 var isGridChunk = (el) => {
   return !el.hasAttribute("class") && isOfTheClasses(el.parentNode, [
     "x78zum5",
@@ -14488,14 +14485,15 @@ var manifest_default = {
 // aesthetex.js
 var injectCss = () => {
   const waitForRuntime = () => {
-    if (chrome.runtime === void 0) {
+    const runtime = globalThis.browser?.runtime || globalThis.chrome?.storage;
+    if (runtime === void 0) {
       setTimeout(waitForRuntime, 100);
     } else {
       for (const resource of manifest_default.web_accessible_resources[0].resources) {
         if (resource.endsWith(".css")) {
           const css = document.createElement("link");
           css.rel = "stylesheet";
-          css.href = chrome.runtime.getURL(resource);
+          css.href = runtime.getURL(resource);
           css.type = "text/css";
           document.head.appendChild(css);
         }
@@ -14654,12 +14652,6 @@ var findGridChunk = (descendant) => {
   return ancestor;
 };
 var removeIfEmpty = (bubble) => {
-  console.log(bubble);
-  console.log(
-    `bubble.querySelector('img, [aria-label$="sticker"], [role="img"]') = ${bubble.querySelector(
-      'img, [aria-label$="sticker"], [role="img"]'
-    )}`
-  );
   if (/^\s*$/.test(bubble.textContent) && bubble.querySelector('img, [aria-label$="sticker"], [role="img"]') === null) {
     const bubbleClone = bubble.cloneNode();
     bubbleClone.classList.add("empty-bubble-message");
@@ -14673,28 +14665,11 @@ var removeIfEmpty = (bubble) => {
 var preventDefault = (e) => e.preventDefault();
 var makeCopyable = (katexSpan) => {
   const copy = async () => {
-    console.log(`copying LaTeX`);
     const annotation = katexSpan.querySelector("annotation");
-    console.log(`annotation:`);
-    console.log(annotation);
     if (annotation !== void 0 && annotation !== null) {
-      console.log(`katexSpan:`);
-      console.log(katexSpan);
-      console.log(
-        `katexSpan.classList.contains('katex-display') === ${katexSpan.classList.contains(
-          "katex-display"
-        )}`
-      );
-      console.log(`annotation.textContent = ${annotation.textContent}`);
-      let tex = "\\" + (katexSpan.classList.contains("katex-display") ? "[" : "(");
-      tex += annotation.textContent + "\\";
-      tex += katexSpan.classList.contains("katex-display") ? "]" : ")";
-      console.log(`tex = ${tex}`);
+      const tex = `\\${katexSpan.classList.contains("katex-display") ? "[" : "("}${annotation.textContent}\\${katexSpan.classList.contains("katex-display") ? "]" : ")"}`;
       try {
         await navigator.clipboard.writeText(tex);
-        console.log(
-          `clipboard now contains this text: ${await navigator.clipboard.readText()}`
-        );
       } catch (error) {
         console.error("Caught " + error);
       }
@@ -14712,7 +14687,6 @@ var makeCopyable = (katexSpan) => {
   menuList.appendChild(copyOption);
   const showCustomMenu = (rightClick) => {
     rightClick.preventDefault();
-    console.log(`default prevented`);
     document.body.addEventListener("touchmove", preventDefault, {
       passive: false
     });
@@ -14724,10 +14698,6 @@ var makeCopyable = (katexSpan) => {
     customMenu.id = "custom-context-menu";
     customMenu.style.left = `${rightClick.clientX + 90.36 < document.documentElement.clientWidth ? rightClick.clientX : document.documentElement.clientWidth - 90.36}px`;
     customMenu.style.top = `${rightClick.clientY}px`;
-    console.log(`customMenu:`);
-    console.log(customMenu);
-    console.log(`customMenu.parentNode:`);
-    console.log(customMenu.parentNode);
   };
   katexSpan.addEventListener("contextmenu", showCustomMenu);
   const hideCustomMenu = () => {
@@ -14856,9 +14826,9 @@ var removeEscapeChars = (msgPart, escapeCharIndices, texBounds = []) => {
   escapeCharIndices.length = 0;
 };
 var parse = (mapEntry) => {
-  const escapeCharIndices = [];
   const msgPart = mapEntry[0];
   const texBounds = mapEntry[1];
+  const escapeCharIndices = [];
   if (texBounds !== void 0 && texBounds.length) {
     removeEscapeChars(msgPart, escapeCharIndices, texBounds);
     for (let i = 0; i < texBounds.length; i++) {
@@ -14900,8 +14870,6 @@ var parse = (mapEntry) => {
       "span:where(:not(.katex-display) > .katex, .katex-display)"
     ).forEach((span) => {
       makeFit(span);
-      console.log(`span:`);
-      console.log(span);
       makeCopyable(span);
     });
   } else {

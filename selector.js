@@ -21,14 +21,7 @@ const labeledMessageGrid = '[aria-label^="Messages in conversation"]';
 
 const messageGrid = `${labeledMessageGrid}, div[role="grid"].x78zum5.xdt5ytf.x1iyjqo2.x6ikm8r.x10wlt62, div.x78zum5.xdt5ytf.x1iyjqo2.x6ikm8r.x10wlt62`;
 
-// const chatBubble =
-//   '.html-div.xexx8yu.x18d9i69.xat24cr.xdj266r.xeuugli.x1vjfegm';
-
-// const innerChatBubble =
-//   '.html-div.xdj266r.x14z9mp.xat24cr.x1lziwak.x14ctfv.x13sv91t.x6ikm8r.x10wlt62.xerhiuh.x1pn3fxy.x10zy8in.xm9bcq3.x1n2onr6.x1vjfegm.x1k4qllp.x1mzt3pk.x13faqbe.x11jlvup.xpmdkuv.xrmkrer.x12z03op.x9wyiwl.x13fuv20.x18b5jzi.x1q0q8m5.x1t7ytsu.x12lizq0.x1nrdd72.x1ybe9c6.xx487zo.xaymx6s.xofb2d2';
-
 const chatBubble =
-  // '.html-div.xdj266r.x14z9mp.xat24cr.x1lziwak.x14ctfv.x13sv91t.x6ikm8r.x10wlt62.xerhiuh.x1pn3fxy.x10zy8in.xm9bcq3.x1n2onr6.x1vjfegm.x1k4qllp.x1mzt3pk.x13faqbe.x11jlvup.xpmdkuv.xrmkrer.x12z03op.x9wyiwl.x13fuv20.x18b5jzi.x1q0q8m5.x1t7ytsu.x12lizq0.x1nrdd72.x1ybe9c6.xx487zo.xaymx6s.xofb2d2';
   '.html-div.xdj266r.x14z9mp.xat24cr.x1lziwak.x14ctfv.x13sv91t.x6ikm8r.x10wlt62.xerhiuh.x1pn3fxy.x10zy8in.xm9bcq3.x1n2onr6.x1vjfegm.x1k4qllp.x1mzt3pk.x13faqbe.x13fuv20.x18b5jzi.x1q0q8m5.x1t7ytsu.xaymx6s.xofb2d2';
 
 const katex = `${chatBubble} span:where(:not(.katex-display) > .katex, .katex-display)`;
@@ -56,7 +49,6 @@ export {
   labeledMessageGrid,
   messageGrid,
   chatBubble,
-  // innerChatBubble,
   katex,
   gridChunkContainer,
 };

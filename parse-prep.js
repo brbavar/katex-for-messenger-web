@@ -1,6 +1,5 @@
 import { getTexBounds } from './parse.js';
 
-// const wrapTextNodes = (root, msgParts) => {
 const wrapTextNodes = (root, msgPartToTexBounds) => {
   for (const node of root.childNodes) {
     if (node.nodeName !== 'CODE') {
@@ -12,10 +11,8 @@ const wrapTextNodes = (root, msgPartToTexBounds) => {
         node.parentNode.insertBefore(span, node);
         node.remove();
 
-        // msgParts.push(span);
         msgPartToTexBounds.set(span, texBounds);
       } else {
-        // wrapTextNodes(node, msgParts);
         wrapTextNodes(node, msgPartToTexBounds);
       }
     }
