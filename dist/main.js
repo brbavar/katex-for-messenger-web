@@ -14565,12 +14565,8 @@ var makeFit = async (span) => {
         console.error("Caught " + error);
       }
     }
-    console.log(`collectiveSpanWidth = ${collectiveSpanWidth}`);
-    console.log(`spanGrandparentWidth = ${spanGrandparentWidth}`);
     if (collectiveSpanWidth > spanGrandparentWidth) {
-      console.log(`span does not fit initially`);
       if (storedItems !== null && storedItems.longFormulaFormat === "line-breaks" && !oversizedBaseFound) {
-        console.log(`inserting line breaks`);
         let i = baseSpans.length - 1;
         let j = 0;
         const insertLineBreak = () => {
@@ -14596,7 +14592,6 @@ var makeFit = async (span) => {
         };
         insertLineBreak();
       } else {
-        console.log(`making scrollable`);
         span.classList.add("katex-scrollable");
         if (span.getAttribute("class") === "katex katex-scrollable") {
           span.style.display = "inline-block";
@@ -15603,11 +15598,14 @@ var setUpChatBoxView = (domInfo) => {
       domInfo.observeChatBoxContainer();
     }
   };
+  let lengthOfWait = 0;
   const waitForChatBoxContainer = () => {
     if (domInfo.getChatBoxContainer() === null) {
       setTimeout(() => {
-        domInfo.setChatBoxContainer();
-        waitForChatBoxContainer();
+        if ((lengthOfWait += 100) < 5e3) {
+          domInfo.setChatBoxContainer();
+          waitForChatBoxContainer();
+        }
       }, 100);
     } else {
       waitForGridsToBeLabeled();

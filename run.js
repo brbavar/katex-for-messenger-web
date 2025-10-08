@@ -183,6 +183,7 @@ const setUpChatBoxView = (domInfo) => {
   domInfo.observeChatBoxContainerContainer();
 
   domInfo.setChatBoxContainer();
+
   const waitForGridsToBeLabeled = () => {
     if (!domInfo.messageGridsLabeled()) {
       setTimeout(waitForGridsToBeLabeled, 100);
@@ -213,7 +214,7 @@ const setUpChatBoxView = (domInfo) => {
       domInfo.observeChatBoxContainer();
     }
   };
-  // waitForGridsToBeLabeled();
+
   let lengthOfWait = 0;
   const waitForChatBoxContainer = () => {
     if (domInfo.getChatBoxContainer() === null) {

@@ -4,10 +4,6 @@ const makeCopyable = (katexSpan) => {
   const copy = async () => {
     const annotation = katexSpan.querySelector('annotation');
     if (annotation !== undefined && annotation !== null) {
-      //   let tex =
-      //     '\\' + (katexSpan.classList.contains('katex-display') ? '[' : '(');
-      //   tex += annotation.textContent + '\\';
-      //   tex += katexSpan.classList.contains('katex-display') ? ']' : ')';
       const tex = `\\${
         katexSpan.classList.contains('katex-display') ? '[' : '('
       }${annotation.textContent}\\${

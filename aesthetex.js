@@ -112,16 +112,13 @@ const makeFit = async (span) => {
         console.error('Caught ' + error);
       }
     }
-    console.log(`collectiveSpanWidth = ${collectiveSpanWidth}`);
-    console.log(`spanGrandparentWidth = ${spanGrandparentWidth}`);
+
     if (collectiveSpanWidth > spanGrandparentWidth) {
-      console.log(`span does not fit initially`);
       if (
         storedItems !== null &&
         storedItems.longFormulaFormat === 'line-breaks' &&
         !oversizedBaseFound
       ) {
-        console.log(`inserting line breaks`);
         let i = baseSpans.length - 1;
         let j = 0;
 
@@ -165,7 +162,6 @@ const makeFit = async (span) => {
         };
         insertLineBreak();
       } else {
-        console.log(`making scrollable`);
         span.classList.add('katex-scrollable');
 
         if (span.getAttribute('class') === 'katex katex-scrollable') {
