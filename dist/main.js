@@ -14448,7 +14448,7 @@ var isGridChunk = (el) => {
 
 // manifest.json
 var manifest_default = {
-  manifest_version: 3,
+  manifest_version: 5,
   name: "LaTeX for Messenger",
   version: "4",
   icons: {

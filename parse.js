@@ -212,15 +212,12 @@ const parseParts = (bubble) => {
   if (bubble.querySelectorAll('.katex').length === 0) {
     wrapTextNodes(bubble, msgPartToTexBounds);
   } else {
-    console.log(`making preexisting katex spans fit, those spans being:`);
     bubble
       .querySelectorAll(
         'span:where(:not(.katex-display) > .katex, .katex-display)'
       )
       .forEach((span) => {
-        console.log(span);
         makeFit(span);
-        // makeCopyable(span);   May need this here
       });
   }
   let texBoundsFound = false;
