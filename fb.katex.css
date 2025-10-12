@@ -98,12 +98,7 @@
 }
 
 .empty-bubble-message {
-  /* background-color: var(--mwp-message-row-background); */
-  /* background-color: black; */
-  /* background-image: var(--chat-outgoing-message-background-gradient); */
-  /* color: rgb(125, 129, 133, 1); */
   font-style: italic;
-  /* border: 0.5px solid rgba(101, 104, 108, 0.6); */
   opacity: 0.6;
 }
 

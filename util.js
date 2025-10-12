@@ -1,10 +1,5 @@
 const isInAll = (node, classes) => {
   for (const c of classes) {
-    // console.log(`c = ${c}, node = ${node}`);
-    // if (node !== null) {
-    //   console.log(`'classList' in node = ${'classList' in node}`);
-    //   console.log(`node.classList.contains(c) = ${node.classList.contains(c)}`);
-    // }
     if (
       node === null ||
       !('classList' in node) ||
@@ -35,27 +30,8 @@ const has = (node, expectedFeatures) => {
         }
       }
 
-      // console.log(`relatedNode:`);
-      // console.log(relatedNode);
-      // console.log(`classes:`);
-      // console.log(classes);
-      // console.log(`attributes:`);
-      // console.log(attributes);
-
       if (attributes !== null) {
         for (const attrValPair of attributes) {
-          // console.log(`attrValPair:`);
-          // console.log(attrValPair);
-          // console.log(
-          //   `relatedNode.hasAttribute(${
-          //     attrValPair[0]
-          //   }) = ${relatedNode.hasAttribute(attrValPair[0])}`
-          // );
-          // console.log(
-          //   `relatedNode.getAttribute(${attrValPair[0]}) === ${
-          //     attrValPair[1]
-          //   }: ${relatedNode.getAttribute(attrValPair[0]) === attrValPair[1]}`
-          // );
           if (
             !(
               relatedNode.hasAttribute(attrValPair[0]) &&
@@ -78,7 +54,6 @@ const has = (node, expectedFeatures) => {
     }
   }
 
-  // return attributesPresent && classesPresent;
   return classesPresent;
 };
 
@@ -125,7 +100,6 @@ const lacks = (node, unexpectedFeatures) => {
     }
   }
 
-  // return attributesAbsent && classesAbsent;
   return classesAbsent;
 };
 
@@ -139,26 +113,10 @@ const findAncestor = (node, expectedFeatures, unexpectedFeatures = null) => {
     if (ancestor.constructor.name === 'HTMLBodyElement') {
       return null;
     }
-    // console.log(`ancestor:`);
-    // console.log(ancestor);
-    // console.log(`ancestor.parentNode:`);
-    // console.log(ancestor.parentNode);
-    // console.log(
-    //   `has(ancestor, expectedFeatures) = ${has(ancestor, expectedFeatures)}`
-    // );
-    // console.log(
-    //   `lacks(ancestor, unexpectedFeatures) = ${lacks(
-    //     ancestor,
-    //     unexpectedFeatures
-    //   )}`
-    // );
     ancestor = ancestor.parentNode;
   }
-
-  // console.log(`returning ancestor, which is:`);
-  // console.log(ancestor);
 
   return ancestor;
 };
 
-export { isInAll, findAncestor /*, has, lacks */ };
+export { isInAll, findAncestor };

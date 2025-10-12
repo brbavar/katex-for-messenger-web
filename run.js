@@ -2,14 +2,6 @@ import { DomInfo } from './DomInfo.js';
 import { injectCss } from './aesthetex.js';
 
 const startUp = () => {
-  // console.log(`page loaded`);
-
-  // // console.log(
-  // //   `window.getComputedStyle(document.documentElement).getPropertyValue('--chat-message-text-color') = ${window
-  // //     .getComputedStyle(document.documentElement)
-  // //     .getPropertyValue('--chat-message-text-color')}`
-  // // );
-
   const domInfo = oneTimeInit();
 
   if (window.location.href.startsWith('https://www.facebook.com/messages')) {
@@ -163,8 +155,6 @@ const oneTimeInit = () => {
   };
   waitForAccountControlsAndSettings();
 
-  // domInfo.observeEditorContainers();
-
   return domInfo;
 };
 
@@ -183,9 +173,6 @@ const setUpMessengerView = (domInfo) => {
       domInfo.markMostRecentMessage();
 
       handleChat(domInfo);
-
-      // domInfo.setEditorContainers();
-      // domInfo.observeEditorContainers();
     }
   };
 
@@ -197,9 +184,6 @@ const setUpMessengerView = (domInfo) => {
     domInfo.setMessageGrid();
     domInfo.handleChatBubbles();
     domInfo.observeChatBubbles();
-
-    // domInfo.setEditorContainers();
-    // domInfo.observeEditorContainers();
   }
 };
 

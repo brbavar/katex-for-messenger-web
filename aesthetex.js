@@ -4,7 +4,6 @@ import manifest from './manifest.json';
 const injectCss = () => {
   const waitForRuntime = () => {
     const runtime = globalThis.browser?.runtime || globalThis.chrome?.runtime;
-    // if (chrome.runtime === undefined) {
     if (runtime === undefined) {
       setTimeout(waitForRuntime, 100);
     } else {
@@ -12,8 +11,6 @@ const injectCss = () => {
         if (resource.endsWith('.css')) {
           const css = document.createElement('link');
           css.rel = 'stylesheet';
-          // // Should not use chrome.runtime API in Safari (and should use cautiously in Firefox)
-          // css.href = chrome.runtime.getURL(resource);
           css.href = runtime.getURL(resource);
           css.type = 'text/css';
           document.head.appendChild(css);

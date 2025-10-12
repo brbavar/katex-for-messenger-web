@@ -2,32 +2,16 @@ import * as selector from './selector.js';
 import { DomInfoCore } from './DomInfoCore.js';
 import { setUpMessengerView, setUpChatBoxView } from './run.js';
 import { parseParts } from './parse.js';
-// import { /*findGridChunk*/ findAncestor } from './dom-cleanup.js';
 import { findAncestor } from './util.js';
 import { gridChunkFeatures, gridChunkNonFeatures } from './config.js';
 
-// let = [];
-
 class DomInfo extends DomInfoCore {
-  // #chatIncomingMessageTextColor = ;
   #mount = null;
   #accountControlsAndSettings = null;
   #chatBoxContainer = null;
   #chatBoxContainerContainer = null;
-  // #moreActionsMenuContainer = null;
   #chatBoxToLabel = new Map();
   #labelToChatBoxObserver = new Map();
-  // #labelToCssVariableObserver = new Map();
-  // // #editorContainers = [];
-  // // #editorContainerObservers = [];
-
-  // #cssVariableMutationHandler = (mutations) => {
-  //   mutations.forEach((mutation) => {
-  //     if (mutation.attributeName === 'style') {
-  //       cssVariableSource = ;
-  //     }
-  //   });
-  // };
 
   #accountControlsAndSettingsObserver = new MutationObserver((mutations) => {
     let messengerControlSeen = false;
@@ -121,9 +105,8 @@ class DomInfo extends DomInfoCore {
                   if (inChatBoxContainerObserver) {
                     this.handleChatBubbles();
                   }
-                  this.observeChatBubbles();
 
-                  // this.observeEditorContainer();
+                  this.observeChatBubbles();
                 }
               }
             }
@@ -133,192 +116,6 @@ class DomInfo extends DomInfoCore {
       }
     }
   }
-
-  // // #moreActionsMenuContainerObserver = new MutationObserver((mutations) => {
-  // //   mutations.forEach((mutation) => {
-  // //     mutation.addedNodes.forEach((node) => {});
-  // //   });
-  // // });
-
-  // #editorContainerMutationHandler = (mutations) => {
-  //   mutations.forEach((mutation) => {
-  //     // console.log(`attribute of editor container mutated`);
-  //     // if (
-  //     //   mutation.attributeName === 'aria-label' &&
-  //     //   !mutation.target.hasAttribute('aria-label')
-  //     // ) {
-  //     //   console.log(`aria-label removed`);
-  //     // }
-  //     mutation.addedNodes.forEach((node) => {
-  //       // console.log(`node added to editor container's child list`);
-  //       // console.log(node);
-  //       const chatBox = findAncestor(
-  //         node,
-  //         (el) =>
-  //           new Map([
-  //             [
-  //               el,
-  //               [
-  //                 [
-  //                   'xcrg951',
-  //                   'x5a5i1n',
-  //                   'x1obq294',
-  //                   'x78zum5',
-  //                   'xdt5ytf',
-  //                   'x6prxxf',
-  //                   'xvq8zen',
-  //                   'x1hm9lzh',
-  //                   'x6ikm8r',
-  //                   'x10wlt62',
-  //                   'xi55695',
-  //                   'x1rgmuzj',
-  //                   'x85a59c',
-  //                   'xbbk1sx',
-  //                   // 'x6l8u58',
-  //                 ],
-  //               ],
-  //             ],
-  //           ])
-  //       );
-  //       // console.log(`chatBox:`);
-  //       // console.log(chatBox);
-  //       const editSubmitButton = node.querySelector(selector.editSubmitButton);
-  //       if (editSubmitButton !== null) {
-  //         const textbox = node.querySelector(selector.textbox);
-  //         if (textbox !== null) {
-  //           textbox.addEventListener('keydown', (event) => {
-  //             if (event.key === 'Enter' && !event.shiftKey) {
-  //               if (
-  //                 window.location.href.startsWith(
-  //                   'https://www.facebook.com/messages'
-  //                 )
-  //               ) {
-  //                 window.location.href =
-  //                   'https://www.facebook.com/messages/new/';
-  //               } else {
-  //                 // const chatBox = findAncestor(
-  //                 //   textbox,
-  //                 //   (el) =>
-  //                 //     new Map([
-  //                 //       [
-  //                 //         el,
-  //                 //         [
-  //                 //           [
-  //                 //             'xcrg951',
-  //                 //             'x5a5i1n',
-  //                 //             'x1obq294',
-  //                 //             'x78zum5',
-  //                 //             'xdt5ytf',
-  //                 //             'x6prxxf',
-  //                 //             'xvq8zen',
-  //                 //             'x1hm9lzh',
-  //                 //             'x6ikm8r',
-  //                 //             'x10wlt62',
-  //                 //             'xi55695',
-  //                 //             'x1rgmuzj',
-  //                 //             'x85a59c',
-  //                 //             'xbbk1sx',
-  //                 //             // 'x6l8u58',
-  //                 //           ],
-  //                 //         ],
-  //                 //       ],
-  //                 //     ])
-  //                 // );
-  //                 // console.log(`chatBox:`);
-  //                 // console.log(chatBox);
-  //                 if (chatBox !== null) {
-  //                   const closeChatBoxButton = chatBox.querySelector(
-  //                     selector.closeChatBoxButton
-  //                   );
-  //                   // console.log(`closeChatBoxButton:`);
-  //                   // console.log(closeChatBoxButton);
-
-  //                   // // closeChatBoxButton.click();
-  //                 }
-  //               }
-  //             }
-  //           });
-  //         }
-  //       }
-  //     });
-  //   });
-  // };
-
-  // // observeEditorContainers() {
-  // //   const editorContainers = document.querySelectorAll(
-  // //     selector.editorContainer
-  // //   );
-  // //   console.log(`${editorContainers.length} editor containers found`);
-  // //   for (const container of editorContainers) {
-  // //     const containerObserver = new MutationObserver(
-  // //       this.#editorContainerMutationHandler
-  // //     );
-  // //     containerObserver.observe(container, { childList: true });
-
-  // //     // const editSubmitButton = container.querySelector(
-  // //     //   selector.editSubmitButton
-  // //     // );
-  // //     // if (editSubmitButton !== null) {
-  // //     //   const buttonObserver = new MutationObserver((mutations) => {
-  // //     //     mutations.forEach((mutation) => {});
-  // //     //   });
-  // //     // }
-  // //   }
-  // // }
-
-  // observeEditorContainer() {
-  //   // console.log(`messageGrid:`);
-  //   // console.log(this.getMessageGrid());
-  //   const chatBox = findAncestor(
-  //     this.getMessageGrid(),
-  //     (el) =>
-  //       new Map([
-  //         [
-  //           el,
-  //           [
-  //             [
-  //               'xcrg951',
-  //               'x5a5i1n',
-  //               'x1obq294',
-  //               'x78zum5',
-  //               'xdt5ytf',
-  //               'x6prxxf',
-  //               'xvq8zen',
-  //               'x1hm9lzh',
-  //               'x6ikm8r',
-  //               'x10wlt62',
-  //               'xi55695',
-  //               'x1rgmuzj',
-  //               'x85a59c',
-  //               'xbbk1sx',
-  //               // 'x6l8u58',
-  //             ],
-  //           ],
-  //         ],
-  //       ])
-  //   );
-  //   // // const editorContainer = this.getMessageGrid().querySelector(
-  //   // //   selector.editorContainer
-  //   // // );
-  //   if (chatBox !== null) {
-  //     const editorContainer = chatBox.querySelector(selector.editorContainer);
-  //     // // let editorContainer = chatBox.querySelector(selector.editorContainer);
-  //     // console.log(`editorContainer = ${editorContainer}`);
-  //     const containerObserver = new MutationObserver(
-  //       this.#editorContainerMutationHandler
-  //     );
-  //     containerObserver.observe(editorContainer, { childList: true });
-
-  //     // const editSubmitButton = editorContainer.querySelector(
-  //     //   selector.editSubmitButton
-  //     // );
-  //     // if (editSubmitButton !== null) {
-  //     //   const buttonObserver = new MutationObserver((mutations) => {
-  //     //     mutations.forEach((mutation) => {});
-  //     //   });
-  //     // }
-  //   }
-  // }
 
   messageGridsLabeled() {
     for (const chatBox of this.#chatBoxContainer.children) {
@@ -535,7 +332,6 @@ class DomInfo extends DomInfoCore {
   }
 
   isNewMessage(bubble) {
-    // const gridChunk = findGridChunk(bubble);
     const gridChunk = findAncestor(
       bubble,
       gridChunkFeatures,
@@ -573,7 +369,6 @@ class DomInfo extends DomInfoCore {
         parseParts(bubble);
 
         setTimeout(() => {
-          // const gridChunk = findGridChunk(bubble);
           const gridChunk = findAncestor(
             bubble,
             gridChunkFeatures,
