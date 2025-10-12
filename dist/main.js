@@ -10,8 +10,16 @@ var chatBoxContainerContainer = `${mount} > div > div > div.x9f619.x1n2onr6.x1ja
 var labeledMessageGrid = '[aria-label^="Messages in conversation"]';
 var messageGrid = `${labeledMessageGrid}, div[role="grid"].x78zum5.xdt5ytf.x1iyjqo2.x6ikm8r.x10wlt62, div.x78zum5.xdt5ytf.x1iyjqo2.x6ikm8r.x10wlt62`;
 var chatBubble = ".html-div.xdj266r.x14z9mp.xat24cr.x1lziwak.x14ctfv.x13sv91t.x6ikm8r.x10wlt62.xerhiuh.x1pn3fxy.x10zy8in.xm9bcq3.x1n2onr6.x1vjfegm.x1k4qllp.x1mzt3pk.x13faqbe.x13fuv20.x18b5jzi.x1q0q8m5.x1t7ytsu.xaymx6s.xofb2d2";
+var chatBubbleText = (
+  // '.html-div.x14z9mp.x1lziwak.xexx8yu.xyri2b.x18d9i69.x1c1uobl.x12nagc.x1gslohp.xyk4ms5.x1k4tb9n.x1ks1olk';
+  ".html-div.x14z9mp.x1lziwak.xexx8yu.xyri2b.x18d9i69.x1c1uobl.x12nagc.x1gslohp.xyk4ms5"
+);
 var katex = `${chatBubble} span:where(:not(.katex-display) > .katex, .katex-display)`;
 var gridChunkContainer = "div.x1qjc9v5.x9f619.xdl72j9.x2lwn1j.xeuugli.x1n2onr6.x78zum5.xdt5ytf.x1iyjqo2.xs83m0k.x6ikm8r.x10wlt62.x1ja2u2z > div.x78zum5.xdt5ytf.x1iyjqo2.x6ikm8r.x1odjw0f.xish69e.x16o0dkt > div.x78zum5.xdt5ytf.x1iyjqo2.x2lah0s.xl56j7k.x121v3j4";
+var composer = 'div[aria-label="Thread composer"][role="group"].xuk3077.x57kliw.x78zum5.x6prxxf.xz9dl7a.xsag5q8';
+var editSubmitButton = 'div[aria-label="Edit"][role="button"].x1i10hfl.xjqpnuy.xc5r6h4.xqeqjp1.x1phubyo.x13fuv20.x18b5jzi.x1q0q8m5.x1t7ytsu.xdl72j9.x2lah0s.x3ct3a4.xdj266r.x14z9mp.xat24cr.x1lziwak.x2lwn1j.xeuugli.x16tdsg8.x1hl2dhg.xggy1nq.x1ja2u2z.x1t137rt.x1q0g3np.x87ps6o.x1lku1pv.x1a2a7pz.x6s0dn4.x1iwo8zk.x1033uif.x179ill4.x1b60jn0.x972fbf.x10w94by.x1qhh985.x14e42zd.x9f619.x78zum5.xl56j7k.xexx8yu.xyri2b.x18d9i69.x1c1uobl.x1n2onr6.xc9qbxq.x14qfxbe.xjbqb8w:where(.x1h6gzvc, .x1ypdohk)';
+var editor = `.html-div.xdj266r.x14z9mp.xat24cr.x1lziwak.xexx8yu.xyri2b.x18d9i69.x1c1uobl.xt5xv9l.x6wvzqs.xpqajaz.x78zum5.xdt5ytf.x1c4vz4f.xs83m0k.x13qp9f6 > .html-div.xdj266r.x14z9mp.xat24cr.x1lziwak.xpqajaz.x9f619.x78zum5.x1iyjqo2.xs83m0k.x1n2onr6.xh8yej3.xz9dl7a.xsag5q8.x135b78x.x11lfxj5 > .html-div.xdj266r.x14z9mp.xat24cr.x1lziwak.xexx8yu.xyri2b.x18d9i69.x1c1uobl.xpqajaz.x9f619.x78zum5.x1iyjqo2.xs83m0k.x1n2onr6.xh8yej3 > .html-div.xdj266r.x14z9mp.xat24cr.x1lziwak.xexx8yu.xyri2b.x18d9i69.x1c1uobl.x1c4vz4f.x2lah0s.x1el4u5y > .html-span.xdj266r.x14z9mp.xat24cr.x1lziwak.xexx8yu.xyri2b.x18d9i69.x1c1uobl.x1hl2dhg.x16tdsg8.x1vvkbs.x4k7w5x.x1h91t0o.x1h9r5lt.x1jfb8zj.xv2umb2.x1beo9mf.xaigb6o.x12ejxvf.x3igimt.xarpa2k.xedcshv.x1lytzrv.x1t2pt76.x7ja8zs.x1qrby5j > div.x9f619.x1n2onr6.x1ja2u2z > ${editSubmitButton}`;
+var editorContainer = `div:has(> ${editor}, > ${composer})`;
 
 // node_modules/katex/dist/katex.mjs
 var SourceLocation = class _SourceLocation {
@@ -14422,29 +14430,16 @@ var renderToDomTree = function renderToDomTree2(expression, options) {
   }
 };
 
-// util.js
-var isOfTheClasses = (node, theCs) => {
-  for (const c of theCs) {
-    if (node === null || !("classList" in node) || !node.classList.contains(c)) {
-      return false;
-    }
-  }
-  return true;
-};
-
 // config.js
 var scrollbarColor = "rgba(226, 225, 225, 0.2) transparent";
 var emptyBubbleMessage = "LaTeX for Messenger failed to render the LaTeX, so the message had no visible content. Try again, sender. (Check console for any parsing errors.)";
-var isGridChunk = (el) => {
-  return !el.hasAttribute("class") && isOfTheClasses(el.parentNode, [
-    "x78zum5",
-    "xdt5ytf",
-    "x1iyjqo2",
-    "x2lah0s",
-    "xl56j7k",
-    "x121v3j4"
-  ]);
-};
+var gridChunkFeatures = (node) => /* @__PURE__ */ new Map([
+  [
+    node.parentNode,
+    [["x78zum5", "xdt5ytf", "x1iyjqo2", "x2lah0s", "xl56j7k", "x121v3j4"]]
+  ]
+]);
+var gridChunkNonFeatures = (node) => /* @__PURE__ */ new Map([[node, [[], /* @__PURE__ */ new Map([["class", null]])]]]);
 
 // manifest.json
 var manifest_default = {
@@ -14642,23 +14637,13 @@ var extractDescendants = (span) => {
   }
   span.remove();
 };
-var findGridChunk = (descendant) => {
-  let ancestor = descendant;
-  while (ancestor !== null && !isGridChunk(ancestor)) {
-    ancestor = ancestor.parentNode;
-    if (ancestor !== null && ancestor.constructor.name === "HTMLBodyElement") {
-      return null;
-    }
-  }
-  return ancestor;
-};
-var removeIfEmpty = (bubble) => {
+var notifyUserIfFailed = (bubble) => {
   if (/^\s*$/.test(bubble.textContent) && bubble.querySelector('img, [aria-label$="sticker"], [role="img"]') === null) {
-    const bubbleClone = bubble.cloneNode();
-    bubbleClone.classList.add("empty-bubble-message");
-    bubbleClone.textContent = emptyBubbleMessage;
-    bubble.parentNode.insertBefore(bubbleClone, bubble);
-    bubble.remove();
+    const bubbleText = bubble.querySelector(chatBubbleText);
+    if (bubbleText !== null) {
+      bubbleText.classList.add("empty-bubble-message");
+      bubbleText.textContent = emptyBubbleMessage;
+    }
   }
 };
 
@@ -14891,7 +14876,7 @@ var parseParts = (bubble) => {
     }
   }
   if (texBoundsFound) {
-    removeIfEmpty(bubble);
+    notifyUserIfFailed(bubble);
   }
 };
 
@@ -15067,8 +15052,101 @@ var DomInfoCore = class {
   }
 };
 
+// util.js
+var isInAll = (node, classes) => {
+  for (const c of classes) {
+    if (node === null || !("classList" in node) || !node.classList.contains(c)) {
+      return false;
+    }
+  }
+  return true;
+};
+var has = (node, expectedFeatures) => {
+  let attributesPresent = true;
+  let classesPresent = true;
+  if (expectedFeatures !== null) {
+    for (const nodeFeaturesPair of expectedFeatures(node)) {
+      const relatedNode = nodeFeaturesPair[0];
+      let classes = [];
+      let attributes = null;
+      if (nodeFeaturesPair[1] !== void 0) {
+        if (nodeFeaturesPair[1].length > 0) {
+          classes = nodeFeaturesPair[1][0];
+        }
+        if (nodeFeaturesPair[1].length > 1) {
+          attributes = nodeFeaturesPair[1][1];
+        }
+      }
+      if (attributes !== null) {
+        for (const attrValPair of attributes) {
+          if (!(relatedNode.hasAttribute(attrValPair[0]) && relatedNode.getAttribute(attrValPair[0]) === attrValPair[1])) {
+            attributesPresent = false;
+            break;
+          }
+        }
+        if (!attributesPresent) {
+          return false;
+        }
+      }
+      if (!isInAll(relatedNode, classes)) {
+        classesPresent = false;
+        break;
+      }
+    }
+  }
+  return classesPresent;
+};
+var lacks = (node, unexpectedFeatures) => {
+  let attributesAbsent = true;
+  let classesAbsent = true;
+  if (unexpectedFeatures !== null) {
+    for (const nodeFeaturesPair of unexpectedFeatures(node)) {
+      const relatedNode = nodeFeaturesPair[0];
+      let classes = [];
+      let attributes = null;
+      if (nodeFeaturesPair[1] !== void 0) {
+        if (nodeFeaturesPair[1].length > 0) {
+          classes = nodeFeaturesPair[1][0];
+        }
+        if (nodeFeaturesPair[1].length > 1) {
+          attributes = nodeFeaturesPair[1][1];
+        }
+      }
+      if (attributes !== null) {
+        for (const attrValPair of attributes) {
+          if (relatedNode.hasAttribute(attrValPair[0]) && relatedNode.getAttribute(attrValPair[0]) === attrValPair[1]) {
+            attributesAbsent = false;
+            break;
+          }
+        }
+        if (!attributesAbsent) {
+          return false;
+        }
+      }
+      for (const className of classes) {
+        if (relatedNode.classList.contains(className)) {
+          classesAbsent = false;
+          break;
+        }
+      }
+    }
+  }
+  return classesAbsent;
+};
+var findAncestor = (node, expectedFeatures, unexpectedFeatures = null) => {
+  let ancestor = node;
+  while (ancestor !== null && !(has(ancestor, expectedFeatures) && lacks(ancestor, unexpectedFeatures))) {
+    if (ancestor.constructor.name === "HTMLBodyElement") {
+      return null;
+    }
+    ancestor = ancestor.parentNode;
+  }
+  return ancestor;
+};
+
 // DomInfo.js
 var DomInfo = class extends DomInfoCore {
+  // #chatIncomingMessageTextColor = ;
   #mount = null;
   #accountControlsAndSettings = null;
   #chatBoxContainer = null;
@@ -15076,8 +15154,16 @@ var DomInfo = class extends DomInfoCore {
   // #moreActionsMenuContainer = null;
   #chatBoxToLabel = /* @__PURE__ */ new Map();
   #labelToChatBoxObserver = /* @__PURE__ */ new Map();
-  // #editorContainers = [];
-  // #editorContainerObservers = [];
+  // #labelToCssVariableObserver = new Map();
+  // // #editorContainers = [];
+  // // #editorContainerObservers = [];
+  // #cssVariableMutationHandler = (mutations) => {
+  //   mutations.forEach((mutation) => {
+  //     if (mutation.attributeName === 'style') {
+  //       cssVariableSource = ;
+  //     }
+  //   });
+  // };
   #accountControlsAndSettingsObserver = new MutationObserver((mutations) => {
     let messengerControlSeen = false;
     const respondToControlMutation = (nodes, respond) => {
@@ -15161,11 +15247,11 @@ var DomInfo = class extends DomInfoCore {
       }
     }
   }
-  // #moreActionsMenuContainerObserver = new MutationObserver((mutations) => {
-  //   mutations.forEach((mutation) => {
-  //     mutation.addedNodes.forEach((node) => {});
-  //   });
-  // });
+  // // #moreActionsMenuContainerObserver = new MutationObserver((mutations) => {
+  // //   mutations.forEach((mutation) => {
+  // //     mutation.addedNodes.forEach((node) => {});
+  // //   });
+  // // });
   // #editorContainerMutationHandler = (mutations) => {
   //   mutations.forEach((mutation) => {
   //     // console.log(`attribute of editor container mutated`);
@@ -15176,24 +15262,168 @@ var DomInfo = class extends DomInfoCore {
   //     //   console.log(`aria-label removed`);
   //     // }
   //     mutation.addedNodes.forEach((node) => {
-  //       console.log(`node added to editor container's child list`);
-  //       console.log(node);
-  //       const textbox = node.querySelector(
-  //         'div[role="textbox"][contenteditable="true"].xzsf02u.x1a2a7pz.x1n2onr6.x14wi4xw'
+  //       // console.log(`node added to editor container's child list`);
+  //       // console.log(node);
+  //       const chatBox = findAncestor(
+  //         node,
+  //         (el) =>
+  //           new Map([
+  //             [
+  //               el,
+  //               [
+  //                 [
+  //                   'xcrg951',
+  //                   'x5a5i1n',
+  //                   'x1obq294',
+  //                   'x78zum5',
+  //                   'xdt5ytf',
+  //                   'x6prxxf',
+  //                   'xvq8zen',
+  //                   'x1hm9lzh',
+  //                   'x6ikm8r',
+  //                   'x10wlt62',
+  //                   'xi55695',
+  //                   'x1rgmuzj',
+  //                   'x85a59c',
+  //                   'xbbk1sx',
+  //                   // 'x6l8u58',
+  //                 ],
+  //               ],
+  //             ],
+  //           ])
   //       );
+  //       // console.log(`chatBox:`);
+  //       // console.log(chatBox);
+  //       const editSubmitButton = node.querySelector(selector.editSubmitButton);
+  //       if (editSubmitButton !== null) {
+  //         const textbox = node.querySelector(selector.textbox);
+  //         if (textbox !== null) {
+  //           textbox.addEventListener('keydown', (event) => {
+  //             if (event.key === 'Enter' && !event.shiftKey) {
+  //               if (
+  //                 window.location.href.startsWith(
+  //                   'https://www.facebook.com/messages'
+  //                 )
+  //               ) {
+  //                 window.location.href =
+  //                   'https://www.facebook.com/messages/new/';
+  //               } else {
+  //                 // const chatBox = findAncestor(
+  //                 //   textbox,
+  //                 //   (el) =>
+  //                 //     new Map([
+  //                 //       [
+  //                 //         el,
+  //                 //         [
+  //                 //           [
+  //                 //             'xcrg951',
+  //                 //             'x5a5i1n',
+  //                 //             'x1obq294',
+  //                 //             'x78zum5',
+  //                 //             'xdt5ytf',
+  //                 //             'x6prxxf',
+  //                 //             'xvq8zen',
+  //                 //             'x1hm9lzh',
+  //                 //             'x6ikm8r',
+  //                 //             'x10wlt62',
+  //                 //             'xi55695',
+  //                 //             'x1rgmuzj',
+  //                 //             'x85a59c',
+  //                 //             'xbbk1sx',
+  //                 //             // 'x6l8u58',
+  //                 //           ],
+  //                 //         ],
+  //                 //       ],
+  //                 //     ])
+  //                 // );
+  //                 // console.log(`chatBox:`);
+  //                 // console.log(chatBox);
+  //                 if (chatBox !== null) {
+  //                   const closeChatBoxButton = chatBox.querySelector(
+  //                     selector.closeChatBoxButton
+  //                   );
+  //                   // console.log(`closeChatBoxButton:`);
+  //                   // console.log(closeChatBoxButton);
+  //                   // // closeChatBoxButton.click();
+  //                 }
+  //               }
+  //             }
+  //           });
+  //         }
+  //       }
   //     });
   //   });
   // };
-  // observeEditorContainers() {
-  //   const editorContainers = document.querySelectorAll(
-  //     this.#editorContainerSelector
+  // // observeEditorContainers() {
+  // //   const editorContainers = document.querySelectorAll(
+  // //     selector.editorContainer
+  // //   );
+  // //   console.log(`${editorContainers.length} editor containers found`);
+  // //   for (const container of editorContainers) {
+  // //     const containerObserver = new MutationObserver(
+  // //       this.#editorContainerMutationHandler
+  // //     );
+  // //     containerObserver.observe(container, { childList: true });
+  // //     // const editSubmitButton = container.querySelector(
+  // //     //   selector.editSubmitButton
+  // //     // );
+  // //     // if (editSubmitButton !== null) {
+  // //     //   const buttonObserver = new MutationObserver((mutations) => {
+  // //     //     mutations.forEach((mutation) => {});
+  // //     //   });
+  // //     // }
+  // //   }
+  // // }
+  // observeEditorContainer() {
+  //   // console.log(`messageGrid:`);
+  //   // console.log(this.getMessageGrid());
+  //   const chatBox = findAncestor(
+  //     this.getMessageGrid(),
+  //     (el) =>
+  //       new Map([
+  //         [
+  //           el,
+  //           [
+  //             [
+  //               'xcrg951',
+  //               'x5a5i1n',
+  //               'x1obq294',
+  //               'x78zum5',
+  //               'xdt5ytf',
+  //               'x6prxxf',
+  //               'xvq8zen',
+  //               'x1hm9lzh',
+  //               'x6ikm8r',
+  //               'x10wlt62',
+  //               'xi55695',
+  //               'x1rgmuzj',
+  //               'x85a59c',
+  //               'xbbk1sx',
+  //               // 'x6l8u58',
+  //             ],
+  //           ],
+  //         ],
+  //       ])
   //   );
-  //   console.log(`${editorContainers.length} editor containers found`);
-  //   for (const container of editorContainers) {
-  //     const observer = new MutationObserver(
+  //   // // const editorContainer = this.getMessageGrid().querySelector(
+  //   // //   selector.editorContainer
+  //   // // );
+  //   if (chatBox !== null) {
+  //     const editorContainer = chatBox.querySelector(selector.editorContainer);
+  //     // // let editorContainer = chatBox.querySelector(selector.editorContainer);
+  //     // console.log(`editorContainer = ${editorContainer}`);
+  //     const containerObserver = new MutationObserver(
   //       this.#editorContainerMutationHandler
   //     );
-  //     observer.observe(container, { childList: true });
+  //     containerObserver.observe(editorContainer, { childList: true });
+  //     // const editSubmitButton = editorContainer.querySelector(
+  //     //   selector.editSubmitButton
+  //     // );
+  //     // if (editSubmitButton !== null) {
+  //     //   const buttonObserver = new MutationObserver((mutations) => {
+  //     //     mutations.forEach((mutation) => {});
+  //     //   });
+  //     // }
   //   }
   // }
   messageGridsLabeled() {
@@ -15370,7 +15600,11 @@ var DomInfo = class extends DomInfoCore {
     waitForMessagesToAppear();
   }
   isNewMessage(bubble) {
-    const gridChunk = findGridChunk(bubble);
+    const gridChunk = findAncestor(
+      bubble,
+      gridChunkFeatures,
+      gridChunkNonFeatures
+    );
     if (gridChunk === null) {
       return false;
     }
@@ -15397,7 +15631,11 @@ var DomInfo = class extends DomInfoCore {
       } else {
         parseParts(bubble);
         setTimeout(() => {
-          const gridChunk = findGridChunk(bubble);
+          const gridChunk = findAncestor(
+            bubble,
+            gridChunkFeatures,
+            gridChunkNonFeatures
+          );
           if (gridChunk !== null) {
             const gridChunkContainer2 = gridChunk.parentNode;
             this.markMostRecentMessage(gridChunkContainer2);

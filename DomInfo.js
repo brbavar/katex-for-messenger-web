@@ -2,9 +2,14 @@ import * as selector from './selector.js';
 import { DomInfoCore } from './DomInfoCore.js';
 import { setUpMessengerView, setUpChatBoxView } from './run.js';
 import { parseParts } from './parse.js';
-import { findGridChunk } from './dom-cleanup.js';
+// import { /*findGridChunk*/ findAncestor } from './dom-cleanup.js';
+import { findAncestor } from './util.js';
+import { gridChunkFeatures, gridChunkNonFeatures } from './config.js';
+
+// let = [];
 
 class DomInfo extends DomInfoCore {
+  // #chatIncomingMessageTextColor = ;
   #mount = null;
   #accountControlsAndSettings = null;
   #chatBoxContainer = null;
@@ -12,8 +17,17 @@ class DomInfo extends DomInfoCore {
   // #moreActionsMenuContainer = null;
   #chatBoxToLabel = new Map();
   #labelToChatBoxObserver = new Map();
-  // #editorContainers = [];
-  // #editorContainerObservers = [];
+  // #labelToCssVariableObserver = new Map();
+  // // #editorContainers = [];
+  // // #editorContainerObservers = [];
+
+  // #cssVariableMutationHandler = (mutations) => {
+  //   mutations.forEach((mutation) => {
+  //     if (mutation.attributeName === 'style') {
+  //       cssVariableSource = ;
+  //     }
+  //   });
+  // };
 
   #accountControlsAndSettingsObserver = new MutationObserver((mutations) => {
     let messengerControlSeen = false;
@@ -108,6 +122,8 @@ class DomInfo extends DomInfoCore {
                     this.handleChatBubbles();
                   }
                   this.observeChatBubbles();
+
+                  // this.observeEditorContainer();
                 }
               }
             }
@@ -118,11 +134,11 @@ class DomInfo extends DomInfoCore {
     }
   }
 
-  // #moreActionsMenuContainerObserver = new MutationObserver((mutations) => {
-  //   mutations.forEach((mutation) => {
-  //     mutation.addedNodes.forEach((node) => {});
-  //   });
-  // });
+  // // #moreActionsMenuContainerObserver = new MutationObserver((mutations) => {
+  // //   mutations.forEach((mutation) => {
+  // //     mutation.addedNodes.forEach((node) => {});
+  // //   });
+  // // });
 
   // #editorContainerMutationHandler = (mutations) => {
   //   mutations.forEach((mutation) => {
@@ -134,25 +150,173 @@ class DomInfo extends DomInfoCore {
   //     //   console.log(`aria-label removed`);
   //     // }
   //     mutation.addedNodes.forEach((node) => {
-  //       console.log(`node added to editor container's child list`);
-  //       console.log(node);
-  //       const textbox = node.querySelector(
-  //         'div[role="textbox"][contenteditable="true"].xzsf02u.x1a2a7pz.x1n2onr6.x14wi4xw'
+  //       // console.log(`node added to editor container's child list`);
+  //       // console.log(node);
+  //       const chatBox = findAncestor(
+  //         node,
+  //         (el) =>
+  //           new Map([
+  //             [
+  //               el,
+  //               [
+  //                 [
+  //                   'xcrg951',
+  //                   'x5a5i1n',
+  //                   'x1obq294',
+  //                   'x78zum5',
+  //                   'xdt5ytf',
+  //                   'x6prxxf',
+  //                   'xvq8zen',
+  //                   'x1hm9lzh',
+  //                   'x6ikm8r',
+  //                   'x10wlt62',
+  //                   'xi55695',
+  //                   'x1rgmuzj',
+  //                   'x85a59c',
+  //                   'xbbk1sx',
+  //                   // 'x6l8u58',
+  //                 ],
+  //               ],
+  //             ],
+  //           ])
   //       );
+  //       // console.log(`chatBox:`);
+  //       // console.log(chatBox);
+  //       const editSubmitButton = node.querySelector(selector.editSubmitButton);
+  //       if (editSubmitButton !== null) {
+  //         const textbox = node.querySelector(selector.textbox);
+  //         if (textbox !== null) {
+  //           textbox.addEventListener('keydown', (event) => {
+  //             if (event.key === 'Enter' && !event.shiftKey) {
+  //               if (
+  //                 window.location.href.startsWith(
+  //                   'https://www.facebook.com/messages'
+  //                 )
+  //               ) {
+  //                 window.location.href =
+  //                   'https://www.facebook.com/messages/new/';
+  //               } else {
+  //                 // const chatBox = findAncestor(
+  //                 //   textbox,
+  //                 //   (el) =>
+  //                 //     new Map([
+  //                 //       [
+  //                 //         el,
+  //                 //         [
+  //                 //           [
+  //                 //             'xcrg951',
+  //                 //             'x5a5i1n',
+  //                 //             'x1obq294',
+  //                 //             'x78zum5',
+  //                 //             'xdt5ytf',
+  //                 //             'x6prxxf',
+  //                 //             'xvq8zen',
+  //                 //             'x1hm9lzh',
+  //                 //             'x6ikm8r',
+  //                 //             'x10wlt62',
+  //                 //             'xi55695',
+  //                 //             'x1rgmuzj',
+  //                 //             'x85a59c',
+  //                 //             'xbbk1sx',
+  //                 //             // 'x6l8u58',
+  //                 //           ],
+  //                 //         ],
+  //                 //       ],
+  //                 //     ])
+  //                 // );
+  //                 // console.log(`chatBox:`);
+  //                 // console.log(chatBox);
+  //                 if (chatBox !== null) {
+  //                   const closeChatBoxButton = chatBox.querySelector(
+  //                     selector.closeChatBoxButton
+  //                   );
+  //                   // console.log(`closeChatBoxButton:`);
+  //                   // console.log(closeChatBoxButton);
+
+  //                   // // closeChatBoxButton.click();
+  //                 }
+  //               }
+  //             }
+  //           });
+  //         }
+  //       }
   //     });
   //   });
   // };
 
-  // observeEditorContainers() {
-  //   const editorContainers = document.querySelectorAll(
-  //     this.#editorContainerSelector
+  // // observeEditorContainers() {
+  // //   const editorContainers = document.querySelectorAll(
+  // //     selector.editorContainer
+  // //   );
+  // //   console.log(`${editorContainers.length} editor containers found`);
+  // //   for (const container of editorContainers) {
+  // //     const containerObserver = new MutationObserver(
+  // //       this.#editorContainerMutationHandler
+  // //     );
+  // //     containerObserver.observe(container, { childList: true });
+
+  // //     // const editSubmitButton = container.querySelector(
+  // //     //   selector.editSubmitButton
+  // //     // );
+  // //     // if (editSubmitButton !== null) {
+  // //     //   const buttonObserver = new MutationObserver((mutations) => {
+  // //     //     mutations.forEach((mutation) => {});
+  // //     //   });
+  // //     // }
+  // //   }
+  // // }
+
+  // observeEditorContainer() {
+  //   // console.log(`messageGrid:`);
+  //   // console.log(this.getMessageGrid());
+  //   const chatBox = findAncestor(
+  //     this.getMessageGrid(),
+  //     (el) =>
+  //       new Map([
+  //         [
+  //           el,
+  //           [
+  //             [
+  //               'xcrg951',
+  //               'x5a5i1n',
+  //               'x1obq294',
+  //               'x78zum5',
+  //               'xdt5ytf',
+  //               'x6prxxf',
+  //               'xvq8zen',
+  //               'x1hm9lzh',
+  //               'x6ikm8r',
+  //               'x10wlt62',
+  //               'xi55695',
+  //               'x1rgmuzj',
+  //               'x85a59c',
+  //               'xbbk1sx',
+  //               // 'x6l8u58',
+  //             ],
+  //           ],
+  //         ],
+  //       ])
   //   );
-  //   console.log(`${editorContainers.length} editor containers found`);
-  //   for (const container of editorContainers) {
-  //     const observer = new MutationObserver(
+  //   // // const editorContainer = this.getMessageGrid().querySelector(
+  //   // //   selector.editorContainer
+  //   // // );
+  //   if (chatBox !== null) {
+  //     const editorContainer = chatBox.querySelector(selector.editorContainer);
+  //     // // let editorContainer = chatBox.querySelector(selector.editorContainer);
+  //     // console.log(`editorContainer = ${editorContainer}`);
+  //     const containerObserver = new MutationObserver(
   //       this.#editorContainerMutationHandler
   //     );
-  //     observer.observe(container, { childList: true });
+  //     containerObserver.observe(editorContainer, { childList: true });
+
+  //     // const editSubmitButton = editorContainer.querySelector(
+  //     //   selector.editSubmitButton
+  //     // );
+  //     // if (editSubmitButton !== null) {
+  //     //   const buttonObserver = new MutationObserver((mutations) => {
+  //     //     mutations.forEach((mutation) => {});
+  //     //   });
+  //     // }
   //   }
   // }
 
@@ -371,7 +535,12 @@ class DomInfo extends DomInfoCore {
   }
 
   isNewMessage(bubble) {
-    const gridChunk = findGridChunk(bubble);
+    // const gridChunk = findGridChunk(bubble);
+    const gridChunk = findAncestor(
+      bubble,
+      gridChunkFeatures,
+      gridChunkNonFeatures
+    );
     if (gridChunk === null) {
       return false;
     }
@@ -404,7 +573,12 @@ class DomInfo extends DomInfoCore {
         parseParts(bubble);
 
         setTimeout(() => {
-          const gridChunk = findGridChunk(bubble);
+          // const gridChunk = findGridChunk(bubble);
+          const gridChunk = findAncestor(
+            bubble,
+            gridChunkFeatures,
+            gridChunkNonFeatures
+          );
           if (gridChunk !== null) {
             const gridChunkContainer = gridChunk.parentNode;
             this.markMostRecentMessage(gridChunkContainer);

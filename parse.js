@@ -1,7 +1,7 @@
 import { render } from 'katex';
 import { removeNewlines, makeFit } from './aesthetex.js';
 import { wrapTextNodes } from './parse-prep.js';
-import { extractDescendants, removeIfEmpty } from './dom-cleanup.js';
+import { extractDescendants, notifyUserIfFailed } from './dom-cleanup.js';
 import { makeCopyable } from './convenience.js';
 
 const isOpeningDelim = (delim) => {
@@ -228,7 +228,7 @@ const parseParts = (bubble) => {
     }
   }
   if (texBoundsFound) {
-    removeIfEmpty(bubble);
+    notifyUserIfFailed(bubble);
   }
 };
 

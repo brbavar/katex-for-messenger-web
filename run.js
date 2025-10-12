@@ -2,6 +2,14 @@ import { DomInfo } from './DomInfo.js';
 import { injectCss } from './aesthetex.js';
 
 const startUp = () => {
+  // console.log(`page loaded`);
+
+  // // console.log(
+  // //   `window.getComputedStyle(document.documentElement).getPropertyValue('--chat-message-text-color') = ${window
+  // //     .getComputedStyle(document.documentElement)
+  // //     .getPropertyValue('--chat-message-text-color')}`
+  // // );
+
   const domInfo = oneTimeInit();
 
   if (window.location.href.startsWith('https://www.facebook.com/messages')) {
@@ -154,6 +162,8 @@ const oneTimeInit = () => {
     }
   };
   waitForAccountControlsAndSettings();
+
+  // domInfo.observeEditorContainers();
 
   return domInfo;
 };
