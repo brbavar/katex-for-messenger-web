@@ -1,4 +1,4 @@
-const scrollbarColor = 'rgba(226, 225, 225, 0.2) transparent';
+// const scrollbarColor = 'rgba(226, 225, 225, 0.2) transparent';
 
 const emptyBubbleMessage =
   'LaTeX for Messenger failed to render the LaTeX, so the message had no visible content. Try again, sender. (Check console for any parsing errors.)';
@@ -15,7 +15,7 @@ const gridChunkNonFeatures = (node) =>
   new Map([[node, [[], new Map([['class', null]])]]]);
 
 export {
-  scrollbarColor,
+  // scrollbarColor,
   emptyBubbleMessage,
   gridChunkFeatures,
   gridChunkNonFeatures,

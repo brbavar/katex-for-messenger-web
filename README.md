@@ -2,8 +2,8 @@
 
 # LaTeX for Messenger
 
-Once upon a time we had Chrome extensions ([1](https://github.com/MALLER-LAGOON/latex-for-facebook), 
-[2](https://github.com/dshynkev/messenger-latex)) that made TeX math rendering possible on Facebook/in Messenger. 
+Once upon a time we had Chrome extensions ([1](https://github.com/MALLER-LAGOON/latex-for-facebook),
+[2](https://github.com/dshynkev/messenger-latex)) that made TeX math rendering possible on Facebook/in Messenger.
 Facebook then [added native support](https://thenextweb.com/news/facebook-messenger-lets-you-write-basic-mathematical-formulae-in-latex)
 for LaTeX to Messenger, making the second of the listed extensions obsolete, if not the first. Sadly, Messenger no longer supports LaTeX. Both of the extensions listed above are now defunct as they were not maintained after LaTeX support was implemented natively in Messenger.
 
@@ -11,7 +11,13 @@ Rather than trying to salvage those old extensions whose development I had no pa
 
 ## Installation
 
-If you use Chrome, Firefox, or Edge, the easiest option is to install via the [Chrome Web Store](https://chromewebstore.google.com/detail/latex-for-messenger/jjfbdmhcinjhlnhcajhdeiaaofkdconk), [Firefox Add-ons](https://addons.mozilla.org/addon/latex-for-messenger/), or [Edge Add-ons](https://microsoftedge.microsoft.com/addons/detail/latex-for-messenger/fgbbmlmmanaeinndjkfkplniaclajcgk). Alternatively, you can [click here](https://github.com/brbavar/katex-for-messenger-web/archive/refs/heads/main.zip) to download the ZIP from GitHub, if you know what to do with it. This latter approach guarantees you get the latest version of the extension, even if that version has yet to be published in the aforementioned stores.
+If you use Chrome, Firefox, or Edge, the easiest option is to install via the [Chrome Web Store](https://chromewebstore.google.com/detail/latex-for-messenger/jjfbdmhcinjhlnhcajhdeiaaofkdconk), [Firefox Add-ons](https://addons.mozilla.org/addon/latex-for-messenger/), or [Edge Add-ons](https://microsoftedge.microsoft.com/addons/detail/latex-for-messenger/fgbbmlmmanaeinndjkfkplniaclajcgk). Alternatively, you can [click here](https://github.com/brbavar/katex-for-messenger-web/archive/refs/heads/main.zip) to download the ZIP from GitHub, if you know what to do with it (see [Build Instructions](#build-instructions)). This latter approach guarantees you get the latest version of the extension, even if that version has yet to be published in the aforementioned stores.
+
+## Build Instructions
+
+[Install the latest version of Node](https://nodejs.org/en/download) for your operating system and architecture.
+
+Navigate to the root of the project. Run `npm install` to install all dependencies the build process requires. Then, if the project contains no `dist` folder, use the command `npm run build`. Otherwise, use `rm -r dist && npm run build` to replace the existing build.
 
 ## Usage
 

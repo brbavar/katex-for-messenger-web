@@ -1,14 +1,16 @@
-import { scrollbarColor } from './config.js';
+// import { scrollbarColor } from './config.js';
 import manifest from './manifest.json';
 
 const injectCss = () => {
   const waitForRuntime = () => {
     const runtime = globalThis.browser?.runtime || globalThis.chrome?.runtime;
+    console.log(`runtime = ${runtime}`);
     if (runtime === undefined) {
       setTimeout(waitForRuntime, 100);
     } else {
       for (const resource of manifest.web_accessible_resources[0].resources) {
         if (resource.endsWith('.css')) {
+          console.log(`appending ${resource} to document head's child list`);
           const css = document.createElement('link');
           css.rel = 'stylesheet';
           css.href = runtime.getURL(resource);
@@ -94,6 +96,7 @@ const makeFit = async (span) => {
     }
 
     const storage = globalThis.browser?.storage || globalThis.chrome?.storage;
+    console.log(`storage = ${storage}`);
     let storedItems = null;
     if (
       storage !== undefined &&
@@ -168,7 +171,42 @@ const makeFit = async (span) => {
         span.style.overflowX = 'scroll';
         span.style.overflowY = 'hidden';
         span.style.scrollbarWidth = 'thin';
-        span.style.scrollbarColor = scrollbarColor;
+        // span.style.scrollbarColor = scrollbarColor;
+        const defaultScrollbarColor = window
+          .getComputedStyle(span)
+          .getPropertyValue('scrollbar-color');
+        if (defaultScrollbarColor === 'auto') {
+          const spanTextColor = window
+            .getComputedStyle(span)
+            .getPropertyValue('color');
+          console.log(`spanTextColor = ${spanTextColor}`);
+
+          span.style.scrollbarColor = `${spanTextColor.substring(
+            0,
+            3
+          )}a${spanTextColor.substring(
+            3,
+            spanTextColor.length - 1
+          )}, 0.4) transparent`;
+        }
+        // else {
+        //   const closingParenPos = defaultScrollbarColor.indexOf(')');
+        //   console.log(`defaultScrollbarColor = ${defaultScrollbarColor}`);
+        //   console.log(`closingParenPos = ${closingParenPos}`);
+        //   if (closingParenPos >= 0) {
+        //     span.style.scrollbarColor = `${defaultScrollbarColor.substring(
+        //       0,
+        //       closingParenPos + 1
+        //     )} transparent`;
+        //   } else {
+        //     const spacePos = defaultScrollbarColor.indexOf(' ');
+        //     console.log(`spacePos = ${spacePos}`);
+        //     span.style.scrollbarColor = `${defaultScrollbarColor.substring(
+        //       0,
+        //       spacePos
+        //     )} transparent`;
+        //   }
+        // }
       }
     }
   }
