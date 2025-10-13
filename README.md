@@ -15,7 +15,7 @@ If you use Chrome, Firefox, or Edge, the easiest option is to install via the [C
 
 ## Build Instructions
 
-[Install the latest version of Node](https://nodejs.org/en/download) for your operating system and architecture.
+[Install the latest (LTS or current) version of Node](https://nodejs.org/en/download) for your operating system and architecture.
 
 Navigate to the root of the project. Run `npm install` to install all dependencies the build process requires. Then, if the project contains no `dist` folder, use the command `npm run build`. Otherwise, use `rm -r dist && npm run build` to replace the existing build.
 

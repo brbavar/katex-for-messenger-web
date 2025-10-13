@@ -1,4 +1,3 @@
-// import { scrollbarColor } from './config.js';
 import manifest from './manifest.json';
 
 const injectCss = () => {
@@ -171,15 +170,15 @@ const makeFit = async (span) => {
         span.style.overflowX = 'scroll';
         span.style.overflowY = 'hidden';
         span.style.scrollbarWidth = 'thin';
-        // span.style.scrollbarColor = scrollbarColor;
+
         const defaultScrollbarColor = window
           .getComputedStyle(span)
           .getPropertyValue('scrollbar-color');
+
         if (defaultScrollbarColor === 'auto') {
           const spanTextColor = window
             .getComputedStyle(span)
             .getPropertyValue('color');
-          console.log(`spanTextColor = ${spanTextColor}`);
 
           span.style.scrollbarColor = `${spanTextColor.substring(
             0,
@@ -189,24 +188,6 @@ const makeFit = async (span) => {
             spanTextColor.length - 1
           )}, 0.4) transparent`;
         }
-        // else {
-        //   const closingParenPos = defaultScrollbarColor.indexOf(')');
-        //   console.log(`defaultScrollbarColor = ${defaultScrollbarColor}`);
-        //   console.log(`closingParenPos = ${closingParenPos}`);
-        //   if (closingParenPos >= 0) {
-        //     span.style.scrollbarColor = `${defaultScrollbarColor.substring(
-        //       0,
-        //       closingParenPos + 1
-        //     )} transparent`;
-        //   } else {
-        //     const spacePos = defaultScrollbarColor.indexOf(' ');
-        //     console.log(`spacePos = ${spacePos}`);
-        //     span.style.scrollbarColor = `${defaultScrollbarColor.substring(
-        //       0,
-        //       spacePos
-        //     )} transparent`;
-        //   }
-        // }
       }
     }
   }
