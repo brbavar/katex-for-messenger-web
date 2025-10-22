@@ -10,6 +10,7 @@ class DomInfo extends DomInfoCore {
   #accountControlsAndSettings = null;
   #chatBoxContainer = null;
   #chatBoxContainerContainer = null;
+  // #gridChunk = null;
   #chatBoxToLabel = new Map();
   #labelToChatBoxObserver = new Map();
 
@@ -298,6 +299,18 @@ class DomInfo extends DomInfoCore {
     }
   }
 
+  // getGridChunk() {
+  //   return this.#gridChunk;
+  // }
+
+  // setGridChunk(chatBubble) {
+  //   this.#gridChunk = findAncestor(
+  //     chatBubble,
+  //     gridChunkFeatures,
+  //     gridChunkNonFeatures
+  //   );
+  // }
+
   markMostRecentMessage(gridChunkSource = this.getChat()) {
     let gridChunkContainer = gridChunkSource.querySelector(
       selector.gridChunkContainer
@@ -331,12 +344,15 @@ class DomInfo extends DomInfoCore {
     waitForMessagesToAppear();
   }
 
-  isNewMessage(bubble) {
+  isNewMessage(bubble /*, gridChunk*/) {
     const gridChunk = findAncestor(
       bubble,
       gridChunkFeatures,
       gridChunkNonFeatures
     );
+    // // gridChunk = findAncestor(bubble, gridChunkFeatures, gridChunkNonFeatures);
+    // console.log(`gridChunk found in isNewMessage:`);
+    // console.log(gridChunk);
     if (gridChunk === null) {
       return false;
     }
@@ -344,6 +360,17 @@ class DomInfo extends DomInfoCore {
     let gridChunkContainer = gridChunk.parentNode;
     const gridChunks = Array.from(gridChunkContainer.children);
     const gridChunkPos = gridChunks.indexOf(gridChunk);
+
+    // this.setGridChunk(bubble);
+    // console.log(`gridChunk found in isNewMessage:`);
+    // console.log(this.getGridChunk());
+    // if (this.getGridChunk() === null) {
+    //   return false;
+    // }
+
+    // let gridChunkContainer = this.getGridChunk().parentNode;
+    // const gridChunks = Array.from(gridChunkContainer.children);
+    // const gridChunkPos = gridChunks.indexOf(this.getGridChunk());
 
     let finalOldMessage = gridChunkContainer.querySelector(
       '.old-messages-end-here'
@@ -360,12 +387,14 @@ class DomInfo extends DomInfoCore {
     return gridChunkPos > finalOldMessagePos;
   }
 
-  waitForCompleteMessage(bubble) {
+  waitForCompleteMessage(bubble /*, gridChunk*/) {
     const txt = bubble.textContent;
     setTimeout(() => {
       if (bubble.textContent !== txt) {
-        this.waitForCompleteMessage(bubble);
+        // console.log(`waiting for complete message...`);
+        this.waitForCompleteMessage(bubble /*, gridChunk*/);
       } else {
+        // console.log(`message complete!`);
         parseParts(bubble);
 
         setTimeout(() => {
@@ -374,8 +403,14 @@ class DomInfo extends DomInfoCore {
             gridChunkFeatures,
             gridChunkNonFeatures
           );
+          // console.log(`gridChunk found in waitForCompleteMessage:`);
+          // console.log(gridChunk);
           if (gridChunk !== null) {
             const gridChunkContainer = gridChunk.parentNode;
+            // console.log(`gridChunk that is accessed in waitForCompleteMessage:`);
+            // console.log(this.getGridChunk());
+            // if (this.getGridChunk() !== null) {
+            //   const gridChunkContainer = this.getGridChunk().parentNode;
             this.markMostRecentMessage(gridChunkContainer);
           }
         }, 8000);

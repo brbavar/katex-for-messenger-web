@@ -11,6 +11,10 @@ const wrapTextNodes = (root, msgPartToTexBounds) => {
         node.parentNode.insertBefore(span, node);
         node.remove();
 
+        // console.log(`span:`);
+        // console.log(span);
+        // console.log(`texBounds:`);
+        // console.log(texBounds);
         msgPartToTexBounds.set(span, texBounds);
       } else {
         wrapTextNodes(node, msgPartToTexBounds);

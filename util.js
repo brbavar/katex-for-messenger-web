@@ -110,11 +110,27 @@ const findAncestor = (node, expectedFeatures, unexpectedFeatures = null) => {
     ancestor !== null &&
     !(has(ancestor, expectedFeatures) && lacks(ancestor, unexpectedFeatures))
   ) {
+    // console.log(`ancestor:`);
+    // console.log(ancestor);
+    // console.log(`ancestor.parentNode:`);
+    // console.log(ancestor.parentNode);
+    // console.log(
+    //   `has(ancestor, expectedFeatures) = ${has(ancestor, expectedFeatures)}`
+    // );
+    // console.log(
+    //   `lacks(ancestor, unexpectedFeatures) = ${lacks(
+    //     ancestor,
+    //     unexpectedFeatures
+    //   )}`
+    // );
     if (ancestor.constructor.name === 'HTMLBodyElement') {
       return null;
     }
     ancestor = ancestor.parentNode;
   }
+
+  // console.log(`returning the following node:`);
+  // console.log(ancestor);
 
   return ancestor;
 };

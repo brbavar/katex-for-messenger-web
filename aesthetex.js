@@ -3,13 +3,11 @@ import manifest from './manifest.json';
 const injectCss = () => {
   const waitForRuntime = () => {
     const runtime = globalThis.browser?.runtime || globalThis.chrome?.runtime;
-    console.log(`runtime = ${runtime}`);
     if (runtime === undefined) {
       setTimeout(waitForRuntime, 100);
     } else {
       for (const resource of manifest.web_accessible_resources[0].resources) {
         if (resource.endsWith('.css')) {
-          console.log(`appending ${resource} to document head's child list`);
           const css = document.createElement('link');
           css.rel = 'stylesheet';
           css.href = runtime.getURL(resource);
@@ -95,7 +93,6 @@ const makeFit = async (span) => {
     }
 
     const storage = globalThis.browser?.storage || globalThis.chrome?.storage;
-    console.log(`storage = ${storage}`);
     let storedItems = null;
     if (
       storage !== undefined &&

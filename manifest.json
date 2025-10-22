@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "LaTeX for Messenger",
-  "version": "5",
+  "version": "5.875",
   "icons": {
     "16": "icon16.png",
     "32": "icon32.png",
@@ -28,7 +28,7 @@
   "permissions": ["storage"],
   "browser_specific_settings": {
     "gecko": {
-      "id": "@katex-for-messenger-web.ben-bavar"
+      "id": "@katex-for-messenger-web-main.ben-bavar"
     }
   }
 }

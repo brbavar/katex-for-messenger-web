@@ -138,6 +138,7 @@ const removeEscapeChars = (msgPart, escapeCharIndices, texBounds = []) => {
 };
 
 const parse = (mapEntry) => {
+  // console.log(`parsing entry`);
   const msgPart = mapEntry[0];
   const texBounds = mapEntry[1];
   const escapeCharIndices = [];
@@ -199,6 +200,8 @@ const parse = (mapEntry) => {
         'span:where(:not(.katex-display) > .katex, .katex-display)'
       )
       .forEach((span) => {
+        // console.log(`let's make this span fit:`);
+        // console.log(span);
         makeFit(span);
         makeCopyable(span);
       });
@@ -222,6 +225,8 @@ const parseParts = (bubble) => {
   }
   let texBoundsFound = false;
   for (const entry of msgPartToTexBounds) {
+    // console.log(`about to parse this entry:`);
+    // console.log(entry);
     parse(entry);
     if (!texBoundsFound && entry[1].length > 0) {
       texBoundsFound = true;
